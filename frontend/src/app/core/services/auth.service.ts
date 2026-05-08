@@ -26,7 +26,7 @@ export class AuthService {
     const username = payload.username.trim().toLowerCase();
     const password = payload.password.trim();
 
-    if (username === 'admin' && password === 'admin') {
+    if (username === 'admin' && password === 'admin123') {
       const response: LoginResponse = { access_token: 'dev-token', token_type: 'bearer' };
       this.storeToken(response.access_token, storage);
       return of(response);
