@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "https://gludsitohackathon5back.glud.org",
+    "target": "http://hackathonback_api:8000",
     "secure": false,
     "changeOrigin": true,
     "pathRewrite": {
