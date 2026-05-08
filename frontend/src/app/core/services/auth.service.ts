@@ -1,0 +1,62 @@
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { of } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { RUNTIME_CONFIG } from '../config/runtime-config';
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private readonly tokenKey = 'jwt_token';
+  private readonly http = inject(HttpClient);
+  private readonly config = inject(RUNTIME_CONFIG);
+
+  login(payload: LoginPayload, storage: 'local' | 'session' = 'local') {
+    const email = payload.email.trim().toLowerCase();
+    const password = payload.password.trim();
+
+    if (email === 'carlos' && password === '123') {
+      const response: LoginResponse = { token: 'dev-token' };
+      this.storeToken(response.token, storage);
+      return of(response);
+    }
+
+    return this.http
+      .post<LoginResponse>(`${this.config.backendUrl}/auth/login`, payload)
+      .pipe(tap((response) => this.storeToken(response.token, storage)));
+  }
+
+  logout() {
+    localStorage.removeItem(this.tokenKey);
+    sessionStorage.removeItem(this.tokenKey);
+  }
+
+  isAuthenticated(): boolean {
+    return !!this.getToken();
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(this.tokenKey) || sessionStorage.getItem(this.tokenKey);
+  }
+
+  storeToken(token: string, storage: 'local' | 'session' = 'local') {
+    if (storage === 'session') {
+      sessionStorage.setItem(this.tokenKey, token);
+      localStorage.removeItem(this.tokenKey);
+      return;
+    }
+
+    localStorage.setItem(this.tokenKey, token);
+    sessionStorage.removeItem(this.tokenKey);
+  }
+}

@@ -1,11 +1,3 @@
 :host {
   display: block;
 }
-
-.status-dot.connected {
-  background: #28a745;
-}
-
-.status-dot:not(.connected) {
-  background: #dc3545;
-}

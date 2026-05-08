@@ -1,0 +1,144 @@
+<section class="grid gap-6">
+  <div class="panel rounded-2xl p-6">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <p class="text-xs uppercase tracking-[0.3em] text-neon-400">Dashboard</p>
+        <h2 class="text-2xl font-semibold text-slate-100">Terminal Command Center</h2>
+        <p class="mt-1 text-sm text-slate-400">Datos en vivo y monitoreo operacional.</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <button
+          class="rounded-lg border px-4 py-2 text-xs font-semibold uppercase tracking-widest transition"
+          [class.border-neon-500]="activeTab === 'records'"
+          [class.text-neon-300]="activeTab === 'records'"
+          [class.border-slate-700]="activeTab !== 'records'"
+          [class.text-slate-400]="activeTab !== 'records'"
+          (click)="setTab('records')"
+        >
+          Registros
+        </button>
+        <button
+          class="rounded-lg border px-4 py-2 text-xs font-semibold uppercase tracking-widest transition"
+          [class.border-violet-500]="activeTab === 'analytics'"
+          [class.text-violet-200]="activeTab === 'analytics'"
+          [class.border-slate-700]="activeTab !== 'analytics'"
+          [class.text-slate-400]="activeTab !== 'analytics'"
+          (click)="setTab('analytics')"
+        >
+          Graficas
+        </button>
+        <button
+          class="rounded-lg border border-violet-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-violet-200 transition hover:bg-violet-500/20"
+          (click)="logout()"
+        >
+          Cerrar sesion
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-3">
+    <div class="panel rounded-xl p-5">
+      <p class="text-xs uppercase tracking-widest text-slate-400">Usuarios activos</p>
+      <p class="mt-3 text-3xl font-semibold text-neon-400">{{ snapshot.activeUsers }}</p>
+      <p class="text-xs text-slate-500">Ultimos 15 minutos</p>
+    </div>
+    <div class="panel rounded-xl p-5">
+      <p class="text-xs uppercase tracking-widest text-slate-400">Jobs procesados</p>
+      <p class="mt-3 text-3xl font-semibold text-slate-100">{{ snapshot.jobsProcessed }}</p>
+      <p class="text-xs text-slate-500">Total hoy</p>
+    </div>
+    <div class="panel rounded-xl p-5">
+      <p class="text-xs uppercase tracking-widest text-slate-400">Alertas</p>
+      <p class="mt-3 text-3xl font-semibold text-violet-400">{{ snapshot.alerts }}</p>
+      <p class="text-xs text-slate-500">Requieren revision</p>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'records'" class="panel rounded-2xl p-6">
+    <div class="flex items-center justify-between">
+      <h3 class="text-sm uppercase tracking-[0.25em] text-neon-400">Registros recientes</h3>
+      <div class="flex items-center gap-3 text-xs text-slate-500">
+        <button class="rounded border border-slate-700 px-3 py-1 text-[10px] uppercase tracking-widest" (click)="loadRecords()">
+          Recargar
+        </button>
+        <span>{{ records.length }} filas</span>
+      </div>
+    </div>
+    <div class="mt-5 overflow-auto">
+      <div *ngIf="recordsLoading" class="text-sm text-slate-400">Cargando registros...</div>
+      <div *ngIf="recordsError" class="text-sm text-red-300">{{ recordsError }}</div>
+      <table *ngIf="!recordsLoading && recordColumns.length" class="min-w-full text-xs text-slate-200">
+        <thead class="border-b border-slate-700/60 text-[10px] uppercase tracking-widest text-slate-400">
+          <tr>
+            <th *ngFor="let column of recordColumns" class="px-3 py-3 text-left whitespace-nowrap">
+              {{ formatColumn(column) }}
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800">
+          <tr *ngFor="let record of records" class="hover:bg-slate-900/60">
+            <td *ngFor="let column of recordColumns" class="px-3 py-3 whitespace-nowrap text-slate-300">
+              {{ record[column] !== null && record[column] !== undefined ? record[column] : '-' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="!recordsLoading && !recordColumns.length" class="text-sm text-slate-400">
+        No hay datos para mostrar.
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'analytics'" class="grid gap-6">
+    <div class="grid gap-6 lg:grid-cols-2">
+      <div class="panel rounded-2xl p-6">
+        <h3 class="text-sm uppercase tracking-[0.25em] text-neon-400">Eventos por dia</h3>
+        <div class="mt-5 h-64">
+          <canvas
+            baseChart
+            [data]="barChartData"
+            [options]="barChartOptions"
+            chartType="bar"
+          ></canvas>
+        </div>
+      </div>
+      <div class="panel rounded-2xl p-6">
+        <h3 class="text-sm uppercase tracking-[0.25em] text-violet-400">Throughput</h3>
+        <div class="mt-5 h-64">
+          <canvas
+            baseChart
+            [data]="lineChartData"
+            [options]="lineChartOptions"
+            chartType="line"
+          ></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-3">
+      <div class="panel rounded-2xl p-6">
+        <h3 class="text-sm uppercase tracking-[0.25em] text-slate-200">Estado global</h3>
+        <div class="mt-5 h-56">
+          <canvas
+            baseChart
+            [data]="doughnutChartData"
+            [options]="doughnutChartOptions"
+            chartType="doughnut"
+          ></canvas>
+        </div>
+      </div>
+      <div class="panel rounded-2xl p-6 lg:col-span-2">
+        <h3 class="text-sm uppercase tracking-[0.25em] text-neon-400">Latencia media</h3>
+        <div class="mt-5 h-56">
+          <canvas
+            baseChart
+            [data]="latencyChartData"
+            [options]="latencyChartOptions"
+            chartType="line"
+          ></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

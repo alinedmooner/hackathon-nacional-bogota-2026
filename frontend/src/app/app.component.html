@@ -1,48 +1,31 @@
-<div class="container">
-  <h1>{{ title }}</h1>
-  
-  <div class="status-bar">
-    <div class="status-indicator">
-      <div class="status-dot" [class.connected]="apiStatus === 'connected'"></div>
-      <span>API: {{ apiStatus }}</span>
+<div class="app-shell">
+  <header class="px-6 py-5 md:px-10">
+    <div class="mx-auto flex max-w-6xl items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-lg border border-neon-500/30 bg-terminal-800/80 neon-ring"></div>
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-neon-400">System Shell</p>
+          <h1 class="text-lg font-semibold text-slate-100">AI Analyzer Console</h1>
+        </div>
+      </div>
+      <div class="hidden md:flex items-center gap-4 text-xs text-slate-400">
+        <span>v17</span>
+        <span class="h-1.5 w-1.5 rounded-full bg-neon-400"></span>
+        <span>secure</span>
+      </div>
     </div>
-    <button class="btn btn-primary" (click)="refresh()">Actualizar</button>
-  </div>
+  </header>
 
-  <div *ngIf="loading" class="loading">Cargando resultados...</div>
-  
-  <div *ngIf="error" class="error">{{ error }}</div>
+  <main class="flex-1 px-6 pb-10 md:px-10">
+    <div class="mx-auto max-w-6xl">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
 
-  <div *ngIf="results.length > 0">
-    <table class="results-table">
-      <thead>
-        <tr>
-          <th>Timestamp</th>
-          <th>Tipo</th>
-          <th>Brightness</th>
-          <th>Entropy</th>
-          <th>Confianza ML</th>
-          <th>Clase</th>
-          <th>Status</th>
-          <th>Time (ms)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let result of results">
-          <td>{{ result.timestamp | date:'short' }}</td>
-          <td>{{ result.type }}</td>
-          <td>{{ result.image_features?.brightness | number:'1.2-2' }}</td>
-          <td>{{ result.image_features?.entropy | number:'1.3-3' }}</td>
-          <td>{{ result.ml_predictions?.confidence | percent }}</td>
-          <td>{{ result.ml_predictions?.predicted_class }}</td>
-          <td>{{ result.status }}</td>
-          <td>{{ result.processing_time_ms }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div *ngIf="!loading && results.length === 0" class="loading">
-    No hay resultados disponibles
-  </div>
+  <footer class="px-6 pb-8 md:px-10 text-xs text-slate-500">
+    <div class="mx-auto flex max-w-6xl items-center justify-between">
+      <span>Session: terminal-ui</span>
+      <span class="text-violet-400">Encrypted telemetry</span>
+    </div>
+  </footer>
 </div>
