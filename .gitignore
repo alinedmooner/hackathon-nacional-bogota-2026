@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Docker
+*.dockerignore
+.docker/
+
+# MongoDB data (volumen local)
+mongo_data/
+
+# Entornos y credenciales
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.crt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Engram (memoria local)
+.engram/
+engram_data/
+
+# Angular build
+frontend/dist/
+frontend/.angular/
+
+# Logs
+*.log
+opencode.json
+engram*
