@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     jwt_expire_minutes: int = 60
 
     # CORS — valor en .env como string separado por comas
-    cors_origins: str = "http://localhost:4200,http://localhost:3000"
+    cors_origins: str = "*"
 
     def get_cors_origins(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

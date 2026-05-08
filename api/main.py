@@ -14,7 +14,11 @@ from routes.analytics import router as analytics_router
 from routes.analytics_paso1 import router as analytics_paso1_router
 from security import get_current_user
 
-app = FastAPI(title="SECOP API", version="1.0.0")
+app = FastAPI(
+    title="SECOP API",
+    version="1.0.0",
+    description="API para consultar contratos y archivos SECOP II con JWT.",
+)
 
 # ------------------------------------------------------------------ #
 # CORS                                                                 #
@@ -53,11 +57,11 @@ def get_db():
 # Rutas públicas                                                       #
 # ------------------------------------------------------------------ #
 
-@app.get("/")
+@app.get("/", summary="Root", description="Estado basico del servicio.")
 def root():
     return {"status": "ok", "service": "SECOP API", "version": "1.0.0"}
 
-@app.get("/health")
+@app.get("/health", summary="Healthcheck", description="Verifica salud del API y MongoDB.")
 def health():
     try:
         get_db().command("ping")
@@ -71,7 +75,12 @@ def health():
 # Rutas protegidas (requieren JWT)                                     #
 # ------------------------------------------------------------------ #
 
-@app.get("/results", response_model=List[Dict[str, Any]])
+@app.get(
+    "/results",
+    response_model=List[Dict[str, Any]],
+    summary="Resultados del analizador",
+    description="Retorna resultados recientes almacenados en MongoDB. Requiere JWT.",
+)
 def get_results(limit: int = 10, current_user: dict = Depends(get_current_user)):
     db = get_db()
     results = list(db["results"].find().sort("timestamp", -1).limit(limit))
@@ -81,6 +90,10 @@ def get_results(limit: int = 10, current_user: dict = Depends(get_current_user))
             r["timestamp"] = r["timestamp"].isoformat()
     return results
 
-@app.get("/me")
+@app.get(
+    "/me",
+    summary="Perfil actual",
+    description="Retorna el payload decodificado del JWT. Requiere JWT.",
+)
 def me(current_user: dict = Depends(get_current_user)):
     return current_user

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from security import create_access_token, hash_password, verify_password
 
@@ -16,15 +16,23 @@ FAKE_USERS = {
 
 
 class LoginRequest(BaseModel):
-    username: str
-    password: str
+    username: str = Field(..., examples=["admin"])
+    password: str = Field(..., examples=["admin123"])
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+    summary="Iniciar sesion",
+    description="Valida credenciales y entrega un JWT.",
+    responses={
+        401: {"description": "Credenciales incorrectas"}
+    },
+)
 def login(body: LoginRequest):
     user = FAKE_USERS.get(body.username)
 

@@ -25,7 +25,17 @@
           [class.text-slate-400]="activeTab !== 'analytics'"
           (click)="setTab('analytics')"
         >
-          Graficas
+          Contratos
+        </button>
+        <button
+          class="rounded-lg border px-4 py-2 text-xs font-semibold uppercase tracking-widest transition"
+          [class.border-emerald-500]="activeTab === 'archivos'"
+          [class.text-emerald-200]="activeTab === 'archivos'"
+          [class.border-slate-700]="activeTab !== 'archivos'"
+          [class.text-slate-400]="activeTab !== 'archivos'"
+          (click)="setTab('archivos')"
+        >
+          Archivos
         </button>
         <button
           class="rounded-lg border border-violet-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-violet-200 transition hover:bg-violet-500/20"
@@ -37,24 +47,26 @@
     </div>
   </div>
 
+  <!-- ═══════ SNAPSHOT CARDS ═══════ -->
   <div class="grid gap-4 md:grid-cols-3">
     <div class="panel rounded-xl p-5">
-      <p class="text-xs uppercase tracking-widest text-slate-400">Usuarios activos</p>
-      <p class="mt-3 text-3xl font-semibold text-neon-400">{{ snapshot.activeUsers }}</p>
-      <p class="text-xs text-slate-500">Ultimos 15 minutos</p>
+      <p class="text-xs uppercase tracking-widest text-slate-400">Total contratos</p>
+      <p class="mt-3 text-3xl font-semibold text-neon-400">{{ snapshot.totalContratos | number }}</p>
+      <p class="text-xs text-slate-500">SECOP II</p>
     </div>
     <div class="panel rounded-xl p-5">
-      <p class="text-xs uppercase tracking-widest text-slate-400">Jobs procesados</p>
-      <p class="mt-3 text-3xl font-semibold text-slate-100">{{ snapshot.jobsProcessed }}</p>
-      <p class="text-xs text-slate-500">Total hoy</p>
+      <p class="text-xs uppercase tracking-widest text-slate-400">Contratos Pyme</p>
+      <p class="mt-3 text-3xl font-semibold text-slate-100">{{ snapshot.contratosPyme | number }}</p>
+      <p class="text-xs text-slate-500">Empresas Pyme</p>
     </div>
     <div class="panel rounded-xl p-5">
-      <p class="text-xs uppercase tracking-widest text-slate-400">Alertas</p>
-      <p class="mt-3 text-3xl font-semibold text-violet-400">{{ snapshot.alerts }}</p>
-      <p class="text-xs text-slate-500">Requieren revision</p>
+      <p class="text-xs uppercase tracking-widest text-slate-400">Pagos adelantados</p>
+      <p class="mt-3 text-3xl font-semibold text-violet-400">{{ snapshot.pagosAdelantados | number }}</p>
+      <p class="text-xs text-slate-500">Con anticipo habilitado</p>
     </div>
   </div>
 
+  <!-- ═══════ TAB: REGISTROS ═══════ -->
   <div *ngIf="activeTab === 'records'" class="panel min-w-0 overflow-hidden rounded-2xl p-6">
     <div class="flex items-center justify-between">
       <h3 class="text-sm uppercase tracking-[0.25em] text-neon-400">Contratos SECOP II</h3>
@@ -106,7 +118,7 @@
         Anterior
       </button>
       <span class="text-xs text-slate-400">
-        Página {{ currentPage }} de {{ totalPages }}
+        Pagina {{ currentPage }} de {{ totalPages }}
       </span>
       <button
         class="rounded border border-slate-700 px-4 py-2 text-xs uppercase tracking-widest text-slate-400 transition hover:border-neon-500 hover:text-neon-300 disabled:opacity-30 disabled:hover:border-slate-700 disabled:hover:text-slate-400"
@@ -118,55 +130,221 @@
     </div>
   </div>
 
+  <!-- ═══════ TAB: CONTRATOS (Analytics Paso 2) ═══════ -->
   <div *ngIf="activeTab === 'analytics'" class="grid gap-6">
+
+    <!-- Charts principales -->
     <div class="grid gap-6 lg:grid-cols-2">
       <div class="panel rounded-2xl p-6">
-        <h3 class="text-sm uppercase tracking-[0.25em] text-neon-400">Eventos por dia</h3>
+        <h3 class="text-sm uppercase tracking-[0.25em] text-neon-400">Top Departamentos</h3>
         <div class="mt-5 h-64">
-          <canvas
-            baseChart
-            [data]="barChartData"
-            [options]="barChartOptions"
-            chartType="bar"
-          ></canvas>
+          <canvas baseChart [data]="barChartData" [options]="barChartOptions" chartType="bar"></canvas>
         </div>
       </div>
       <div class="panel rounded-2xl p-6">
-        <h3 class="text-sm uppercase tracking-[0.25em] text-violet-400">Throughput</h3>
+        <h3 class="text-sm uppercase tracking-[0.25em] text-violet-400">Tipos de Contrato</h3>
         <div class="mt-5 h-64">
-          <canvas
-            baseChart
-            [data]="lineChartData"
-            [options]="lineChartOptions"
-            chartType="line"
-          ></canvas>
+          <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" chartType="line"></canvas>
         </div>
       </div>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-3">
       <div class="panel rounded-2xl p-6">
-        <h3 class="text-sm uppercase tracking-[0.25em] text-slate-200">Estado global</h3>
+        <h3 class="text-sm uppercase tracking-[0.25em] text-slate-200">Brecha de Genero</h3>
         <div class="mt-5 h-56">
-          <canvas
-            baseChart
-            [data]="doughnutChartData"
-            [options]="doughnutChartOptions"
-            chartType="doughnut"
-          ></canvas>
+          <canvas baseChart [data]="doughnutChartData" [options]="doughnutChartOptions" chartType="doughnut"></canvas>
         </div>
       </div>
       <div class="panel rounded-2xl p-6 lg:col-span-2">
-        <h3 class="text-sm uppercase tracking-[0.25em] text-neon-400">Latencia media</h3>
+        <h3 class="text-sm uppercase tracking-[0.25em] text-neon-400">Modalidades de Contratacion</h3>
         <div class="mt-5 h-56">
-          <canvas
-            baseChart
-            [data]="latencyChartData"
-            [options]="latencyChartOptions"
-            chartType="line"
-          ></canvas>
+          <canvas baseChart [data]="latencyChartData" [options]="latencyChartOptions" chartType="line"></canvas>
         </div>
       </div>
     </div>
+
+    <!-- Top Entidades por Dinero -->
+    <div class="grid gap-6 lg:grid-cols-2">
+      <div class="panel rounded-2xl p-6">
+        <h3 class="text-sm uppercase tracking-[0.25em] text-violet-400">Top Entidades por Valor</h3>
+        <div class="mt-5 h-64">
+          <canvas baseChart [data]="entidadesChartData" [options]="entidadesChartOptions" chartType="bar"></canvas>
+        </div>
+      </div>
+
+      <!-- Indicadores extendidos -->
+      <div class="grid gap-4" *ngIf="paso2Extended">
+        <div class="grid gap-4 grid-cols-2">
+          <div class="panel rounded-xl p-5">
+            <p class="text-xs uppercase tracking-widest text-slate-400">Variables</p>
+            <p class="mt-2 text-2xl font-semibold text-neon-400">{{ paso2Extended.totalVariables }}</p>
+            <p class="text-xs text-slate-500">Campos en dataset</p>
+          </div>
+          <div class="panel rounded-xl p-5">
+            <p class="text-xs uppercase tracking-widest text-slate-400">Registros 2025</p>
+            <p class="mt-2 text-2xl font-semibold text-slate-100">{{ paso2Extended.registros2025 | number }}</p>
+            <p class="text-xs text-slate-500">Contratos firmados</p>
+          </div>
+          <div class="panel rounded-xl p-5">
+            <p class="text-xs uppercase tracking-widest text-slate-400">Obl. Ambientales</p>
+            <p class="mt-2 text-2xl font-semibold text-emerald-400">{{ paso2Extended.pctObligacionesAmbientales }}%</p>
+            <p class="text-xs text-slate-500">{{ paso2Extended.obligacionesAmbientales | number }} contratos</p>
+          </div>
+          <div class="panel rounded-xl p-5">
+            <p class="text-xs uppercase tracking-widest text-slate-400">Pareto 80/20</p>
+            <p class="mt-2 text-2xl font-semibold" [class.text-neon-400]="paso2Extended.paretoSeCumple" [class.text-red-400]="!paso2Extended.paretoSeCumple">
+              {{ paso2Extended.paretoSeCumple ? 'Si' : 'No' }}
+            </p>
+            <p class="text-xs text-slate-500">Top 20% concentra {{ paso2Extended.paretoPctTop20 }}%</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anomalias Financieras -->
+    <div class="panel rounded-2xl p-6" *ngIf="anomaliasFinancieras.length">
+      <h3 class="text-sm uppercase tracking-[0.25em] text-red-400">Anomalias Financieras (IQR)</h3>
+      <p class="mt-1 text-xs text-slate-500">
+        Media: {{ formatCurrency(anomaliasEstadisticas.media) }} | Umbral: {{ formatCurrency(anomaliasEstadisticas.umbral_anomalia) }}
+      </p>
+      <div class="mt-4 overflow-x-auto">
+        <table class="w-full text-xs text-slate-200">
+          <thead class="border-b border-slate-700/60 text-[10px] uppercase tracking-widest text-slate-400">
+            <tr>
+              <th class="px-3 py-2 text-left">#</th>
+              <th class="px-3 py-2 text-left">Entidad</th>
+              <th class="px-3 py-2 text-left">Tipo</th>
+              <th class="px-3 py-2 text-left">Estado</th>
+              <th class="px-3 py-2 text-right">Valor</th>
+              <th class="px-3 py-2 text-left">Sustento</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800">
+            <tr *ngFor="let a of anomaliasFinancieras" class="hover:bg-slate-900/60">
+              <td class="px-3 py-2 text-red-400 font-semibold">{{ a.posicion }}</td>
+              <td class="px-3 py-2 max-w-[16rem] truncate">{{ a.entidad }}</td>
+              <td class="px-3 py-2 whitespace-nowrap">{{ a.tipo }}</td>
+              <td class="px-3 py-2 whitespace-nowrap">{{ a.estado }}</td>
+              <td class="px-3 py-2 text-right font-mono text-red-300">{{ formatCurrency(a.valor) }}</td>
+              <td class="px-3 py-2 max-w-[20rem] text-slate-400 truncate">{{ a.sustento }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Anomalias Tipos de Datos -->
+    <div class="panel rounded-2xl p-6" *ngIf="anomaliasTiposDatos.length">
+      <h3 class="text-sm uppercase tracking-[0.25em] text-amber-400">Anomalias en Tipos de Datos</h3>
+      <div class="mt-4 overflow-x-auto">
+        <table class="w-full text-xs text-slate-200">
+          <thead class="border-b border-slate-700/60 text-[10px] uppercase tracking-widest text-slate-400">
+            <tr>
+              <th class="px-3 py-2 text-left">Campo</th>
+              <th class="px-3 py-2 text-left">Almacenado como</th>
+              <th class="px-3 py-2 text-left">Deberia ser</th>
+              <th class="px-3 py-2 text-left">Problema</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800">
+            <tr *ngFor="let a of anomaliasTiposDatos" class="hover:bg-slate-900/60">
+              <td class="px-3 py-2 font-mono text-amber-300">{{ a.campo }}</td>
+              <td class="px-3 py-2 text-red-300">{{ a.tipo_almacenado }}</td>
+              <td class="px-3 py-2 text-emerald-300">{{ a.tipo_correcto }}</td>
+              <td class="px-3 py-2 max-w-[24rem] text-slate-400">{{ a.problema }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ TAB: ARCHIVOS (Analytics Paso 1) ═══════ -->
+  <div *ngIf="activeTab === 'archivos'" class="grid gap-6">
+
+    <div *ngIf="!paso1Stats" class="text-sm text-slate-400">Cargando datos de archivos...</div>
+
+    <ng-container *ngIf="paso1Stats">
+      <!-- Cards principales -->
+      <div class="grid gap-4 md:grid-cols-4">
+        <div class="panel rounded-xl p-5">
+          <p class="text-xs uppercase tracking-widest text-slate-400">Total Archivos</p>
+          <p class="mt-2 text-2xl font-semibold text-emerald-400">{{ paso1Stats.totalRegistros | number }}</p>
+          <p class="text-xs text-slate-500">Registros en dataset</p>
+        </div>
+        <div class="panel rounded-xl p-5">
+          <p class="text-xs uppercase tracking-widest text-slate-400">Columnas</p>
+          <p class="mt-2 text-2xl font-semibold text-slate-100">{{ paso1Stats.totalColumnas }}</p>
+          <p class="text-xs text-slate-500">Variables disponibles</p>
+        </div>
+        <div class="panel rounded-xl p-5">
+          <p class="text-xs uppercase tracking-widest text-slate-400">Nulos Descripcion</p>
+          <p class="mt-2 text-2xl font-semibold text-amber-400">{{ paso1Stats.pctNulosDescripcion }}%</p>
+          <p class="text-xs text-slate-500">{{ paso1Stats.nulosDescripcion | number }} registros</p>
+        </div>
+        <div class="panel rounded-xl p-5">
+          <p class="text-xs uppercase tracking-widest text-slate-400">Nulos Proceso</p>
+          <p class="mt-2 text-2xl font-semibold text-amber-400">{{ paso1Stats.pctNulosProceso }}%</p>
+          <p class="text-xs text-slate-500">{{ paso1Stats.nulosProceso | number }} registros</p>
+        </div>
+      </div>
+
+      <!-- Stats de tamano de archivo -->
+      <div class="panel rounded-2xl p-6">
+        <h3 class="text-sm uppercase tracking-[0.25em] text-emerald-400">Estadisticas de Tamano de Archivo</h3>
+        <div class="mt-4 grid gap-4 md:grid-cols-4">
+          <div class="rounded-xl bg-slate-800/50 p-4">
+            <p class="text-xs uppercase tracking-widest text-slate-400">Maximo</p>
+            <p class="mt-2 text-xl font-semibold text-slate-100">{{ formatBytes(paso1Stats.tamanoMax) }}</p>
+          </div>
+          <div class="rounded-xl bg-slate-800/50 p-4">
+            <p class="text-xs uppercase tracking-widest text-slate-400">Minimo</p>
+            <p class="mt-2 text-xl font-semibold text-slate-100">{{ formatBytes(paso1Stats.tamanoMin) }}</p>
+          </div>
+          <div class="rounded-xl bg-slate-800/50 p-4">
+            <p class="text-xs uppercase tracking-widest text-slate-400">Media</p>
+            <p class="mt-2 text-xl font-semibold text-emerald-400">{{ formatBytes(paso1Stats.tamanoMedia) }}</p>
+          </div>
+          <div class="rounded-xl bg-slate-800/50 p-4">
+            <p class="text-xs uppercase tracking-widest text-slate-400">Mediana</p>
+            <p class="mt-2 text-xl font-semibold text-emerald-400">{{ formatBytes(paso1Stats.tamanoMediana) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rango de fechas -->
+      <div class="panel rounded-2xl p-6">
+        <h3 class="text-sm uppercase tracking-[0.25em] text-emerald-400">Rango de Fecha de Carga</h3>
+        <div class="mt-4 grid gap-4 md:grid-cols-3">
+          <div class="rounded-xl bg-slate-800/50 p-4">
+            <p class="text-xs uppercase tracking-widest text-slate-400">Fecha mas antigua</p>
+            <p class="mt-2 text-lg font-semibold text-slate-100">{{ paso1Stats.fechaMin || '-' }}</p>
+          </div>
+          <div class="rounded-xl bg-slate-800/50 p-4">
+            <p class="text-xs uppercase tracking-widest text-slate-400">Fecha mas reciente</p>
+            <p class="mt-2 text-lg font-semibold text-slate-100">{{ paso1Stats.fechaMax || '-' }}</p>
+          </div>
+          <div class="rounded-xl bg-slate-800/50 p-4">
+            <p class="text-xs uppercase tracking-widest text-slate-400">Rango total</p>
+            <p class="mt-2 text-lg font-semibold text-emerald-400">{{ paso1Stats.rangoTexto || '-' }}</p>
+            <p *ngIf="paso1Stats.rangoDias" class="text-xs text-slate-500">{{ paso1Stats.rangoDias | number }} dias</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de columnas -->
+      <div class="panel rounded-2xl p-6">
+        <h3 class="text-sm uppercase tracking-[0.25em] text-emerald-400">Columnas del Dataset</h3>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <span
+            *ngFor="let col of paso1Stats.columnas"
+            class="rounded-lg bg-slate-800/60 px-3 py-1.5 text-xs font-mono text-slate-300"
+          >
+            {{ col }}
+          </span>
+        </div>
+      </div>
+    </ng-container>
   </div>
 </section>

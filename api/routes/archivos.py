@@ -3,18 +3,29 @@ from math import ceil
 from fastapi import APIRouter, Depends, Query
 
 from datasets import ArchivosDataset
+from models.archivo import Archivo
+from models.pagination import PaginatedResponse
 from security import get_current_user
 from soql_query import SoQLQuery
 
 router = APIRouter(prefix="/archivos", tags=["archivos"])
 
 
-@router.get("")
+@router.get(
+    "",
+    summary="Listar archivos SECOP II",
+    description=(
+        "Retorna archivos paginados desde SECOP II. "
+        "Permite filtrar por extension o entidad. Requiere JWT."
+    ),
+    response_model=PaginatedResponse[Archivo],
+    response_description="Listado paginado de archivos",
+)
 def listar_archivos(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=1000),
     extension: str | None = Query(None, description="Ej: pdf, xlsx, docx"),
-    entidad: str | None = Query(None),
+    entidad: str | None = Query(None, description="Ej: Alcaldia de Medellin"),
     current_user: dict = Depends(get_current_user),
 ):
     base = SoQLQuery(ArchivosDataset.ID)

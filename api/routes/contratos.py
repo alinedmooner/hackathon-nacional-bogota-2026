@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional
 from fastapi import APIRouter, Depends, Query
 
 from datasets import ContratosDataset
+from models.contrato import Contrato
 from models.pagination import PaginatedResponse
 from security import get_current_user
 from soql_query import SoQLQuery
@@ -11,12 +12,21 @@ from soql_query import SoQLQuery
 router = APIRouter(prefix="/contratos", tags=["contratos"])
 
 
-@router.get("")
+@router.get(
+    "",
+    summary="Listar contratos SECOP II",
+    description=(
+        "Retorna contratos paginados desde SECOP II. "
+        "Permite filtrar por estado o departamento. Requiere JWT."
+    ),
+    response_model=PaginatedResponse[Contrato],
+    response_description="Listado paginado de contratos",
+)
 def listar_contratos(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=1000),
     estado: str | None = Query(None, description="Ej: En ejecución, Cerrado"),
-    departamento: str | None = Query(None),
+    departamento: str | None = Query(None, description="Ej: Antioquia, Cundinamarca"),
     current_user: dict = Depends(get_current_user),
 ):
     base = SoQLQuery(ContratosDataset.ID)
