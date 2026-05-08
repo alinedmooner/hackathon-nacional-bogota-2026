@@ -1,13 +1,23 @@
-<section class="panel neon-ring mx-auto mt-6 w-full max-w-md rounded-2xl p-6 md:p-8">
+<section
+  class="panel neon-ring mx-auto mt-6 w-full max-w-md rounded-2xl p-6 md:p-8"
+>
   <div class="mb-6">
-    <p class="text-xs uppercase tracking-[0.35em] text-violet-400">GLUD Access</p>
-    <h2 class="text-2xl font-semibold text-slate-100">Hackathon 5.9 Colombia</h2>
-    <p class="mt-2 text-sm text-slate-400">Accede con tu JWT para entrar al dashboard GLUD.</p>
+    <p class="text-xs uppercase tracking-[0.35em] text-violet-400">
+      GLUD Access
+    </p>
+    <h2 class="text-2xl font-semibold text-slate-100">
+      Hackathon 5.9 Colombia
+    </h2>
+    <p class="mt-2 text-sm text-slate-400">
+      Accede con tu JWT para entrar al dashboard GLUD.
+    </p>
   </div>
 
   <form class="space-y-5" [formGroup]="form" (ngSubmit)="submit()">
     <div>
-      <label class="text-xs uppercase tracking-widest text-slate-400">Usuario</label>
+      <label class="text-xs uppercase tracking-widest text-slate-400"
+        >Usuario</label
+      >
       <input
         class="mt-2 w-full rounded-lg border border-slate-700 bg-terminal-900/80 px-4 py-3 text-sm text-slate-100 focus:border-neon-400 focus:outline-none"
         type="text"
@@ -17,7 +27,9 @@
     </div>
 
     <div>
-      <label class="text-xs uppercase tracking-widest text-slate-400">Password</label>
+      <label class="text-xs uppercase tracking-widest text-slate-400"
+        >Password</label
+      >
       <input
         class="mt-2 w-full rounded-lg border border-slate-700 bg-terminal-900/80 px-4 py-3 text-sm text-slate-100 focus:border-neon-400 focus:outline-none"
         type="password"
@@ -27,7 +39,11 @@
     </div>
 
     <label class="flex items-center gap-3 text-xs text-slate-400">
-      <input class="h-4 w-4 accent-neon-400" type="checkbox" formControlName="remember" />
+      <input
+        class="h-4 w-4 accent-neon-400"
+        type="checkbox"
+        formControlName="remember"
+      />
       Recordar sesion en este dispositivo
     </label>
 
@@ -36,17 +52,22 @@
       class="w-full rounded-lg bg-neon-500 px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-neon-400"
       [disabled]="loading"
     >
-      {{ loading ? 'Conectando...' : 'Entrar al sistema' }}
+      {{ loading ? "Conectando..." : "Entrar al sistema" }}
     </button>
 
-    <p *ngIf="error" class="rounded-lg border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-200">
+    <p
+      *ngIf="error"
+      class="rounded-lg border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-200"
+    >
       {{ error }}
     </p>
   </form>
 
   <div class="mt-6 grid gap-4">
     <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-      <p class="text-[0.65rem] uppercase tracking-[0.3em] text-slate-400">Credenciales demo</p>
+      <p class="text-[0.65rem] uppercase tracking-[0.3em] text-slate-400">
+        Credenciales demo
+      </p>
       <p class="mt-2 text-sm text-slate-200">
         Usuario: <span class="font-semibold text-neon-400">admin</span>
       </p>
@@ -56,7 +77,9 @@
     </div>
 
     <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-      <p class="text-[0.65rem] uppercase tracking-[0.3em] text-slate-400">Seguridad</p>
+      <p class="text-[0.65rem] uppercase tracking-[0.3em] text-slate-400">
+        Seguridad
+      </p>
       <p class="mt-2 text-sm text-slate-200">
         Acceso protegido con JWT (Bearer) y tokens con expiracion configurada.
       </p>
@@ -66,20 +89,28 @@
     </div>
 
     <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-      <p class="text-[0.65rem] uppercase tracking-[0.3em] text-slate-400">Arquitectura</p>
+      <p class="text-[0.65rem] uppercase tracking-[0.3em] text-slate-400">
+        Arquitectura
+      </p>
       <p class="mt-2 text-sm text-slate-200">Angular 17 en el frontend.</p>
       <p class="text-sm text-slate-200">Python + FastAPI en el backend.</p>
       <p class="text-sm text-slate-200">MongoDB como base de datos.</p>
-      <p class="text-sm text-slate-400">Conexion con IA para analitica SECOP.</p>
+      <p class="text-sm text-slate-400">
+        Conexion con IA para analitica SECOP.
+      </p>
     </div>
   </div>
 
   <div class="mt-6 rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-    <p class="text-[0.65rem] uppercase tracking-[0.3em] text-slate-400">Backend activo</p>
-    <p class="mt-2 break-all text-sm font-semibold text-slate-100">{{ backendUrl }}</p>
+    <p class="text-[0.65rem] uppercase tracking-[0.3em] text-slate-400">
+      Backend activo
+    </p>
+    <p class="mt-2 break-all text-sm font-semibold text-slate-100">
+      {{ backendUrl }}
+    </p>
     <a
       class="mt-2 inline-flex items-center gap-2 text-xs font-semibold text-neon-400 hover:text-neon-300"
-      [href]="docsUrl"
+      [href]="'https://gludsitohackathon5back.glud.org/docs'"
       target="_blank"
       rel="noopener"
     >
