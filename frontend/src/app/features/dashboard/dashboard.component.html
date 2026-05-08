@@ -38,6 +38,16 @@
           Archivos
         </button>
         <button
+          class="rounded-lg border px-4 py-2 text-xs font-semibold uppercase tracking-widest transition"
+          [class.border-fuchsia-500]="activeTab === 'chat'"
+          [class.text-fuchsia-200]="activeTab === 'chat'"
+          [class.border-slate-700]="activeTab !== 'chat'"
+          [class.text-slate-400]="activeTab !== 'chat'"
+          (click)="setTab('chat')"
+        >
+          AI Chat
+        </button>
+        <button
           class="rounded-lg border border-violet-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-violet-200 transition hover:bg-violet-500/20"
           (click)="logout()"
         >
@@ -346,5 +356,163 @@
         </div>
       </div>
     </ng-container>
+  </div>
+
+  <!-- ═══════ TAB: AI CHAT ═══════ -->
+  <div *ngIf="activeTab === 'chat'" class="grid gap-6 lg:grid-cols-[18rem_1fr]">
+
+    <!-- Sidebar de conversaciones -->
+    <aside class="panel rounded-2xl p-5 self-start">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm uppercase tracking-[0.25em] text-fuchsia-300">Conversaciones</h3>
+        <button
+          class="rounded border border-fuchsia-500/40 px-3 py-1 text-[10px] uppercase tracking-widest text-fuchsia-200 transition hover:bg-fuchsia-500/20"
+          (click)="newConversation()"
+        >
+          Nueva
+        </button>
+      </div>
+      <div class="mt-4 max-h-[60vh] space-y-2 overflow-y-auto pr-1">
+        <div
+          *ngIf="!conversations.length"
+          class="rounded-lg border border-dashed border-slate-700 px-3 py-4 text-center text-xs text-slate-500"
+        >
+          Aún no hay historial.
+        </div>
+        <button
+          *ngFor="let c of conversations; trackBy: trackByIndex"
+          (click)="loadConversation(c.conversation_id)"
+          class="w-full rounded-lg border px-3 py-2 text-left text-xs transition"
+          [class.border-fuchsia-500]="conversationId === c.conversation_id"
+          [class.bg-fuchsia-500_10]="conversationId === c.conversation_id"
+          [class.border-slate-700]="conversationId !== c.conversation_id"
+          [class.text-slate-300]="conversationId !== c.conversation_id"
+          [class.text-fuchsia-200]="conversationId === c.conversation_id"
+        >
+          <p class="truncate font-medium">{{ c.title }}</p>
+          <p class="mt-1 text-[10px] uppercase tracking-widest text-slate-500">{{ c.updated_at?.slice(0,10) }}</p>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Área principal del chat -->
+    <div class="panel flex min-h-[70vh] flex-col rounded-2xl p-6">
+
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-sm uppercase tracking-[0.25em] text-fuchsia-300">Asistente IA · SECOP</h3>
+          <p class="mt-1 text-xs text-slate-500">Pregunta en lenguaje natural sobre los datasets de contratación pública.</p>
+        </div>
+        <span *ngIf="conversationId" class="text-[10px] uppercase tracking-widest text-slate-500">
+          ID: {{ conversationId.slice(0, 8) }}
+        </span>
+      </div>
+
+      <!-- Mensajes -->
+      <div class="mt-5 flex-1 space-y-4 overflow-y-auto pr-2">
+
+        <!-- Estado vacío con sugerencias -->
+        <div *ngIf="!chatMessages.length" class="grid gap-3">
+          <p class="text-xs uppercase tracking-widest text-slate-500">Prueba con preguntas como:</p>
+          <button
+            *ngFor="let q of exampleQuestions"
+            (click)="useExample(q)"
+            class="group rounded-xl border border-slate-700 bg-slate-900/40 px-4 py-3 text-left text-sm text-slate-300 transition hover:border-fuchsia-500/60 hover:text-fuchsia-200"
+          >
+            <span class="text-fuchsia-400 group-hover:text-fuchsia-300">›</span>
+            {{ q }}
+          </button>
+        </div>
+
+        <!-- Burbujas de mensaje -->
+        <div *ngFor="let msg of chatMessages; trackBy: trackByIndex"
+             [class.justify-end]="msg.role === 'user'"
+             [class.justify-start]="msg.role === 'assistant'"
+             class="flex">
+          <div
+            [class.bg-fuchsia-500_20]="msg.role === 'user'"
+            [class.bg-slate-800_70]="msg.role === 'assistant'"
+            [class.border-fuchsia-500_40]="msg.role === 'user'"
+            [class.border-slate-700]="msg.role === 'assistant'"
+            class="max-w-[80%] rounded-2xl border px-4 py-3 text-sm"
+          >
+            <p class="text-[10px] uppercase tracking-widest mb-1"
+               [class.text-fuchsia-200]="msg.role === 'user'"
+               [class.text-slate-400]="msg.role === 'assistant'">
+              {{ msg.role === 'user' ? 'Tú' : 'Agente' }}
+            </p>
+
+            <!-- Tool calls -->
+            <div *ngIf="msg.tool_calls?.length" class="mb-3 space-y-1">
+              <div *ngFor="let tc of msg.tool_calls"
+                   class="flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/5 px-2 py-1 text-[10px] font-mono text-emerald-300">
+                <span>🔍</span>
+                <span class="font-semibold">{{ tc.tool }}</span>
+                <span class="text-slate-400">·</span>
+                <span class="text-slate-400">{{ tc.result_summary }}</span>
+              </div>
+            </div>
+
+            <!-- Texto -->
+            <p class="whitespace-pre-wrap text-slate-100">{{ msg.content }}</p>
+
+            <!-- Charts -->
+            <div *ngFor="let ch of msg.charts" class="mt-4 rounded-xl bg-slate-900/60 p-3">
+              <p *ngIf="ch.title" class="mb-2 text-[10px] uppercase tracking-widest text-slate-400">{{ ch.title }}</p>
+              <div class="h-64">
+                <canvas baseChart
+                        [data]="ch.chart_js_spec.data"
+                        [options]="ch.chart_js_spec.options"
+                        [type]="ch.chart_js_spec.type">
+                </canvas>
+              </div>
+            </div>
+
+            <!-- Latencia -->
+            <p *ngIf="msg.latency_ms" class="mt-2 text-[10px] text-slate-500">
+              {{ (msg.latency_ms / 1000).toFixed(1) }}s
+            </p>
+          </div>
+        </div>
+
+        <!-- Indicador de carga -->
+        <div *ngIf="chatLoading" class="flex justify-start">
+          <div class="rounded-2xl border border-slate-700 bg-slate-800/70 px-4 py-3">
+            <div class="flex items-center gap-2 text-xs text-slate-400">
+              <span class="inline-flex space-x-1">
+                <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-fuchsia-400"></span>
+                <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-fuchsia-400" style="animation-delay: 0.15s"></span>
+                <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-fuchsia-400" style="animation-delay: 0.3s"></span>
+              </span>
+              <span class="uppercase tracking-widest">Pensando…</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div *ngIf="chatError" class="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-xs text-red-300">
+          {{ chatError }}
+        </div>
+      </div>
+
+      <!-- Input -->
+      <form (ngSubmit)="sendChatMessage()" class="mt-4 flex gap-2">
+        <input
+          type="text"
+          [(ngModel)]="chatInput"
+          name="chatInput"
+          [disabled]="chatLoading"
+          placeholder="Pregúntale al agente sobre SECOP…"
+          class="flex-1 rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:border-fuchsia-500 focus:outline-none disabled:opacity-50"
+        />
+        <button
+          type="submit"
+          [disabled]="chatLoading || !chatInput.trim()"
+          class="rounded-xl bg-fuchsia-500/80 px-5 py-3 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-fuchsia-500 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Enviar
+        </button>
+      </form>
+    </div>
   </div>
 </section>
