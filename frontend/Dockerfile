@@ -17,4 +17,4 @@ RUN chmod +x /entrypoint.sh
 EXPOSE 4200
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["npm", "run", "start", "--", "--host", "0.0.0.0", "--port", "4200", "--proxy-config", "proxy.conf.json"]
+CMD ["npm", "run", "start", "--", "--host", "0.0.0.0", "--port", "4200", "--proxy-config", "proxy.conf.json", "--disable-host-check"]
