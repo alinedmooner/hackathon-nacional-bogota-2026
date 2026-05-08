@@ -7,6 +7,8 @@ services:
       - mongo_data:/data/db
     networks:
       - backend
+    ports:
+      - 27017:27017
     deploy:
       replicas: 1
       restart_policy:
@@ -23,7 +25,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_ALGORITHM=HS256
       - JWT_EXPIRE_MINUTES=60
-      - CORS_ORIGINS=https://gludsitohackathon5.glud.org
+      - CORS_ORIGINS=*
       - DATASET_CONTRATOS_ID=jbjy-vk9h
       - DATASET_ARCHIVOS_ID=dmgg-8hin
     networks:
@@ -45,7 +47,7 @@ services:
         - "traefik.http.routers.hackathon5-api.entrypoints=websecure"
         - "traefik.http.routers.hackathon5-api.tls=true"
         - "traefik.http.routers.hackathon5-api.tls.certresolver=production"
-        - "traefik.http.routers.hackathon5-api.rule=Host(`gludsitogludsitohackathon5back.glud.org`)"
+        - "traefik.http.routers.hackathon5-api.rule=Host(`gludsitohackathon5back.glud.org`)"
         - "traefik.http.routers.hackathon5-api.service=hackathon5-api"
         - "traefik.http.services.hackathon5-api.loadbalancer.server.port=8000"
 
