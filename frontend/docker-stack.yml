@@ -5,10 +5,8 @@ services:
     image: hackathon5/frontend:latest
     environment:
       - BACKEND_URL=https://gludsitohackathon5back.glud.org
-    ports:
-      - 4200:4200
     networks:
-      - frontend
+      - reverse_proxy
     deploy:
       replicas: 1
       restart_policy:
@@ -17,8 +15,17 @@ services:
       placement:
         constraints:
           - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=reverse_proxy"
+        - "traefik.http.routers.hackathon5-frontend.entrypoints=websecure"
+        - "traefik.http.routers.hackathon5-frontend.tls=true"
+        - "traefik.http.routers.hackathon5-frontend.tls.certresolver=production"
+        - "traefik.http.routers.hackathon5-frontend.rule=Host(`gludsitohackathon5.glud.org`)"
+        - "traefik.http.routers.hackathon5-frontend.service=hackathon5-frontend"
+        - "traefik.http.services.hackathon5-frontend.loadbalancer.server.port=4200"
 
 networks:
-  frontend:
+  reverse_proxy:
     driver: overlay
     external: true
