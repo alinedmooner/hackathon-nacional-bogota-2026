@@ -25,7 +25,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_ALGORITHM=HS256
       - JWT_EXPIRE_MINUTES=60
-      - CORS_ORIGINS=https://gludsitohackathon5.glud.org
+      - CORS_ORIGINS=*
       - DATASET_CONTRATOS_ID=jbjy-vk9h
       - DATASET_ARCHIVOS_ID=dmgg-8hin
     networks:
