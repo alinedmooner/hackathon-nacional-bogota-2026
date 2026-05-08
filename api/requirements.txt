@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+pymongo
+numpy
+pandas
+matplotlib
+tqdm
+scikit-learn
+torch
+torchvision
+Pillow
+timm
+opencv-python-headless
+python-dotenv
