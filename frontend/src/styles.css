@@ -15,6 +15,7 @@ body {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   background: radial-gradient(1200px 800px at 20% 20%, #111827 0%, #0f172a 55%, #0b1020 100%);
   color: #e2e8f0;
+  overflow-x: hidden;
 }
 
 .app-shell {

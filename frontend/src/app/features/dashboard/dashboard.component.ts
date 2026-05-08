@@ -168,6 +168,10 @@ export class DashboardComponent implements OnInit {
     return column.replace(/_/g, ' ');
   }
 
+  isWideColumn(column: string): boolean {
+    return column === 'objeto_del_contrato';
+  }
+
   setTab(tab: 'records' | 'analytics') {
     this.activeTab = tab;
   }
