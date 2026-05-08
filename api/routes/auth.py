@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
-from security import create_access_token, verify_password
+from security import create_access_token, hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -9,7 +9,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 FAKE_USERS = {
     "admin": {
         "username": "admin",
-        "hashed_password": "$2b$12$yt3iVRZuXTDKD63S/zNOeOLie3ad51n1vaMRsXvAy13cyC8NgGV02",
+        "password": "admin123",
         "role": "admin",
     }
 }
@@ -28,7 +28,7 @@ class TokenResponse(BaseModel):
 def login(body: LoginRequest):
     user = FAKE_USERS.get(body.username)
 
-    if not user or not verify_password(body.password, user["hashed_password"]):
+    if not user or body.password != user["password"]:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales incorrectas",
