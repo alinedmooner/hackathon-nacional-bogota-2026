@@ -1,57 +1,79 @@
-import os
-from typing import List, Dict, Any
-from fastapi import FastAPI
-from pymongo import MongoClient
-from dotenv import load_dotenv
 from datetime import datetime
+from typing import Any, Dict, List
 
-load_dotenv()
+from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pymongo import MongoClient
 
-app = FastAPI(title="AI Analyzer API", version="1.0.0")
+from config import settings
+from routes.auth import router as auth_router
+from routes.contratos import router as contratos_router
+from routes.archivos import router as archivos_router
+from security import get_current_user
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongo:27017")
+app = FastAPI(title="SECOP API", version="1.0.0")
 
-def get_mongo_client():
-    return MongoClient(MONGO_URI)
+# ------------------------------------------------------------------ #
+# CORS                                                                 #
+# ------------------------------------------------------------------ #
 
-def get_database():
-    client = get_mongo_client()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.get_cors_origins(),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ------------------------------------------------------------------ #
+# Routers                                                              #
+# ------------------------------------------------------------------ #
+
+app.include_router(auth_router)
+app.include_router(contratos_router)
+app.include_router(archivos_router)
+
+# ------------------------------------------------------------------ #
+# MongoDB                                                              #
+# ------------------------------------------------------------------ #
+
+def get_db():
+    client = MongoClient(settings.mongo_uri)
     return client["ai_analyzer"]
+
+
+# ------------------------------------------------------------------ #
+# Rutas públicas                                                       #
+# ------------------------------------------------------------------ #
 
 @app.get("/")
 def root():
-    return {
-        "status": "ok",
-        "service": "AI Analyzer API",
-        "version": "1.0.0",
-        "timestamp": datetime.now().isoformat()
-    }
-
-@app.get("/results", response_model=List[Dict[str, Any]]])
-def get_results(limit: int = 10):
-    db = get_database()
-    collection = db["results"]
-    results = list(collection.find().sort("timestamp", -1).limit(limit))
-    
-    for result in results:
-        if "_id" in result:
-            result["_id"] = str(result["_id"])
-        if "timestamp" in result and hasattr(result["timestamp"], "isoformat"):
-            result["timestamp"] = result["timestamp"].isoformat()
-    
-    return results
+    return {"status": "ok", "service": "SECOP API", "version": "1.0.0"}
 
 @app.get("/health")
-def health_check():
+def health():
     try:
-        db = get_database()
-        db.command("ping")
+        get_db().command("ping")
         mongo_status = "connected"
     except Exception as e:
-        mongo_status = f"error: {str(e)}"
-    
-    return {
-        "status": "healthy",
-        "mongo": mongo_status,
-        "timestamp": datetime.now().isoformat()
-    }
+        mongo_status = f"error: {e}"
+    return {"status": "healthy", "mongo": mongo_status, "timestamp": datetime.now().isoformat()}
+
+
+# ------------------------------------------------------------------ #
+# Rutas protegidas (requieren JWT)                                     #
+# ------------------------------------------------------------------ #
+
+@app.get("/results", response_model=List[Dict[str, Any]])
+def get_results(limit: int = 10, current_user: dict = Depends(get_current_user)):
+    db = get_db()
+    results = list(db["results"].find().sort("timestamp", -1).limit(limit))
+    for r in results:
+        r["_id"] = str(r["_id"])
+        if "timestamp" in r and hasattr(r["timestamp"], "isoformat"):
+            r["timestamp"] = r["timestamp"].isoformat()
+    return results
+
+@app.get("/me")
+def me(current_user: dict = Depends(get_current_user)):
+    return current_user

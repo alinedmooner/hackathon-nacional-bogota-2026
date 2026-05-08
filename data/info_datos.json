@@ -1,0 +1,22 @@
+{
+  "total_registros": 100,
+  "total_columnas": 7,
+  "columnas": [
+    "id_contrato",
+    "entidad",
+    "valor_contrato",
+    "objeto",
+    "estado",
+    "fecha_inicio",
+    "fecha_fin"
+  ],
+  "tipos_datos": {
+    "id_contrato": "object",
+    "entidad": "object",
+    "valor_contrato": "int64",
+    "objeto": "object",
+    "estado": "object",
+    "fecha_inicio": "object",
+    "fecha_fin": "object"
+  }
+}
