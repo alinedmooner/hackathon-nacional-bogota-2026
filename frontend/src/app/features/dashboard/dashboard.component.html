@@ -1,4 +1,4 @@
-<section class="grid gap-6">
+<section class="grid gap-6 min-w-0">
   <div class="panel rounded-2xl p-6">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
@@ -55,7 +55,7 @@
     </div>
   </div>
 
-  <div *ngIf="activeTab === 'records'" class="panel rounded-2xl p-6">
+  <div *ngIf="activeTab === 'records'" class="panel min-w-0 overflow-hidden rounded-2xl p-6">
     <div class="flex items-center justify-between">
       <h3 class="text-sm uppercase tracking-[0.25em] text-neon-400">Contratos SECOP II</h3>
       <div class="flex items-center gap-3 text-xs text-slate-500">
@@ -65,20 +65,28 @@
         <span>{{ totalRecords | number }} contratos</span>
       </div>
     </div>
-    <div class="mt-5 overflow-auto">
+    <div class="mt-5 w-full max-w-full overflow-x-auto overflow-y-auto max-h-[70vh]">
       <div *ngIf="recordsLoading" class="text-sm text-slate-400">Cargando registros...</div>
       <div *ngIf="recordsError" class="text-sm text-red-300">{{ recordsError }}</div>
-      <table *ngIf="!recordsLoading && recordColumns.length" class="min-w-full text-xs text-slate-200">
+      <table *ngIf="!recordsLoading && recordColumns.length" class="min-w-max w-full max-w-full text-xs text-slate-200">
         <thead class="border-b border-slate-700/60 text-[10px] uppercase tracking-widest text-slate-400">
           <tr>
-            <th *ngFor="let column of recordColumns" class="px-3 py-3 text-left whitespace-nowrap">
+            <th
+              *ngFor="let column of recordColumns"
+              class="px-3 py-3 text-left"
+              [ngClass]="isWideColumn(column) ? 'whitespace-normal min-w-[20rem]' : 'whitespace-nowrap'"
+            >
               {{ formatColumn(column) }}
             </th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-800">
           <tr *ngFor="let record of records" class="hover:bg-slate-900/60">
-            <td *ngFor="let column of recordColumns" class="px-3 py-3 whitespace-nowrap text-slate-300">
+            <td
+              *ngFor="let column of recordColumns"
+              class="px-3 py-3 text-slate-300"
+              [ngClass]="isWideColumn(column) ? 'whitespace-normal break-words max-w-[48rem]' : 'whitespace-nowrap'"
+            >
               {{ record[column] !== null && record[column] !== undefined ? record[column] : '-' }}
             </td>
           </tr>
