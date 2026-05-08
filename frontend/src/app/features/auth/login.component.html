@@ -7,12 +7,12 @@
 
   <form class="space-y-5" [formGroup]="form" (ngSubmit)="submit()">
     <div>
-      <label class="text-xs uppercase tracking-widest text-slate-400">Email</label>
+      <label class="text-xs uppercase tracking-widest text-slate-400">Usuario</label>
       <input
         class="mt-2 w-full rounded-lg border border-slate-700 bg-terminal-900/80 px-4 py-3 text-sm text-slate-100 focus:border-neon-400 focus:outline-none"
-        type="email"
-        formControlName="email"
-        placeholder="user@terminal.io"
+        type="text"
+        formControlName="username"
+        placeholder="admin"
       />
     </div>
 

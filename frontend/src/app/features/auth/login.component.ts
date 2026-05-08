@@ -15,7 +15,7 @@ export class LoginComponent {
   error = '';
 
   form = this.formBuilder.nonNullable.group({
-    email: ['', [Validators.required]],
+    username: ['', [Validators.required]],
     password: ['', [Validators.required]],
     remember: true
   });
@@ -35,10 +35,10 @@ export class LoginComponent {
     this.loading = true;
     this.error = '';
 
-    const { email, password, remember } = this.form.getRawValue();
+    const { username, password, remember } = this.form.getRawValue();
     const storage = remember ? 'local' : 'session';
 
-    this.authService.login({ email, password }, storage).subscribe({
+    this.authService.login({ username, password }, storage).subscribe({
       next: () => {
         this.loading = false;
         this.router.navigateByUrl('/dashboard');

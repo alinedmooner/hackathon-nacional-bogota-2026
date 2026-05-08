@@ -5,12 +5,13 @@ import { tap } from 'rxjs/operators';
 import { RUNTIME_CONFIG } from '../config/runtime-config';
 
 export interface LoginPayload {
-  email: string;
+  username: string;
   password: string;
 }
 
 export interface LoginResponse {
-  token: string;
+  access_token: string;
+  token_type: string;
 }
 
 @Injectable({
@@ -22,18 +23,18 @@ export class AuthService {
   private readonly config = inject(RUNTIME_CONFIG);
 
   login(payload: LoginPayload, storage: 'local' | 'session' = 'local') {
-    const email = payload.email.trim().toLowerCase();
+    const username = payload.username.trim().toLowerCase();
     const password = payload.password.trim();
 
-    if (email === 'carlos' && password === '123') {
-      const response: LoginResponse = { token: 'dev-token' };
-      this.storeToken(response.token, storage);
+    if (username === 'admin' && password === 'admin') {
+      const response: LoginResponse = { access_token: 'dev-token', token_type: 'bearer' };
+      this.storeToken(response.access_token, storage);
       return of(response);
     }
 
     return this.http
       .post<LoginResponse>(`${this.config.backendUrl}/auth/login`, payload)
-      .pipe(tap((response) => this.storeToken(response.token, storage)));
+      .pipe(tap((response) => this.storeToken(response.access_token, storage)));
   }
 
   logout() {
