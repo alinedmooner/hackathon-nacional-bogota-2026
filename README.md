@@ -95,3 +95,7 @@ La documentacion OpenAPI esta en:
 
 - `http://localhost:8000/docs`
 - `http://localhost:8000/redoc`
+
+En produccion, el backend esta en `https://gludsitohackathon5back.glud.org` y la
+documentacion es `https://gludsitohackathon5back.glud.org/docs`. Este enlace debe
+mostrarse en el login.

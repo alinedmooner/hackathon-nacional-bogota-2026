@@ -14,8 +14,20 @@ def _q() -> SoQLQuery:
     return SoQLQuery(A.ID)
 
 
+def _to_df(raw) -> pd.DataFrame:
+    """Normaliza respuesta de fetch(): puede ser DataFrame o list de dicts."""
+    if isinstance(raw, pd.DataFrame):
+        return raw
+    if isinstance(raw, list):
+        return pd.DataFrame(raw) if raw else pd.DataFrame()
+    return pd.DataFrame()
+
+
 def _count_total() -> int:
-    df = _q().select("COUNT(*) AS total").fetch()
+    raw = _q().select("COUNT(*) AS total").fetch()
+    df = _to_df(raw)
+    if df.empty or "total" not in df.columns:
+        return 0
     return int(df["total"].iloc[0])
 
 
@@ -25,24 +37,29 @@ def _median_numeric(field: str, total_no_nulos: int) -> float | None:
         return None
     base = _q().select(field).where(f"{field} IS NOT NULL").order_by(field)
     if total_no_nulos % 2 == 1:
-        df = base.limit(1).offset(total_no_nulos // 2).fetch()
-        vals = df[field].tolist()
+        raw = base.limit(1).offset(total_no_nulos // 2).fetch()
+        df = _to_df(raw)
+        vals = df[field].tolist() if not df.empty and field in df.columns else []
         return float(vals[0]) if vals else None
     else:
-        df = base.limit(2).offset(total_no_nulos // 2 - 1).fetch()
-        vals = [float(v) for v in df[field].tolist() if v is not None]
+        raw = base.limit(2).offset(total_no_nulos // 2 - 1).fetch()
+        df = _to_df(raw)
+        vals = [float(v) for v in (df[field].tolist() if not df.empty and field in df.columns else []) if v is not None]
         return sum(vals) / len(vals) if len(vals) == 2 else (vals[0] if vals else None)
 
 
 def _num_stats(field: str) -> dict:
-    df = _q().select(
+    raw = _q().select(
         f"max({field}) AS max_val",
         f"min({field}) AS min_val",
         f"avg({field}) AS avg_val",
         f"COUNT({field}) AS no_nulos",
     ).fetch()
-    row = df.iloc[0]
-    total_no_nulos = int(row["no_nulos"])
+    df = _to_df(raw)
+    if df.empty:
+        return {"max": None, "min": None, "media": None, "mediana": None, "registros_no_nulos": 0}
+    row = df.iloc[0].to_dict() if hasattr(df.iloc[0], "to_dict") else dict(df.iloc[0])
+    total_no_nulos = int(row.get("no_nulos", 0) or 0)
     mediana = _median_numeric(field, total_no_nulos)
     return {
         "max": float(row["max_val"]) if row.get("max_val") is not None else None,
@@ -67,7 +84,7 @@ def total_registros(current_user: dict = Depends(get_current_user)):
 # ──────────────────────────────────────────────────────────────
 @router.get("/total-columnas")
 def total_columnas(current_user: dict = Depends(get_current_user)):
-    df = _q().limit(1).fetch()
+    df = _to_df(_q().limit(1).fetch())
     cols = list(df.columns)
     return {"pregunta": 2, "total_columnas": len(cols), "columnas": cols}
 
@@ -78,8 +95,8 @@ def total_columnas(current_user: dict = Depends(get_current_user)):
 @router.get("/nulos-descripcion")
 def nulos_descripcion(current_user: dict = Depends(get_current_user)):
     total = _count_total()
-    df = _q().select(f"COUNT({A.DESCRIPCION}) AS no_nulos").fetch()
-    no_nulos = int(df["no_nulos"].iloc[0])
+    df = _to_df(_q().select(f"COUNT({A.DESCRIPCION}) AS no_nulos").fetch())
+    no_nulos = int(df["no_nulos"].iloc[0]) if not df.empty and "no_nulos" in df.columns else 0
     nulos = total - no_nulos
     return {
         "pregunta": 3,
@@ -97,8 +114,8 @@ def nulos_descripcion(current_user: dict = Depends(get_current_user)):
 @router.get("/nulos-proceso")
 def nulos_proceso(current_user: dict = Depends(get_current_user)):
     total = _count_total()
-    df = _q().select(f"COUNT({A.PROCESO}) AS no_nulos").fetch()
-    no_nulos = int(df["no_nulos"].iloc[0])
+    df = _to_df(_q().select(f"COUNT({A.PROCESO}) AS no_nulos").fetch())
+    no_nulos = int(df["no_nulos"].iloc[0]) if not df.empty and "no_nulos" in df.columns else 0
     nulos = total - no_nulos
     return {
         "pregunta": 4,
@@ -115,7 +132,7 @@ def nulos_proceso(current_user: dict = Depends(get_current_user)):
 # ──────────────────────────────────────────────────────────────
 @router.get("/tipos-columnas")
 def tipos_columnas(current_user: dict = Depends(get_current_user)):
-    df = _q().limit(300).fetch()
+    df = _to_df(_q().limit(300).fetch())
     int_cols, float_cols, str_cols = [], [], []
 
     for col in df.columns:
@@ -177,13 +194,15 @@ def stats_nit_entidad(current_user: dict = Depends(get_current_user)):
 # ──────────────────────────────────────────────────────────────
 @router.get("/rango-fecha-carga")
 def rango_fecha_carga(current_user: dict = Depends(get_current_user)):
-    df = _q().select(
+    df = _to_df(_q().select(
         f"max({A.FECHA_CARGA}) AS max_fecha",
         f"min({A.FECHA_CARGA}) AS min_fecha",
-    ).fetch()
-    row = df.iloc[0]
-    max_f: str = row["max_fecha"]
-    min_f: str = row["min_fecha"]
+    ).fetch())
+    if df.empty:
+        return {"pregunta": "10 y 11", "campo": A.FECHA_CARGA, "fecha_maxima": None, "fecha_minima": None, "rango_dias": None, "rango": None}
+    row = df.iloc[0].to_dict()
+    max_f: str = row.get("max_fecha")
+    min_f: str = row.get("min_fecha")
 
     rango_dias = None
     rango_str = None
@@ -218,19 +237,19 @@ def documento_por_id(
     id_documento: int = 756926574,
     current_user: dict = Depends(get_current_user),
 ):
-    df = _q().select(
+    df = _to_df(_q().select(
         A.ID_DOCUMENTO,
         A.NOMBRE_ARCHIVO,
         A.FECHA_CARGA,
         A.EXTENSION,
         A.TAMANNO_ARCHIVO,
         A.ENTIDAD,
-    ).where(f"{A.ID_DOCUMENTO} = {id_documento}").fetch()
+    ).where(f"{A.ID_DOCUMENTO} = {id_documento}").fetch())
 
     if df.empty:
         return {"pregunta": 12, "id_documento": id_documento, "resultado": None, "mensaje": "No encontrado"}
 
-    row = df.iloc[0]
+    row = df.iloc[0].to_dict()
     return {
         "pregunta": 12,
         "id_documento": id_documento,

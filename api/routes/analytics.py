@@ -35,6 +35,8 @@ def total_registros(current_user: dict = Depends(get_current_user)):
 @router.get("/total-variables")
 def total_variables(current_user: dict = Depends(get_current_user)):
     doc = get_col().find_one()
+    if doc is None:
+        return {"pregunta": 4, "total_variables": 0, "variables": [], "mensaje": "Colección vacía"}
     campos = [k for k in doc.keys() if k != "_id"]
     return {"pregunta": 4, "total_variables": len(campos), "variables": campos}
 
@@ -169,6 +171,8 @@ def anomalias_financieras(current_user: dict = Depends(get_current_user)):
 
     nums = [v for v, _ in valores]
     n = len(nums)
+    if n == 0:
+        return {"pregunta": 15, "mensaje": "Sin datos numéricos de valor_del_contrato aún", "top_3_anomalos": []}
     media = sum(nums) / n
     std = (sum((x - media) ** 2 for x in nums) / n) ** 0.5
     sorted_nums = sorted(nums)

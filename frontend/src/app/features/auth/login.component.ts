@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { RUNTIME_CONFIG } from '../../core/config/runtime-config';
 
 @Component({
   selector: 'app-login',
@@ -11,6 +12,10 @@ import { AuthService } from '../../core/services/auth.service';
   templateUrl: './login.component.html'
 })
 export class LoginComponent {
+  private readonly runtimeConfig = inject(RUNTIME_CONFIG);
+
+  readonly backendUrl = this.runtimeConfig.backendUrl.replace(/\/$/, '');
+  readonly docsUrl = `${this.backendUrl}/docs`;
   loading = false;
   error = '';
 

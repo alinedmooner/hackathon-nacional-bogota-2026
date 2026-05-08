@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { RUNTIME_CONFIG } from '../config/runtime-config';
 
@@ -23,15 +22,6 @@ export class AuthService {
   private readonly config = inject(RUNTIME_CONFIG);
 
   login(payload: LoginPayload, storage: 'local' | 'session' = 'local') {
-    const username = payload.username.trim().toLowerCase();
-    const password = payload.password.trim();
-
-    if (username === 'admin' && password === 'admin') {
-      const response: LoginResponse = { access_token: 'dev-token', token_type: 'bearer' };
-      this.storeToken(response.access_token, storage);
-      return of(response);
-    }
-
     return this.http
       .post<LoginResponse>(`${this.config.backendUrl}/auth/login`, payload)
       .pipe(tap((response) => this.storeToken(response.access_token, storage)));
