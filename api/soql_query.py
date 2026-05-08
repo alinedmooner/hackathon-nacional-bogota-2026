@@ -1,6 +1,6 @@
 import copy
-import requests
-import pandas as pd
+import json
+import urllib.request
 from urllib.parse import urlencode
 
 BASE_URL = "https://www.datos.gov.co/resource/{dataset_id}.json"
@@ -90,43 +90,30 @@ class SoQLQuery:
     # Execute                                                               #
     # ------------------------------------------------------------------ #
 
-    def fetch(self, app_token: str = "") -> pd.DataFrame:
-        """Ejecuta la query y retorna un DataFrame."""
-        headers = {"X-App-Token": app_token} if app_token else {}
+    def fetch(self, app_token: str = "") -> list[dict]:
+        """Ejecuta la query y retorna una lista de dicts."""
         params = self.build()
-        url = BASE_URL.format(dataset_id=self._dataset_id)
+        base = BASE_URL.format(dataset_id=self._dataset_id)
+        full_url = f"{base}?{urlencode(params)}" if params else base
 
-        resp = requests.get(url, headers=headers, params=params, timeout=30)
-        resp.raise_for_status()
-        return pd.DataFrame(resp.json())
+        req = urllib.request.Request(full_url)
+        if app_token:
+            req.add_header("X-App-Token", app_token)
 
-    def fetch_all(self, batch_size: int = 50000, app_token: str = "") -> pd.DataFrame:
-        """Ejecuta la query descargando todos los registros con paginación."""
-        headers = {"X-App-Token": app_token} if app_token else {}
-        url = BASE_URL.format(dataset_id=self._dataset_id)
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.loads(resp.read())
 
-        todos = []
-        offset = 0
-        print("Descargando registros...")
-
-        while True:
-            params = {**self.build(), "$limit": batch_size, "$offset": offset}
-            resp = requests.get(url, headers=headers, params=params, timeout=60)
-            resp.raise_for_status()
-
-            lote = resp.json()
-            if not lote:
-                break
-
-            todos.extend(lote)
-            offset += batch_size
-            print(f"  {len(todos)} registros descargados...")
-
-            if len(lote) < batch_size:
-                break
-
-        print(f"✓ Total: {len(todos)} registros")
-        return pd.DataFrame(todos)
+    def fetch_count(self, app_token: str = "") -> int:
+        """Ejecuta un COUNT(*) y retorna el total."""
+        q = self.copy()
+        q._select = ["COUNT(*) AS total"]
+        q._order = []
+        q._limit = None
+        q._offset = None
+        rows = q.fetch(app_token)
+        if rows and isinstance(rows, list) and len(rows) > 0:
+            return int(rows[0].get("total", 0))
+        return 0
 
     def __repr__(self) -> str:
         return f"SoQLQuery(url={self.url()!r})"

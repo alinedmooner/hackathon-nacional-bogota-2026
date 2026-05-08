@@ -24,7 +24,6 @@ yarn-error.log
 mongo_data/
 
 # Entornos y credenciales
-.env
 .env.local
 .env.*.local
 *.pem

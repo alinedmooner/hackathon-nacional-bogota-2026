@@ -49,9 +49,23 @@ export class DashboardComponent implements OnInit {
   };
 
   records: Array<Record<string, string | number | null>> = [];
-  recordColumns: string[] = [];
+  recordColumns: string[] = [
+    'nombre_entidad',
+    'departamento',
+    'ciudad',
+    'estado_contrato',
+    'tipo_de_contrato',
+    'proveedor_adjudicado',
+    'valor_del_contrato',
+    'fecha_de_firma',
+    'objeto_del_contrato',
+  ];
   recordsLoading = false;
   recordsError = '';
+  currentPage = 1;
+  totalPages = 0;
+  totalRecords = 0;
+  pageSize = 20;
 
   constructor(
     private readonly analyticsService: AnalyticsService,
@@ -122,10 +136,11 @@ export class DashboardComponent implements OnInit {
     this.recordsLoading = true;
     this.recordsError = '';
 
-    this.analyticsService.getRecords().subscribe({
-      next: (records) => {
-        this.records = records;
-        this.recordColumns = records.length > 0 ? Object.keys(records[0]) : [];
+    this.analyticsService.getContratos(this.currentPage, this.pageSize).subscribe({
+      next: (response) => {
+        this.records = response.items;
+        this.totalPages = response.pages;
+        this.totalRecords = response.total;
         this.recordsLoading = false;
       },
       error: () => {
@@ -135,8 +150,26 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.loadRecords();
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadRecords();
+    }
+  }
+
   formatColumn(column: string): string {
     return column.replace(/_/g, ' ');
+  }
+
+  isWideColumn(column: string): boolean {
+    return column === 'objeto_del_contrato';
   }
 
   setTab(tab: 'records' | 'analytics') {
