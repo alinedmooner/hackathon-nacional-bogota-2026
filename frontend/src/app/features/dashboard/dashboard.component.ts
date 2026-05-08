@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
@@ -13,15 +14,44 @@ import {
   Paso1Stats,
 } from '../../core/services/analytics.service';
 import { AuthService } from '../../core/services/auth.service';
+import {
+  AiService,
+  AiChatResponse,
+  ChartItem,
+  ToolCallLog,
+  ConversationSummary,
+} from '../../core/services/ai.service';
+
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  tool_calls?: ToolCallLog[];
+  charts?: ChartItem[];
+  latency_ms?: number;
+}
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NgChartsModule],
+  imports: [CommonModule, FormsModule, NgChartsModule],
   templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
-  activeTab: 'records' | 'analytics' | 'archivos' = 'records';
+  activeTab: 'records' | 'analytics' | 'archivos' | 'chat' = 'records';
+
+  // ── AI Chat state ─────────────────────────────────────────
+  chatMessages: ChatMessage[] = [];
+  chatInput = '';
+  chatLoading = false;
+  chatError = '';
+  conversationId: string | null = null;
+  conversations: ConversationSummary[] = [];
+  exampleQuestions: string[] = [
+    '¿Cuál es el contrato más caro firmado en 2025?',
+    'Top 5 departamentos con más contratos, hazme un gráfico',
+    '¿Cuántos contratos cerrados hay en Antioquia?',
+    'Busca contratos sobre construcción de aulas',
+  ];
   barChartData: ChartConfiguration<'bar'>['data'] = { labels: [], datasets: [] };
   barChartOptions: ChartConfiguration<'bar'>['options'] = {
     responsive: true,
@@ -94,6 +124,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private readonly analyticsService: AnalyticsService,
     private readonly authService: AuthService,
+    private readonly aiService: AiService,
     private readonly router: Router
   ) {}
 
@@ -244,8 +275,74 @@ export class DashboardComponent implements OnInit {
     return (bytes / 1048576).toFixed(1) + ' MB';
   }
 
-  setTab(tab: 'records' | 'analytics' | 'archivos') {
+  setTab(tab: 'records' | 'analytics' | 'archivos' | 'chat') {
     this.activeTab = tab;
+    if (tab === 'chat' && this.conversations.length === 0) {
+      this.aiService.listConversations().subscribe((c) => (this.conversations = c));
+    }
+  }
+
+  // ── AI Chat handlers ──────────────────────────────────────
+  sendChatMessage(): void {
+    const text = this.chatInput.trim();
+    if (!text || this.chatLoading) return;
+
+    this.chatMessages.push({ role: 'user', content: text });
+    this.chatInput = '';
+    this.chatLoading = true;
+    this.chatError = '';
+
+    this.aiService.sendMessage(text, this.conversationId).subscribe({
+      next: (resp: AiChatResponse) => {
+        this.conversationId = resp.conversation_id;
+        this.chatMessages.push({
+          role: 'assistant',
+          content: resp.answer,
+          tool_calls: resp.tool_calls,
+          charts: resp.charts,
+          latency_ms: resp.latency_ms,
+        });
+        this.chatLoading = false;
+        // refrescar lista de conversaciones
+        this.aiService.listConversations().subscribe((c) => (this.conversations = c));
+      },
+      error: (err) => {
+        this.chatLoading = false;
+        this.chatError = err?.error?.detail || 'No se pudo conectar con el agente IA.';
+      },
+    });
+  }
+
+  newConversation(): void {
+    this.conversationId = null;
+    this.chatMessages = [];
+    this.chatError = '';
+    this.chatInput = '';
+  }
+
+  loadConversation(id: string): void {
+    this.aiService.getConversation(id).subscribe({
+      next: (conv) => {
+        this.conversationId = conv.conversation_id;
+        this.chatMessages = conv.messages.map((m: any) => ({
+          role: m.role,
+          content: m.content || '',
+          tool_calls: m.tool_calls,
+          charts: m.charts,
+        }));
+      },
+      error: () => {
+        this.chatError = 'No se pudo cargar la conversación.';
+      },
+    });
+  }
+
+  useExample(q: string): void {
+    this.chatInput = q;
+  }
+
+  trackByIndex(index: number): number {
+    return index;
   }
 
   logout() {
