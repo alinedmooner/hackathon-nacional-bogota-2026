@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: hackathon5/frontend:latest
+    environment:
+      - BACKEND_URL=https://gludsitohackathon5back.glud.org
+    ports:
+      - 4200:4200
+    networks:
+      - frontend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      placement:
+        constraints:
+          - node.role == manager
+
+networks:
+  frontend:
+    driver: overlay
+    external: true
