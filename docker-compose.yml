@@ -1,6 +1,17 @@
 version: '3.8'
 
 services:
+  mongo:
+    image: mongo:6
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+    restart: unless-stopped
+
   api:
     build:
       context: ./api
@@ -8,13 +19,18 @@ services:
     container_name: api
     ports:
       - "8000:8000"
+    depends_on:
+      - mongo
+    networks:
+      - app-network
     env_file:
       - ./api/.env
     environment:
+      - MONGO_URI=mongodb://mongo:27017
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-cambia-esto-en-produccion}
       - JWT_ALGORITHM=HS256
       - JWT_EXPIRE_MINUTES=60
-      - CORS_ORIGINS=http://localhost:4200,http://localhost:80
+      - CORS_ORIGINS=*
       - DATASET_CONTRATOS_ID=jbjy-vk9h
       - DATASET_ARCHIVOS_ID=dmgg-8hin
     restart: unless-stopped
@@ -24,3 +40,11 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+    driver: local
