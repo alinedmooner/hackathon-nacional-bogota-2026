@@ -8,3 +8,5 @@ python-dotenv
 pydantic-settings
 pyjwt
 bcrypt
+openai>=1.40
+

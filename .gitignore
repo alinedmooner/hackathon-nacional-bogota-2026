@@ -53,3 +53,12 @@ frontend/.angular/
 *.log
 opencode.json
 engram*
+
+# Env files con secretos (NUNCA commitear)
+.env
+api/.env
+.env.production
+
+# Virtual envs Python
+.venv/
+api/.venv/
