@@ -259,68 +259,101 @@ export class CosmographCanvasComponent implements AfterViewInit, OnChanges, OnDe
         selector: 'node',
         style: {
           'background-color': '#64748b',
-          'border-width': 2,
-          'border-color': '#1e293b',
+          'border-width': 1.5,
+          'border-color': 'rgba(15, 23, 42, 0.8)',
+          'background-opacity': 0.92,
           label: 'data(label)',
           color: '#e2e8f0',
           'text-valign': 'center',
           'text-halign': 'center',
-          'text-margin-y': -28,
-          'font-size': 11,
-          'font-weight': 600,
+          'text-margin-y': -26,
+          'font-family': 'JetBrains Mono, ui-monospace, SFMono-Regular, monospace',
+          'font-size': 10,
+          'font-weight': 500,
           'text-wrap': 'wrap',
-          'text-max-width': '160px',
-          'text-background-color': '#0f172a',
-          'text-background-opacity': 0.85,
+          'text-max-width': '150px',
+          'text-background-color': 'rgba(8, 8, 13, 0.92)',
+          'text-background-opacity': 1,
           'text-background-padding': '4px',
           'text-background-shape': 'roundrectangle',
-          'text-border-color': '#1e293b',
+          'text-border-color': 'rgba(148, 163, 184, 0.15)',
           'text-border-width': 1,
-          'text-border-opacity': 0.6,
-          width: 36,
-          height: 36,
-          'transition-property': 'background-color, border-color, width, height',
+          'text-border-opacity': 1,
+          width: 34,
+          height: 34,
+          'transition-property': 'background-color, border-color, width, height, opacity',
           'transition-duration': 200 as any,
         },
       },
-      // ── tipos ──────────────────────────────────────────
-      { selector: 'node.type-persona',  style: { 'background-color': '#3b82f6', 'border-color': '#1d4ed8' } },
-      { selector: 'node.type-empresa',  style: { 'background-color': '#f59e0b', 'border-color': '#b45309', width: 44, height: 44 } },
-      { selector: 'node.type-entidad',  style: { 'background-color': '#a855f7', 'border-color': '#7e22ce', width: 50, height: 50, 'shape': 'round-rectangle' } },
-      { selector: 'node.type-contrato', style: { 'background-color': '#10b981', 'border-color': '#047857', width: 26, height: 26, 'shape': 'round-rectangle' } },
-      { selector: 'node.type-sancion',  style: { 'background-color': '#ef4444', 'border-color': '#991b1b', 'shape': 'diamond', width: 32, height: 32 } },
+      // ── tipos · paleta neón sobre dark slate (alineada con el shell) ──
+      {
+        selector: 'node.type-persona',
+        style: {
+          'background-color': '#22d3ee',         // cyan-400
+          'border-color': '#0e7490',              // cyan-700
+        },
+      },
+      {
+        selector: 'node.type-empresa',
+        style: {
+          'background-color': '#fbbf24',         // amber-400 (menos agresivo que 500)
+          'border-color': '#92400e',              // amber-800
+          width: 40,
+          height: 40,
+        },
+      },
+      {
+        selector: 'node.type-entidad',
+        style: {
+          'background-color': '#a78bfa',         // violet-400
+          'border-color': '#6d28d9',              // violet-700
+          width: 46,
+          height: 46,
+          shape: 'round-rectangle',
+        },
+      },
+      {
+        selector: 'node.type-contrato',
+        style: {
+          'background-color': '#34d399',         // emerald-400
+          'border-color': '#047857',              // emerald-700
+          width: 24,
+          height: 24,
+          shape: 'round-rectangle',
+        },
+      },
+      {
+        selector: 'node.type-sancion',
+        style: {
+          'background-color': '#fb7185',         // rose-400 (menos rojo agresivo)
+          'border-color': '#9f1239',              // rose-800
+          shape: 'diamond',
+          width: 30,
+          height: 30,
+        },
+      },
       // ── flagged (bandera roja) ─────────────────────────
       {
         selector: 'node.flagged',
         style: {
-          'border-color': '#ef4444',
-          'border-width': 4,
-          'overlay-color': '#ef4444',
-          'overlay-opacity': 0.15,
-          'overlay-padding': 6,
-        },
-      },
-      // ── selección / hover ──────────────────────────────
-      {
-        selector: 'node:selected',
-        style: {
-          'border-color': '#22d3ee',
-          'border-width': 5,
-          'overlay-color': '#22d3ee',
-          'overlay-opacity': 0.2,
+          'border-color': '#fb7185',              // rose-400 coherente
+          'border-width': 3,
+          'overlay-color': '#fb7185',
+          'overlay-opacity': 0.18,
+          'overlay-padding': 7,
         },
       },
       // ── neighborhood highlight ─────────────────────────
-      // Elementos opacados (fuera del vecindario)
+      // Elementos opacados (fuera del vecindario seleccionado)
       {
         selector: '.vd-faded',
         style: {
-          opacity: 0.12,
-          'text-opacity': 0.25,
+          opacity: 0.1,
+          'text-opacity': 0.2,
           'z-index': 1,
         },
       },
-      // Vecindario destacado (nodo + aristas + vecinos)
+      // Vecindario destacado: el nodo + sus aristas + sus vecinos
       {
         selector: 'node.vd-highlighted',
         style: {
@@ -333,22 +366,23 @@ export class CosmographCanvasComponent implements AfterViewInit, OnChanges, OnDe
         selector: 'edge.vd-highlighted',
         style: {
           opacity: 1,
-          width: 2.5,
-          'line-color': '#22d3ee',
-          'target-arrow-color': '#22d3ee',
+          width: 2.2,
+          'line-color': '#d946ef',                  // fuchsia-500 (alineado con branding)
+          'target-arrow-color': '#e879f9',          // fuchsia-400
           'z-index': 60,
           'text-background-opacity': 1,
+          color: '#fbcfe8',                          // pink-200 para texto
         },
       },
-      // Nodo focal (el clickeado) — más prominente
+      // Nodo focal (el clickeado): glow fuchsia coherente con la marca
       {
         selector: 'node.vd-focused',
         style: {
-          'border-color': '#22d3ee',
-          'border-width': 5,
-          'overlay-color': '#22d3ee',
-          'overlay-opacity': 0.25,
-          'overlay-padding': 10,
+          'border-color': '#e879f9',                 // fuchsia-400
+          'border-width': 4,
+          'overlay-color': '#d946ef',                // fuchsia-500
+          'overlay-opacity': 0.22,
+          'overlay-padding': 9,
           'z-index': 100,
         },
       },
@@ -356,33 +390,73 @@ export class CosmographCanvasComponent implements AfterViewInit, OnChanges, OnDe
       {
         selector: 'edge',
         style: {
-          width: 1.5,
-          'line-color': '#475569',
+          width: 1.2,
+          'line-color': 'rgba(100, 116, 139, 0.55)',  // slate-500 con alpha
           'curve-style': 'bezier',
           'target-arrow-shape': 'triangle',
-          'target-arrow-color': '#475569',
-          'arrow-scale': 0.8,
-          opacity: 0.7,
+          'target-arrow-color': 'rgba(100, 116, 139, 0.55)',
+          'arrow-scale': 0.85,
+          opacity: 0.85,
           label: 'data(label)',
-          'font-size': 9,
+          'font-family': 'JetBrains Mono, ui-monospace, SFMono-Regular, monospace',
+          'font-size': 8,
+          'font-weight': 500,
           color: '#94a3b8',
           'text-rotation': 'autorotate' as any,
-          'text-background-color': '#0a0a0f',
-          'text-background-opacity': 0.8,
-          'text-background-padding': '2px',
+          'text-background-color': 'rgba(8, 8, 13, 0.95)',
+          'text-background-opacity': 1,
+          'text-background-padding': '3px',
+          'text-background-shape': 'roundrectangle',
+          'text-border-color': 'rgba(148, 163, 184, 0.12)',
+          'text-border-width': 1,
+          'text-border-opacity': 1,
         },
       },
-      { selector: 'edge[relacion="contrato"]', style: { 'line-color': '#10b981', 'target-arrow-color': '#10b981' } },
-      { selector: 'edge[relacion="sancion"]',  style: { 'line-color': '#ef4444', 'target-arrow-color': '#ef4444', width: 2.5 } },
-      { selector: 'edge[relacion="cargo"]',    style: { 'line-color': '#fbbf24', 'target-arrow-color': '#fbbf24', 'line-style': 'dashed' } },
-      { selector: 'edge[relacion="control"]',  style: { 'line-color': '#6366f1', 'target-arrow-color': '#6366f1' } },
+      {
+        selector: 'edge[relacion="contrato"]',
+        style: {
+          'line-color': 'rgba(52, 211, 153, 0.7)',     // emerald-400 con alpha
+          'target-arrow-color': 'rgba(52, 211, 153, 0.85)',
+        },
+      },
+      {
+        selector: 'edge[relacion="sancion"]',
+        style: {
+          'line-color': 'rgba(251, 113, 133, 0.85)',   // rose-400
+          'target-arrow-color': '#fb7185',
+          width: 2,
+        },
+      },
+      {
+        selector: 'edge[relacion="cargo"]',
+        style: {
+          'line-color': 'rgba(251, 191, 36, 0.7)',     // amber-400
+          'target-arrow-color': '#fbbf24',
+          'line-style': 'dashed',
+        },
+      },
+      {
+        selector: 'edge[relacion="control"]',
+        style: {
+          'line-color': 'rgba(167, 139, 250, 0.7)',    // violet-400
+          'target-arrow-color': '#a78bfa',
+        },
+      },
+      {
+        selector: 'edge[relacion="comparte_rl"], edge[relacion="comparte_dir"], edge[relacion="familiar"]',
+        style: {
+          'line-color': 'rgba(244, 114, 182, 0.6)',    // pink-400
+          'target-arrow-color': '#f472b6',
+          'line-style': 'dotted',
+        },
+      },
       {
         selector: 'edge.flagged',
         style: {
-          'line-color': '#ef4444',
-          'target-arrow-color': '#ef4444',
-          width: 3,
-          opacity: 0.95,
+          'line-color': '#fb7185',
+          'target-arrow-color': '#fb7185',
+          width: 2.5,
+          opacity: 1,
         },
       },
     ];

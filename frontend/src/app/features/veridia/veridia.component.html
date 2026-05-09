@@ -3,7 +3,7 @@
   <!-- ════════════════════════════════════════════════════════ -->
   <!-- SIDEBAR IZQUIERDO                                         -->
   <!-- ════════════════════════════════════════════════════════ -->
-  <aside class="flex w-80 flex-col border-r border-slate-800/60 bg-slate-950/40 backdrop-blur">
+  <aside class="flex w-80 flex-col border-r border-slate-800/60 bg-slate-950/40 backdrop-blur min-h-0">
 
     <!-- Búsqueda -->
     <div class="px-5 pt-5">
@@ -58,14 +58,14 @@
           <span>{{ l.label }}</span>
         </li>
         <li class="flex items-center gap-2 text-[11px] text-slate-400">
-          <span class="h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-red-500/40"></span>
+          <span class="h-2.5 w-2.5 rounded-full bg-rose-400 ring-2 ring-rose-400/40"></span>
           <span>Bandera roja</span>
         </li>
       </ul>
     </div>
 
-    <!-- Hallazgos -->
-    <div class="mt-6 flex-1 overflow-y-auto px-5 pb-5" *ngIf="investigation">
+    <!-- Hallazgos (área scrolleable) -->
+    <div class="mt-6 flex-1 min-h-0 overflow-y-auto px-5 pb-4" *ngIf="investigation">
       <p class="text-[10px] uppercase tracking-widest text-slate-500">Hallazgos clave</p>
       <ul class="mt-2 space-y-2">
         <li *ngFor="let f of investigation.findings"
@@ -73,13 +73,23 @@
           <span class="mr-1 text-fuchsia-400">▸</span>{{ f }}
         </li>
       </ul>
+    </div>
 
-      <div class="mt-4 rounded-xl border px-3 py-2.5"
+    <!-- Confianza · sticky abajo (siempre visible) -->
+    <div *ngIf="investigation"
+         class="mt-auto border-t border-slate-800/60 bg-slate-950/50 px-5 py-4 backdrop-blur">
+      <div class="rounded-xl border px-3 py-2.5"
            [ngClass]="alertColor(investigation.alert_type)">
         <p class="text-[10px] uppercase tracking-widest opacity-70">Confianza del hallazgo</p>
         <div class="mt-1 flex items-baseline gap-2">
           <span class="text-2xl font-bold">{{ investigation.confidence }}</span>
           <span class="text-xs opacity-70">/ 100</span>
+        </div>
+        <!-- barra de progreso visual -->
+        <div class="mt-2 h-1 overflow-hidden rounded-full bg-slate-800">
+          <div class="h-full rounded-full transition-all"
+               [style.width.%]="investigation.confidence"
+               [ngClass]="confidenceBarColor(investigation.alert_type)"></div>
         </div>
       </div>
     </div>

@@ -39,11 +39,11 @@ export class VeridiaComponent implements OnInit {
   showLabels = true;
 
   legend: LegendEntry[] = [
-    { type: 'persona', label: 'Persona', colorClass: 'bg-blue-500' },
-    { type: 'empresa', label: 'Empresa', colorClass: 'bg-amber-500' },
-    { type: 'entidad', label: 'Entidad pública', colorClass: 'bg-violet-500' },
-    { type: 'contrato', label: 'Contrato', colorClass: 'bg-emerald-500' },
-    { type: 'sancion', label: 'Sanción', colorClass: 'bg-red-500' },
+    { type: 'persona', label: 'Persona', colorClass: 'bg-cyan-400' },
+    { type: 'empresa', label: 'Empresa', colorClass: 'bg-amber-400' },
+    { type: 'entidad', label: 'Entidad pública', colorClass: 'bg-violet-400' },
+    { type: 'contrato', label: 'Contrato', colorClass: 'bg-emerald-400' },
+    { type: 'sancion', label: 'Sanción', colorClass: 'bg-rose-400' },
   ];
 
   constructor(private readonly mock: VeridiaMockService) {}
@@ -150,9 +150,17 @@ export class VeridiaComponent implements OnInit {
 
   alertColor(type: AlertType): string {
     return {
-      sancionado_activo: 'border-red-500 text-red-300 bg-red-500/10',
-      puerta_giratoria: 'border-amber-500 text-amber-300 bg-amber-500/10',
-      redes_ocultas:    'border-violet-500 text-violet-300 bg-violet-500/10',
+      sancionado_activo: 'border-rose-500/40 text-rose-300 bg-rose-500/10',
+      puerta_giratoria: 'border-amber-500/40 text-amber-300 bg-amber-500/10',
+      redes_ocultas:    'border-violet-500/40 text-violet-300 bg-violet-500/10',
+    }[type];
+  }
+
+  confidenceBarColor(type: AlertType): string {
+    return {
+      sancionado_activo: 'bg-rose-400',
+      puerta_giratoria: 'bg-amber-400',
+      redes_ocultas:    'bg-violet-400',
     }[type];
   }
 }
