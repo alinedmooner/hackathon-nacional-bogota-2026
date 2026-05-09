@@ -1,174 +1,192 @@
 <section class="grid gap-6 min-w-0">
-  <div class="panel rounded-2xl p-6">
+  <!-- ════════ HEADER ════════ -->
+  <div class="card-glud rounded border-t-4 border-navy bg-card p-6">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <p class="text-xs uppercase tracking-[0.3em] text-neon-400">GLUD Dashboard</p>
-        <h2 class="text-2xl font-semibold text-slate-100">Hackathon 5.9 Colombia</h2>
-        <p class="mt-1 text-sm text-slate-400">Datos en vivo y monitoreo operacional GLUD.</p>
+        <p class="eyebrow">Observatorio · GLUD</p>
+        <h2 class="font-editorial text-2xl font-semibold leading-tight text-ink">
+          Hackathon 5.9 Colombia
+        </h2>
+        <p class="mt-1 text-sm text-ink-2">
+          Datos en vivo y monitoreo operacional de contratación pública.
+        </p>
       </div>
-      <div class="flex flex-wrap items-center gap-3">
+      <div class="flex flex-wrap items-center gap-2">
         <button
-          class="rounded-lg border px-4 py-2 text-xs font-semibold uppercase tracking-widest transition"
-          [class.border-neon-500]="activeTab === 'records'"
-          [class.text-neon-300]="activeTab === 'records'"
-          [class.border-slate-700]="activeTab !== 'records'"
-          [class.text-slate-400]="activeTab !== 'records'"
+          class="rounded border px-4 py-2 text-xs font-semibold uppercase tracking-widest transition"
+          [class.border-navy]="activeTab === 'records'"
+          [class.bg-navy]="activeTab === 'records'"
+          [class.text-cream]="activeTab === 'records'"
+          [class.border-line]="activeTab !== 'records'"
+          [class.text-ink-2]="activeTab !== 'records'"
+          [class.hover:border-navy]="activeTab !== 'records'"
           (click)="setTab('records')"
         >
           Registros
         </button>
         <button
-          class="rounded-lg border px-4 py-2 text-xs font-semibold uppercase tracking-widest transition"
-          [class.border-violet-500]="activeTab === 'analytics'"
-          [class.text-violet-200]="activeTab === 'analytics'"
-          [class.border-slate-700]="activeTab !== 'analytics'"
-          [class.text-slate-400]="activeTab !== 'analytics'"
+          class="rounded border px-4 py-2 text-xs font-semibold uppercase tracking-widest transition"
+          [class.border-navy]="activeTab === 'analytics'"
+          [class.bg-navy]="activeTab === 'analytics'"
+          [class.text-cream]="activeTab === 'analytics'"
+          [class.border-line]="activeTab !== 'analytics'"
+          [class.text-ink-2]="activeTab !== 'analytics'"
+          [class.hover:border-navy]="activeTab !== 'analytics'"
           (click)="setTab('analytics')"
         >
           Contratos
         </button>
         <button
-          class="rounded-lg border px-4 py-2 text-xs font-semibold uppercase tracking-widest transition"
-          [class.border-emerald-500]="activeTab === 'archivos'"
-          [class.text-emerald-200]="activeTab === 'archivos'"
-          [class.border-slate-700]="activeTab !== 'archivos'"
-          [class.text-slate-400]="activeTab !== 'archivos'"
+          class="rounded border px-4 py-2 text-xs font-semibold uppercase tracking-widest transition"
+          [class.border-navy]="activeTab === 'archivos'"
+          [class.bg-navy]="activeTab === 'archivos'"
+          [class.text-cream]="activeTab === 'archivos'"
+          [class.border-line]="activeTab !== 'archivos'"
+          [class.text-ink-2]="activeTab !== 'archivos'"
+          [class.hover:border-navy]="activeTab !== 'archivos'"
           (click)="setTab('archivos')"
         >
           Archivos
         </button>
         <button
-          class="rounded-lg border px-4 py-2 text-xs font-semibold uppercase tracking-widest transition"
-          [class.border-fuchsia-500]="activeTab === 'chat'"
-          [class.text-fuchsia-200]="activeTab === 'chat'"
-          [class.border-slate-700]="activeTab !== 'chat'"
-          [class.text-slate-400]="activeTab !== 'chat'"
+          class="rounded border px-4 py-2 text-xs font-semibold uppercase tracking-widest transition"
+          [class.border-navy]="activeTab === 'chat'"
+          [class.bg-navy]="activeTab === 'chat'"
+          [class.text-cream]="activeTab === 'chat'"
+          [class.border-line]="activeTab !== 'chat'"
+          [class.text-ink-2]="activeTab !== 'chat'"
+          [class.hover:border-navy]="activeTab !== 'chat'"
           (click)="setTab('chat')"
         >
-          AI Chat
+          Asistente
         </button>
         <button
-          class="rounded-lg border border-violet-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-violet-200 transition hover:bg-violet-500/20"
+          class="btn-ghost text-xs"
           (click)="logout()"
         >
-          Cerrar sesion
+          Cerrar sesión
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ═══════ SNAPSHOT CARDS ═══════ -->
+  <!-- ════════ SNAPSHOT CARDS ════════ -->
   <div class="grid gap-4 md:grid-cols-3">
-    <div class="panel rounded-xl p-5">
-      <p class="text-xs uppercase tracking-widest text-slate-400">Total contratos</p>
-      <p class="mt-3 text-3xl font-semibold text-neon-400">{{ snapshot.totalContratos | number }}</p>
-      <p class="text-xs text-slate-500">SECOP II</p>
+    <div class="card-glud rounded border-l-4 border-navy bg-card p-5">
+      <p class="eyebrow">Total contratos</p>
+      <p class="mt-2 font-editorial text-3xl font-semibold text-navy tabular">{{ snapshot.totalContratos | number }}</p>
+      <p class="text-xs text-muted">SECOP II</p>
     </div>
-    <div class="panel rounded-xl p-5">
-      <p class="text-xs uppercase tracking-widest text-slate-400">Contratos Pyme</p>
-      <p class="mt-3 text-3xl font-semibold text-slate-100">{{ snapshot.contratosPyme | number }}</p>
-      <p class="text-xs text-slate-500">Empresas Pyme</p>
+    <div class="card-glud rounded border-l-4 border-line-strong bg-card p-5">
+      <p class="eyebrow">Contratos Pyme</p>
+      <p class="mt-2 font-editorial text-3xl font-semibold text-ink tabular">{{ snapshot.contratosPyme | number }}</p>
+      <p class="text-xs text-muted">Empresas Pyme</p>
     </div>
-    <div class="panel rounded-xl p-5">
-      <p class="text-xs uppercase tracking-widest text-slate-400">Pagos adelantados</p>
-      <p class="mt-3 text-3xl font-semibold text-violet-400">{{ snapshot.pagosAdelantados | number }}</p>
-      <p class="text-xs text-slate-500">Con anticipo habilitado</p>
+    <div class="card-glud rounded border-l-4 border-gold bg-card p-5">
+      <p class="eyebrow">Pagos adelantados</p>
+      <p class="mt-2 font-editorial text-3xl font-semibold text-gold-deep tabular">{{ snapshot.pagosAdelantados | number }}</p>
+      <p class="text-xs text-muted">Con anticipo habilitado</p>
     </div>
   </div>
 
-  <!-- ═══════ TAB: REGISTROS ═══════ -->
-  <div *ngIf="activeTab === 'records'" class="panel min-w-0 overflow-hidden rounded-2xl p-6">
+  <!-- ════════ TAB: REGISTROS ════════ -->
+  <div *ngIf="activeTab === 'records'" class="card-glud min-w-0 overflow-hidden rounded bg-card p-6">
     <div class="flex items-center justify-between">
-      <h3 class="text-sm uppercase tracking-[0.25em] text-neon-400">Contratos SECOP II</h3>
-      <div class="flex items-center gap-3 text-xs text-slate-500">
-        <button class="rounded border border-slate-700 px-3 py-1 text-[10px] uppercase tracking-widest" (click)="loadRecords()">
-          Recargar
-        </button>
-        <span>{{ totalRecords | number }} contratos</span>
+      <div>
+        <p class="eyebrow">SECOP II</p>
+        <h3 class="font-editorial text-lg font-semibold text-ink">Contratos</h3>
+      </div>
+      <div class="flex items-center gap-3 text-xs text-muted">
+        <button class="btn-ghost text-xs" (click)="loadRecords()">Recargar</button>
+        <span class="tabular">{{ totalRecords | number }} contratos</span>
       </div>
     </div>
     <div class="mt-5 w-full max-w-full overflow-x-auto overflow-y-auto max-h-[70vh]">
-      <div *ngIf="recordsLoading" class="text-sm text-slate-400">Cargando registros...</div>
-      <div *ngIf="recordsError" class="text-sm text-red-300">{{ recordsError }}</div>
-      <table *ngIf="!recordsLoading && recordColumns.length" class="min-w-max w-full max-w-full text-xs text-slate-200">
-        <thead class="border-b border-slate-700/60 text-[10px] uppercase tracking-widest text-slate-400">
+      <div *ngIf="recordsLoading" class="text-sm text-ink-2">Cargando registros…</div>
+      <div *ngIf="recordsError" class="text-sm text-err">{{ recordsError }}</div>
+      <table *ngIf="!recordsLoading && recordColumns.length" class="min-w-max w-full max-w-full text-xs text-ink">
+        <thead class="border-b-2 border-line-strong text-[10px] uppercase tracking-widest text-muted">
           <tr>
             <th
               *ngFor="let column of recordColumns"
-              class="px-3 py-3 text-left"
+              class="px-3 py-3 text-left font-semibold"
               [ngClass]="isWideColumn(column) ? 'whitespace-normal min-w-[20rem]' : 'whitespace-nowrap'"
             >
               {{ formatColumn(column) }}
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-800">
-          <tr *ngFor="let record of records" class="hover:bg-slate-900/60">
+        <tbody class="divide-y divide-line">
+          <tr *ngFor="let record of records" class="hover:bg-cream-2">
             <td
               *ngFor="let column of recordColumns"
-              class="px-3 py-3 text-slate-300"
+              class="px-3 py-3 text-ink-2"
               [ngClass]="isWideColumn(column) ? 'whitespace-normal break-words max-w-[48rem]' : 'whitespace-nowrap'"
             >
-              {{ record[column] !== null && record[column] !== undefined ? record[column] : '-' }}
+              {{ record[column] !== null && record[column] !== undefined ? record[column] : '—' }}
             </td>
           </tr>
         </tbody>
       </table>
-      <div *ngIf="!recordsLoading && !recordColumns.length" class="text-sm text-slate-400">
+      <div *ngIf="!recordsLoading && !recordColumns.length" class="text-sm text-muted">
         No hay datos para mostrar.
       </div>
     </div>
 
     <div *ngIf="totalPages > 1" class="mt-4 flex items-center justify-between">
       <button
-        class="rounded border border-slate-700 px-4 py-2 text-xs uppercase tracking-widest text-slate-400 transition hover:border-neon-500 hover:text-neon-300 disabled:opacity-30 disabled:hover:border-slate-700 disabled:hover:text-slate-400"
+        class="btn-ghost text-xs disabled:opacity-30"
         [disabled]="currentPage <= 1"
         (click)="prevPage()"
       >
-        Anterior
+        ← Anterior
       </button>
-      <span class="text-xs text-slate-400">
-        Pagina {{ currentPage }} de {{ totalPages }}
+      <span class="text-xs text-muted tabular">
+        Página {{ currentPage }} de {{ totalPages }}
       </span>
       <button
-        class="rounded border border-slate-700 px-4 py-2 text-xs uppercase tracking-widest text-slate-400 transition hover:border-neon-500 hover:text-neon-300 disabled:opacity-30 disabled:hover:border-slate-700 disabled:hover:text-slate-400"
+        class="btn-ghost text-xs disabled:opacity-30"
         [disabled]="currentPage >= totalPages"
         (click)="nextPage()"
       >
-        Siguiente
+        Siguiente →
       </button>
     </div>
   </div>
 
-  <!-- ═══════ TAB: CONTRATOS (Analytics Paso 2) ═══════ -->
+  <!-- ════════ TAB: CONTRATOS (Analytics) ════════ -->
   <div *ngIf="activeTab === 'analytics'" class="grid gap-6">
 
     <!-- Charts principales -->
     <div class="grid gap-6 lg:grid-cols-2">
-      <div class="panel rounded-2xl p-6">
-        <h3 class="text-sm uppercase tracking-[0.25em] text-neon-400">Top Departamentos</h3>
-        <div class="mt-5 h-64">
+      <div class="card-glud rounded bg-card p-6">
+        <p class="eyebrow">Departamentos</p>
+        <h3 class="font-editorial text-lg font-semibold text-ink">Top por número de contratos</h3>
+        <div class="mt-4 h-64">
           <canvas baseChart [data]="barChartData" [options]="barChartOptions" type="bar"></canvas>
         </div>
       </div>
-      <div class="panel rounded-2xl p-6">
-        <h3 class="text-sm uppercase tracking-[0.25em] text-violet-400">Tipos de Contrato</h3>
-        <div class="mt-5 h-64">
+      <div class="card-glud rounded bg-card p-6">
+        <p class="eyebrow">Tipos de contrato</p>
+        <h3 class="font-editorial text-lg font-semibold text-ink">Distribución</h3>
+        <div class="mt-4 h-64">
           <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" type="line"></canvas>
         </div>
       </div>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-3">
-      <div class="panel rounded-2xl p-6">
-        <h3 class="text-sm uppercase tracking-[0.25em] text-slate-200">Brecha de Genero</h3>
-        <div class="mt-5 h-56">
+      <div class="card-glud rounded bg-card p-6">
+        <p class="eyebrow">Brecha de género</p>
+        <h3 class="font-editorial text-lg font-semibold text-ink">Distribución</h3>
+        <div class="mt-4 h-56">
           <canvas baseChart [data]="doughnutChartData" [options]="doughnutChartOptions" type="doughnut"></canvas>
         </div>
       </div>
-      <div class="panel rounded-2xl p-6 lg:col-span-2">
-        <h3 class="text-sm uppercase tracking-[0.25em] text-neon-400">Modalidades de Contratacion</h3>
-        <div class="mt-5 h-56">
+      <div class="card-glud rounded bg-card p-6 lg:col-span-2">
+        <p class="eyebrow">Modalidades</p>
+        <h3 class="font-editorial text-lg font-semibold text-ink">Tipos de contratación</h3>
+        <div class="mt-4 h-56">
           <canvas baseChart [data]="latencyChartData" [options]="latencyChartOptions" type="line"></canvas>
         </div>
       </div>
@@ -176,9 +194,10 @@
 
     <!-- Top Entidades por Dinero -->
     <div class="grid gap-6 lg:grid-cols-2">
-      <div class="panel rounded-2xl p-6">
-        <h3 class="text-sm uppercase tracking-[0.25em] text-violet-400">Top Entidades por Valor</h3>
-        <div class="mt-5 h-64">
+      <div class="card-glud rounded bg-card p-6">
+        <p class="eyebrow">Entidades</p>
+        <h3 class="font-editorial text-lg font-semibold text-ink">Top por valor contratado</h3>
+        <div class="mt-4 h-64">
           <canvas baseChart [data]="entidadesChartData" [options]="entidadesChartOptions" type="bar"></canvas>
         </div>
       </div>
@@ -186,83 +205,89 @@
       <!-- Indicadores extendidos -->
       <div class="grid gap-4" *ngIf="paso2Extended">
         <div class="grid gap-4 grid-cols-2">
-          <div class="panel rounded-xl p-5">
-            <p class="text-xs uppercase tracking-widest text-slate-400">Variables</p>
-            <p class="mt-2 text-2xl font-semibold text-neon-400">{{ paso2Extended.totalVariables }}</p>
-            <p class="text-xs text-slate-500">Campos en dataset</p>
+          <div class="card-glud rounded border-l-4 border-navy bg-card p-5">
+            <p class="eyebrow">Variables</p>
+            <p class="mt-1 font-editorial text-2xl font-semibold text-navy tabular">{{ paso2Extended.totalVariables }}</p>
+            <p class="text-xs text-muted">Campos en dataset</p>
           </div>
-          <div class="panel rounded-xl p-5">
-            <p class="text-xs uppercase tracking-widest text-slate-400">Registros 2025</p>
-            <p class="mt-2 text-2xl font-semibold text-slate-100">{{ paso2Extended.registros2025 | number }}</p>
-            <p class="text-xs text-slate-500">Contratos firmados</p>
+          <div class="card-glud rounded border-l-4 border-line-strong bg-card p-5">
+            <p class="eyebrow">Registros 2025</p>
+            <p class="mt-1 font-editorial text-2xl font-semibold text-ink tabular">{{ paso2Extended.registros2025 | number }}</p>
+            <p class="text-xs text-muted">Contratos firmados</p>
           </div>
-          <div class="panel rounded-xl p-5">
-            <p class="text-xs uppercase tracking-widest text-slate-400">Obl. Ambientales</p>
-            <p class="mt-2 text-2xl font-semibold text-emerald-400">{{ paso2Extended.pctObligacionesAmbientales }}%</p>
-            <p class="text-xs text-slate-500">{{ paso2Extended.obligacionesAmbientales | number }} contratos</p>
+          <div class="card-glud rounded border-l-4 border-ok bg-card p-5">
+            <p class="eyebrow">Obl. ambientales</p>
+            <p class="mt-1 font-editorial text-2xl font-semibold text-ok tabular">{{ paso2Extended.pctObligacionesAmbientales }}%</p>
+            <p class="text-xs text-muted tabular">{{ paso2Extended.obligacionesAmbientales | number }} contratos</p>
           </div>
-          <div class="panel rounded-xl p-5">
-            <p class="text-xs uppercase tracking-widest text-slate-400">Pareto 80/20</p>
-            <p class="mt-2 text-2xl font-semibold" [class.text-neon-400]="paso2Extended.paretoSeCumple" [class.text-red-400]="!paso2Extended.paretoSeCumple">
-              {{ paso2Extended.paretoSeCumple ? 'Si' : 'No' }}
+          <div class="card-glud rounded border-l-4 bg-card p-5"
+               [class.border-navy]="paso2Extended.paretoSeCumple"
+               [class.border-err]="!paso2Extended.paretoSeCumple">
+            <p class="eyebrow">Pareto 80/20</p>
+            <p class="mt-1 font-editorial text-2xl font-semibold tabular"
+               [class.text-navy]="paso2Extended.paretoSeCumple"
+               [class.text-err]="!paso2Extended.paretoSeCumple">
+              {{ paso2Extended.paretoSeCumple ? 'Sí' : 'No' }}
             </p>
-            <p class="text-xs text-slate-500">Top 20% concentra {{ paso2Extended.paretoPctTop20 }}%</p>
+            <p class="text-xs text-muted">Top 20% concentra {{ paso2Extended.paretoPctTop20 }}%</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Anomalias Financieras -->
-    <div class="panel rounded-2xl p-6" *ngIf="anomaliasFinancieras.length">
-      <h3 class="text-sm uppercase tracking-[0.25em] text-red-400">Anomalias Financieras (IQR)</h3>
-      <p class="mt-1 text-xs text-slate-500">
-        Media: {{ formatCurrency(anomaliasEstadisticas.media) }} | Umbral: {{ formatCurrency(anomaliasEstadisticas.umbral_anomalia) }}
+    <!-- Anomalías Financieras -->
+    <div class="card-glud rounded border-l-4 border-err bg-card p-6" *ngIf="anomaliasFinancieras.length">
+      <p class="eyebrow">Anomalías financieras (IQR)</p>
+      <h3 class="font-editorial text-lg font-semibold text-err">Contratos atípicos</h3>
+      <p class="mt-1 text-xs text-muted tabular">
+        Media: {{ formatCurrency(anomaliasEstadisticas.media) }} · Umbral: {{ formatCurrency(anomaliasEstadisticas.umbral_anomalia) }}
       </p>
       <div class="mt-4 overflow-x-auto">
-        <table class="w-full text-xs text-slate-200">
-          <thead class="border-b border-slate-700/60 text-[10px] uppercase tracking-widest text-slate-400">
+        <table class="w-full text-xs text-ink">
+          <thead class="border-b-2 border-line-strong text-[10px] uppercase tracking-widest text-muted">
             <tr>
-              <th class="px-3 py-2 text-left">#</th>
-              <th class="px-3 py-2 text-left">Entidad</th>
-              <th class="px-3 py-2 text-left">Tipo</th>
-              <th class="px-3 py-2 text-left">Estado</th>
-              <th class="px-3 py-2 text-right">Valor</th>
-              <th class="px-3 py-2 text-left">Sustento</th>
+              <th class="px-3 py-2 text-left font-semibold">#</th>
+              <th class="px-3 py-2 text-left font-semibold">Entidad</th>
+              <th class="px-3 py-2 text-left font-semibold">Tipo</th>
+              <th class="px-3 py-2 text-left font-semibold">Estado</th>
+              <th class="px-3 py-2 text-right font-semibold">Valor</th>
+              <th class="px-3 py-2 text-left font-semibold">Sustento</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-800">
-            <tr *ngFor="let a of anomaliasFinancieras" class="hover:bg-slate-900/60">
-              <td class="px-3 py-2 text-red-400 font-semibold">{{ a.posicion }}</td>
-              <td class="px-3 py-2 max-w-[16rem] truncate">{{ a.entidad }}</td>
-              <td class="px-3 py-2 whitespace-nowrap">{{ a.tipo }}</td>
-              <td class="px-3 py-2 whitespace-nowrap">{{ a.estado }}</td>
-              <td class="px-3 py-2 text-right font-mono text-red-300">{{ formatCurrency(a.valor) }}</td>
-              <td class="px-3 py-2 max-w-[20rem] text-slate-400 truncate">{{ a.sustento }}</td>
+          <tbody class="divide-y divide-line">
+            <tr *ngFor="let a of anomaliasFinancieras" class="hover:bg-cream-2">
+              <td class="px-3 py-2 text-err font-semibold tabular">{{ a.posicion }}</td>
+              <td class="px-3 py-2 max-w-[16rem] truncate text-ink-2">{{ a.entidad }}</td>
+              <td class="px-3 py-2 whitespace-nowrap text-ink-2">{{ a.tipo }}</td>
+              <td class="px-3 py-2 whitespace-nowrap text-ink-2">{{ a.estado }}</td>
+              <td class="px-3 py-2 text-right font-mono text-err tabular">{{ formatCurrency(a.valor) }}</td>
+              <td class="px-3 py-2 max-w-[20rem] text-muted truncate">{{ a.sustento }}</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Anomalias Tipos de Datos -->
-    <div class="panel rounded-2xl p-6" *ngIf="anomaliasTiposDatos.length">
-      <h3 class="text-sm uppercase tracking-[0.25em] text-amber-400">Anomalias en Tipos de Datos</h3>
+    <!-- Anomalías Tipos de Datos -->
+    <div class="card-glud rounded border-l-4 border-gold bg-card p-6" *ngIf="anomaliasTiposDatos.length">
+      <p class="eyebrow">Calidad de datos</p>
+      <h3 class="font-editorial text-lg font-semibold text-gold-deep">Anomalías en tipos de datos</h3>
       <div class="mt-4 overflow-x-auto">
-        <table class="w-full text-xs text-slate-200">
-          <thead class="border-b border-slate-700/60 text-[10px] uppercase tracking-widest text-slate-400">
+        <table class="w-full text-xs text-ink">
+          <thead class="border-b-2 border-line-strong text-[10px] uppercase tracking-widest text-muted">
             <tr>
-              <th class="px-3 py-2 text-left">Campo</th>
-              <th class="px-3 py-2 text-left">Almacenado como</th>
-              <th class="px-3 py-2 text-left">Deberia ser</th>
-              <th class="px-3 py-2 text-left">Problema</th>
+              <th class="px-3 py-2 text-left font-semibold">Campo</th>
+              <th class="px-3 py-2 text-left font-semibold">Almacenado como</th>
+              <th class="px-3 py-2 text-left font-semibold">Debería ser</th>
+              <th class="px-3 py-2 text-left font-semibold">Problema</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-800">
-            <tr *ngFor="let a of anomaliasTiposDatos" class="hover:bg-slate-900/60">
-              <td class="px-3 py-2 font-mono text-amber-300">{{ a.campo }}</td>
-              <td class="px-3 py-2 text-red-300">{{ a.tipo_almacenado }}</td>
-              <td class="px-3 py-2 text-emerald-300">{{ a.tipo_correcto }}</td>
-              <td class="px-3 py-2 max-w-[24rem] text-slate-400">{{ a.problema }}</td>
+          <tbody class="divide-y divide-line">
+            <tr *ngFor="let a of anomaliasTiposDatos" class="hover:bg-cream-2">
+              <td class="px-3 py-2 font-mono text-gold-deep">{{ a.campo }}</td>
+              <td class="px-3 py-2 text-err">{{ a.tipo_almacenado }}</td>
+              <td class="px-3 py-2 text-ok">{{ a.tipo_correcto }}</td>
+              <td class="px-3 py-2 max-w-[24rem] text-muted">{{ a.problema }}</td>
             </tr>
           </tbody>
         </table>
@@ -270,86 +295,89 @@
     </div>
   </div>
 
-  <!-- ═══════ TAB: ARCHIVOS (Analytics Paso 1) ═══════ -->
+  <!-- ════════ TAB: ARCHIVOS ════════ -->
   <div *ngIf="activeTab === 'archivos'" class="grid gap-6">
 
-    <div *ngIf="!paso1Stats" class="text-sm text-slate-400">Cargando datos de archivos...</div>
+    <div *ngIf="!paso1Stats" class="text-sm text-muted">Cargando datos de archivos…</div>
 
     <ng-container *ngIf="paso1Stats">
       <!-- Cards principales -->
       <div class="grid gap-4 md:grid-cols-4">
-        <div class="panel rounded-xl p-5">
-          <p class="text-xs uppercase tracking-widest text-slate-400">Total Archivos</p>
-          <p class="mt-2 text-2xl font-semibold text-emerald-400">{{ paso1Stats.totalRegistros | number }}</p>
-          <p class="text-xs text-slate-500">Registros en dataset</p>
+        <div class="card-glud rounded border-l-4 border-ok bg-card p-5">
+          <p class="eyebrow">Total archivos</p>
+          <p class="mt-1 font-editorial text-2xl font-semibold text-ok tabular">{{ paso1Stats.totalRegistros | number }}</p>
+          <p class="text-xs text-muted">Registros en dataset</p>
         </div>
-        <div class="panel rounded-xl p-5">
-          <p class="text-xs uppercase tracking-widest text-slate-400">Columnas</p>
-          <p class="mt-2 text-2xl font-semibold text-slate-100">{{ paso1Stats.totalColumnas }}</p>
-          <p class="text-xs text-slate-500">Variables disponibles</p>
+        <div class="card-glud rounded border-l-4 border-line-strong bg-card p-5">
+          <p class="eyebrow">Columnas</p>
+          <p class="mt-1 font-editorial text-2xl font-semibold text-ink tabular">{{ paso1Stats.totalColumnas }}</p>
+          <p class="text-xs text-muted">Variables disponibles</p>
         </div>
-        <div class="panel rounded-xl p-5">
-          <p class="text-xs uppercase tracking-widest text-slate-400">Nulos Descripcion</p>
-          <p class="mt-2 text-2xl font-semibold text-amber-400">{{ paso1Stats.pctNulosDescripcion }}%</p>
-          <p class="text-xs text-slate-500">{{ paso1Stats.nulosDescripcion | number }} registros</p>
+        <div class="card-glud rounded border-l-4 border-gold bg-card p-5">
+          <p class="eyebrow">Nulos descripción</p>
+          <p class="mt-1 font-editorial text-2xl font-semibold text-gold-deep tabular">{{ paso1Stats.pctNulosDescripcion }}%</p>
+          <p class="text-xs text-muted tabular">{{ paso1Stats.nulosDescripcion | number }} registros</p>
         </div>
-        <div class="panel rounded-xl p-5">
-          <p class="text-xs uppercase tracking-widest text-slate-400">Nulos Proceso</p>
-          <p class="mt-2 text-2xl font-semibold text-amber-400">{{ paso1Stats.pctNulosProceso }}%</p>
-          <p class="text-xs text-slate-500">{{ paso1Stats.nulosProceso | number }} registros</p>
+        <div class="card-glud rounded border-l-4 border-gold bg-card p-5">
+          <p class="eyebrow">Nulos proceso</p>
+          <p class="mt-1 font-editorial text-2xl font-semibold text-gold-deep tabular">{{ paso1Stats.pctNulosProceso }}%</p>
+          <p class="text-xs text-muted tabular">{{ paso1Stats.nulosProceso | number }} registros</p>
         </div>
       </div>
 
-      <!-- Stats de tamano de archivo -->
-      <div class="panel rounded-2xl p-6">
-        <h3 class="text-sm uppercase tracking-[0.25em] text-emerald-400">Estadisticas de Tamano de Archivo</h3>
-        <div class="mt-4 grid gap-4 md:grid-cols-4">
-          <div class="rounded-xl bg-slate-800/50 p-4">
-            <p class="text-xs uppercase tracking-widest text-slate-400">Maximo</p>
-            <p class="mt-2 text-xl font-semibold text-slate-100">{{ formatBytes(paso1Stats.tamanoMax) }}</p>
+      <!-- Stats de tamaño de archivo -->
+      <div class="card-glud rounded bg-card p-6">
+        <p class="eyebrow">Almacenamiento</p>
+        <h3 class="font-editorial text-lg font-semibold text-ink">Estadísticas de tamaño</h3>
+        <div class="mt-4 grid gap-3 md:grid-cols-4">
+          <div class="rounded border border-line bg-cream-2 p-4">
+            <p class="eyebrow">Máximo</p>
+            <p class="mt-1 font-editorial text-xl font-semibold text-ink tabular">{{ formatBytes(paso1Stats.tamanoMax) }}</p>
           </div>
-          <div class="rounded-xl bg-slate-800/50 p-4">
-            <p class="text-xs uppercase tracking-widest text-slate-400">Minimo</p>
-            <p class="mt-2 text-xl font-semibold text-slate-100">{{ formatBytes(paso1Stats.tamanoMin) }}</p>
+          <div class="rounded border border-line bg-cream-2 p-4">
+            <p class="eyebrow">Mínimo</p>
+            <p class="mt-1 font-editorial text-xl font-semibold text-ink tabular">{{ formatBytes(paso1Stats.tamanoMin) }}</p>
           </div>
-          <div class="rounded-xl bg-slate-800/50 p-4">
-            <p class="text-xs uppercase tracking-widest text-slate-400">Media</p>
-            <p class="mt-2 text-xl font-semibold text-emerald-400">{{ formatBytes(paso1Stats.tamanoMedia) }}</p>
+          <div class="rounded border border-line bg-cream-2 p-4">
+            <p class="eyebrow">Media</p>
+            <p class="mt-1 font-editorial text-xl font-semibold text-ok tabular">{{ formatBytes(paso1Stats.tamanoMedia) }}</p>
           </div>
-          <div class="rounded-xl bg-slate-800/50 p-4">
-            <p class="text-xs uppercase tracking-widest text-slate-400">Mediana</p>
-            <p class="mt-2 text-xl font-semibold text-emerald-400">{{ formatBytes(paso1Stats.tamanoMediana) }}</p>
+          <div class="rounded border border-line bg-cream-2 p-4">
+            <p class="eyebrow">Mediana</p>
+            <p class="mt-1 font-editorial text-xl font-semibold text-ok tabular">{{ formatBytes(paso1Stats.tamanoMediana) }}</p>
           </div>
         </div>
       </div>
 
       <!-- Rango de fechas -->
-      <div class="panel rounded-2xl p-6">
-        <h3 class="text-sm uppercase tracking-[0.25em] text-emerald-400">Rango de Fecha de Carga</h3>
-        <div class="mt-4 grid gap-4 md:grid-cols-3">
-          <div class="rounded-xl bg-slate-800/50 p-4">
-            <p class="text-xs uppercase tracking-widest text-slate-400">Fecha mas antigua</p>
-            <p class="mt-2 text-lg font-semibold text-slate-100">{{ paso1Stats.fechaMin || '-' }}</p>
+      <div class="card-glud rounded bg-card p-6">
+        <p class="eyebrow">Cobertura temporal</p>
+        <h3 class="font-editorial text-lg font-semibold text-ink">Rango de fechas de carga</h3>
+        <div class="mt-4 grid gap-3 md:grid-cols-3">
+          <div class="rounded border border-line bg-cream-2 p-4">
+            <p class="eyebrow">Más antigua</p>
+            <p class="mt-1 font-editorial text-lg font-semibold text-ink tabular">{{ paso1Stats.fechaMin || '—' }}</p>
           </div>
-          <div class="rounded-xl bg-slate-800/50 p-4">
-            <p class="text-xs uppercase tracking-widest text-slate-400">Fecha mas reciente</p>
-            <p class="mt-2 text-lg font-semibold text-slate-100">{{ paso1Stats.fechaMax || '-' }}</p>
+          <div class="rounded border border-line bg-cream-2 p-4">
+            <p class="eyebrow">Más reciente</p>
+            <p class="mt-1 font-editorial text-lg font-semibold text-ink tabular">{{ paso1Stats.fechaMax || '—' }}</p>
           </div>
-          <div class="rounded-xl bg-slate-800/50 p-4">
-            <p class="text-xs uppercase tracking-widest text-slate-400">Rango total</p>
-            <p class="mt-2 text-lg font-semibold text-emerald-400">{{ paso1Stats.rangoTexto || '-' }}</p>
-            <p *ngIf="paso1Stats.rangoDias" class="text-xs text-slate-500">{{ paso1Stats.rangoDias | number }} dias</p>
+          <div class="rounded border border-line bg-cream-2 p-4">
+            <p class="eyebrow">Rango total</p>
+            <p class="mt-1 font-editorial text-lg font-semibold text-ok">{{ paso1Stats.rangoTexto || '—' }}</p>
+            <p *ngIf="paso1Stats.rangoDias" class="text-xs text-muted tabular">{{ paso1Stats.rangoDias | number }} días</p>
           </div>
         </div>
       </div>
 
       <!-- Lista de columnas -->
-      <div class="panel rounded-2xl p-6">
-        <h3 class="text-sm uppercase tracking-[0.25em] text-emerald-400">Columnas del Dataset</h3>
+      <div class="card-glud rounded bg-card p-6">
+        <p class="eyebrow">Esquema</p>
+        <h3 class="font-editorial text-lg font-semibold text-ink">Columnas del dataset</h3>
         <div class="mt-4 flex flex-wrap gap-2">
           <span
             *ngFor="let col of paso1Stats.columnas"
-            class="rounded-lg bg-slate-800/60 px-3 py-1.5 text-xs font-mono text-slate-300"
+            class="rounded border border-line bg-cream-2 px-3 py-1 font-mono text-xs text-ink-2"
           >
             {{ col }}
           </span>
@@ -358,52 +386,54 @@
     </ng-container>
   </div>
 
-  <!-- ═══════ TAB: AI CHAT ═══════ -->
+  <!-- ════════ TAB: CHAT ════════ -->
   <div *ngIf="activeTab === 'chat'" class="grid gap-6 lg:grid-cols-[18rem_1fr]">
 
     <!-- Sidebar de conversaciones -->
-    <aside class="panel rounded-2xl p-5 self-start">
+    <aside class="card-glud rounded bg-card p-5 self-start">
       <div class="flex items-center justify-between">
-        <h3 class="text-sm uppercase tracking-[0.25em] text-fuchsia-300">Conversaciones</h3>
-        <button
-          class="rounded border border-fuchsia-500/40 px-3 py-1 text-[10px] uppercase tracking-widest text-fuchsia-200 transition hover:bg-fuchsia-500/20"
-          (click)="newConversation()"
-        >
-          Nueva
+        <div>
+          <p class="eyebrow">Historial</p>
+          <h3 class="font-editorial text-base font-semibold text-ink">Conversaciones</h3>
+        </div>
+        <button class="btn-ghost text-xs" (click)="newConversation()">
+          + Nueva
         </button>
       </div>
       <div class="mt-4 max-h-[60vh] space-y-2 overflow-y-auto pr-1">
         <div
           *ngIf="!conversations.length"
-          class="rounded-lg border border-dashed border-slate-700 px-3 py-4 text-center text-xs text-slate-500"
+          class="rounded border border-dashed border-line-strong px-3 py-6 text-center text-xs text-muted"
         >
           Aún no hay historial.
         </div>
         <button
           *ngFor="let c of conversations; trackBy: trackByIndex"
           (click)="loadConversation(c.conversation_id)"
-          class="w-full rounded-lg border px-3 py-2 text-left text-xs transition"
-          [class.border-fuchsia-500]="conversationId === c.conversation_id"
-          [class.bg-fuchsia-500_10]="conversationId === c.conversation_id"
-          [class.border-slate-700]="conversationId !== c.conversation_id"
-          [class.text-slate-300]="conversationId !== c.conversation_id"
-          [class.text-fuchsia-200]="conversationId === c.conversation_id"
+          class="w-full rounded border px-3 py-2 text-left text-xs transition"
+          [class.border-navy]="conversationId === c.conversation_id"
+          [class.bg-navy]="conversationId === c.conversation_id"
+          [class.text-cream]="conversationId === c.conversation_id"
+          [class.border-line]="conversationId !== c.conversation_id"
+          [class.bg-cream-2]="conversationId !== c.conversation_id"
+          [class.text-ink-2]="conversationId !== c.conversation_id"
         >
           <p class="truncate font-medium">{{ c.title }}</p>
-          <p class="mt-1 text-[10px] uppercase tracking-widest text-slate-500">{{ c.updated_at?.slice(0,10) }}</p>
+          <p class="mt-1 text-[10px] uppercase tracking-widest opacity-75 tabular">{{ c.updated_at?.slice(0,10) }}</p>
         </button>
       </div>
     </aside>
 
     <!-- Área principal del chat -->
-    <div class="panel flex min-h-[70vh] flex-col rounded-2xl p-6">
+    <div class="card-glud flex min-h-[70vh] flex-col rounded border-t-4 border-gold bg-card p-6">
 
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="text-sm uppercase tracking-[0.25em] text-fuchsia-300">Asistente IA · SECOP</h3>
-          <p class="mt-1 text-xs text-slate-500">Pregunta en lenguaje natural sobre los datasets de contratación pública.</p>
+          <p class="eyebrow">Asistente · SECOP</p>
+          <h3 class="font-editorial text-lg font-semibold text-ink">Pregúntale al agente</h3>
+          <p class="mt-1 text-xs text-muted">Lenguaje natural sobre los datasets de contratación pública.</p>
         </div>
-        <span *ngIf="conversationId" class="text-[10px] uppercase tracking-widest text-slate-500">
+        <span *ngIf="conversationId" class="font-mono text-[10px] uppercase tracking-widest text-muted tabular">
           ID: {{ conversationId.slice(0, 8) }}
         </span>
       </div>
@@ -412,14 +442,14 @@
       <div class="mt-5 flex-1 space-y-4 overflow-y-auto pr-2">
 
         <!-- Estado vacío con sugerencias -->
-        <div *ngIf="!chatMessages.length" class="grid gap-3">
-          <p class="text-xs uppercase tracking-widest text-slate-500">Prueba con preguntas como:</p>
+        <div *ngIf="!chatMessages.length" class="grid gap-2">
+          <p class="eyebrow">Prueba con preguntas como</p>
           <button
             *ngFor="let q of exampleQuestions"
             (click)="useExample(q)"
-            class="group rounded-xl border border-slate-700 bg-slate-900/40 px-4 py-3 text-left text-sm text-slate-300 transition hover:border-fuchsia-500/60 hover:text-fuchsia-200"
+            class="group rounded border border-line bg-cream-2 px-4 py-3 text-left text-sm text-ink-2 transition hover:border-navy hover:bg-cream"
           >
-            <span class="text-fuchsia-400 group-hover:text-fuchsia-300">›</span>
+            <span class="text-gold-deep group-hover:text-gold">›</span>
             {{ q }}
           </button>
         </div>
@@ -430,35 +460,40 @@
              [class.justify-start]="msg.role === 'assistant'"
              class="flex">
           <div
-            [class.bg-fuchsia-500_20]="msg.role === 'user'"
-            [class.bg-slate-800_70]="msg.role === 'assistant'"
-            [class.border-fuchsia-500_40]="msg.role === 'user'"
-            [class.border-slate-700]="msg.role === 'assistant'"
-            class="max-w-[80%] rounded-2xl border px-4 py-3 text-sm"
+            [class.bg-navy]="msg.role === 'user'"
+            [class.text-cream]="msg.role === 'user'"
+            [class.border-navy-deep]="msg.role === 'user'"
+            [class.bg-card]="msg.role === 'assistant'"
+            [class.border-line]="msg.role === 'assistant'"
+            [class.text-ink]="msg.role === 'assistant'"
+            class="max-w-[80%] rounded border px-4 py-3 text-sm"
           >
-            <p class="text-[10px] uppercase tracking-widest mb-1"
-               [class.text-fuchsia-200]="msg.role === 'user'"
-               [class.text-slate-400]="msg.role === 'assistant'">
+            <p class="mb-1 text-[10px] uppercase tracking-widest font-semibold"
+               [class.text-cream]="msg.role === 'user'"
+               [class.opacity-75]="msg.role === 'user'"
+               [class.text-muted]="msg.role === 'assistant'">
               {{ msg.role === 'user' ? 'Tú' : 'Agente' }}
             </p>
 
             <!-- Tool calls -->
             <div *ngIf="msg.tool_calls?.length" class="mb-3 space-y-1">
               <div *ngFor="let tc of msg.tool_calls"
-                   class="flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/5 px-2 py-1 text-[10px] font-mono text-emerald-300">
+                   class="flex items-center gap-2 rounded border border-ok/40 bg-ok/10 px-2 py-1 font-mono text-[10px] text-ok">
                 <span>🔍</span>
                 <span class="font-semibold">{{ tc.tool }}</span>
-                <span class="text-slate-400">·</span>
-                <span class="text-slate-400">{{ tc.result_summary }}</span>
+                <span class="text-muted">·</span>
+                <span class="text-muted">{{ tc.result_summary }}</span>
               </div>
             </div>
 
             <!-- Texto -->
-            <p class="whitespace-pre-wrap text-slate-100">{{ msg.content }}</p>
+            <p class="whitespace-pre-wrap"
+               [class.text-cream]="msg.role === 'user'"
+               [class.text-ink]="msg.role === 'assistant'">{{ msg.content }}</p>
 
             <!-- Charts -->
-            <div *ngFor="let ch of msg.charts" class="mt-4 rounded-xl bg-slate-900/60 p-3">
-              <p *ngIf="ch.title" class="mb-2 text-[10px] uppercase tracking-widest text-slate-400">{{ ch.title }}</p>
+            <div *ngFor="let ch of msg.charts" class="mt-4 rounded border border-line bg-cream-2 p-3">
+              <p *ngIf="ch.title" class="eyebrow mb-2">{{ ch.title }}</p>
               <div class="h-64">
                 <canvas baseChart
                         [data]="ch.chart_js_spec.data"
@@ -469,7 +504,10 @@
             </div>
 
             <!-- Latencia -->
-            <p *ngIf="msg.latency_ms" class="mt-2 text-[10px] text-slate-500">
+            <p *ngIf="msg.latency_ms" class="mt-2 text-[10px] tabular"
+               [class.text-cream]="msg.role === 'user'"
+               [class.opacity-75]="msg.role === 'user'"
+               [class.text-muted]="msg.role === 'assistant'">
               {{ (msg.latency_ms / 1000).toFixed(1) }}s
             </p>
           </div>
@@ -477,12 +515,12 @@
 
         <!-- Indicador de carga -->
         <div *ngIf="chatLoading" class="flex justify-start">
-          <div class="rounded-2xl border border-slate-700 bg-slate-800/70 px-4 py-3">
-            <div class="flex items-center gap-2 text-xs text-slate-400">
+          <div class="rounded border border-line bg-card px-4 py-3">
+            <div class="flex items-center gap-2 text-xs text-muted">
               <span class="inline-flex space-x-1">
-                <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-fuchsia-400"></span>
-                <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-fuchsia-400" style="animation-delay: 0.15s"></span>
-                <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-fuchsia-400" style="animation-delay: 0.3s"></span>
+                <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-navy"></span>
+                <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-navy" style="animation-delay: 0.15s"></span>
+                <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-navy" style="animation-delay: 0.3s"></span>
               </span>
               <span class="uppercase tracking-widest">Pensando…</span>
             </div>
@@ -490,7 +528,7 @@
         </div>
 
         <!-- Error -->
-        <div *ngIf="chatError" class="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-xs text-red-300">
+        <div *ngIf="chatError" class="rounded border border-err/40 bg-err/10 px-4 py-3 text-xs text-err">
           {{ chatError }}
         </div>
       </div>
@@ -503,12 +541,12 @@
           name="chatInput"
           [disabled]="chatLoading"
           placeholder="Pregúntale al agente sobre SECOP…"
-          class="flex-1 rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:border-fuchsia-500 focus:outline-none disabled:opacity-50"
+          class="flex-1 rounded border border-line-strong bg-cream px-4 py-2.5 text-sm text-ink placeholder-muted focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy disabled:opacity-50"
         />
         <button
           type="submit"
           [disabled]="chatLoading || !chatInput.trim()"
-          class="rounded-xl bg-fuchsia-500/80 px-5 py-3 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-fuchsia-500 disabled:cursor-not-allowed disabled:opacity-40"
+          class="btn-primary disabled:cursor-not-allowed disabled:opacity-40"
         >
           Enviar
         </button>

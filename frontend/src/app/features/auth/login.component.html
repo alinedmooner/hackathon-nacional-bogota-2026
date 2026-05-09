@@ -1,121 +1,91 @@
-<section
-  class="panel neon-ring mx-auto mt-6 w-full max-w-md rounded-2xl p-6 md:p-8"
->
-  <div class="mb-6">
-    <p class="text-xs uppercase tracking-[0.35em] text-violet-400">
-      GLUD Access
-    </p>
-    <h2 class="text-2xl font-semibold text-slate-100">
-      Hackathon 5.9 Colombia
-    </h2>
-    <p class="mt-2 text-sm text-slate-400">
-      Accede con tu JWT para entrar al dashboard GLUD.
-    </p>
-  </div>
+<section class="mx-auto mt-10 w-full max-w-md">
+  <div class="rounded border-t-4 border-navy bg-card shadow-sm">
+    <div class="px-7 pt-7 pb-6">
+      <div class="flex items-center gap-3">
+        <div class="flex h-12 w-12 items-center justify-center rounded bg-navy font-editorial text-2xl font-semibold text-cream shadow-[inset_0_-3px_0_var(--gold)]">
+          V
+        </div>
+        <div>
+          <p class="eyebrow">Acceso</p>
+          <h2 class="font-editorial text-2xl font-semibold leading-none text-ink">
+            Verid<span class="text-navy">IA</span>
+          </h2>
+        </div>
+      </div>
 
-  <form class="space-y-5" [formGroup]="form" (ngSubmit)="submit()">
-    <div>
-      <label class="text-xs uppercase tracking-widest text-slate-400"
-        >Usuario</label
-      >
-      <input
-        class="mt-2 w-full rounded-lg border border-slate-700 bg-terminal-900/80 px-4 py-3 text-sm text-slate-100 focus:border-neon-400 focus:outline-none"
-        type="text"
-        formControlName="username"
-        placeholder="admin"
-      />
+      <p class="mt-5 text-sm leading-relaxed text-ink-2">
+        Ingresa con tus credenciales para acceder al panel de inteligencia anticorrupción.
+      </p>
+
+      <form class="mt-6 space-y-4" [formGroup]="form" (ngSubmit)="submit()">
+        <div>
+          <label class="eyebrow">Usuario</label>
+          <input
+            class="mt-2 w-full rounded border border-line-strong bg-cream px-4 py-2.5 text-sm text-ink placeholder-muted focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
+            type="text"
+            formControlName="username"
+            placeholder="admin"
+          />
+        </div>
+
+        <div>
+          <label class="eyebrow">Contraseña</label>
+          <input
+            class="mt-2 w-full rounded border border-line-strong bg-cream px-4 py-2.5 text-sm text-ink placeholder-muted focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
+            type="password"
+            formControlName="password"
+            placeholder="••••••••"
+          />
+        </div>
+
+        <label class="flex items-center gap-2 text-xs text-ink-2">
+          <input
+            class="h-4 w-4 accent-navy"
+            type="checkbox"
+            formControlName="remember"
+          />
+          Recordar sesión en este dispositivo
+        </label>
+
+        <button
+          type="submit"
+          class="btn-primary w-full"
+          [disabled]="loading"
+        >
+          {{ loading ? "Conectando…" : "Entrar" }}
+        </button>
+
+        <p
+          *ngIf="error"
+          class="rounded border border-err/30 bg-err/10 p-3 text-sm text-err"
+        >
+          {{ error }}
+        </p>
+      </form>
     </div>
 
-    <div>
-      <label class="text-xs uppercase tracking-widest text-slate-400"
-        >Password</label
-      >
-      <input
-        class="mt-2 w-full rounded-lg border border-slate-700 bg-terminal-900/80 px-4 py-3 text-sm text-slate-100 focus:border-neon-400 focus:outline-none"
-        type="password"
-        formControlName="password"
-        placeholder="••••••••"
-      />
-    </div>
-
-    <label class="flex items-center gap-3 text-xs text-slate-400">
-      <input
-        class="h-4 w-4 accent-neon-400"
-        type="checkbox"
-        formControlName="remember"
-      />
-      Recordar sesion en este dispositivo
-    </label>
-
-    <button
-      type="submit"
-      class="w-full rounded-lg bg-neon-500 px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-neon-400"
-      [disabled]="loading"
-    >
-      {{ loading ? "Conectando..." : "Entrar al sistema" }}
-    </button>
-
-    <p
-      *ngIf="error"
-      class="rounded-lg border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-200"
-    >
-      {{ error }}
-    </p>
-  </form>
-
-  <div class="mt-6 grid gap-4">
-    <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-      <p class="text-[0.65rem] uppercase tracking-[0.3em] text-slate-400">
-        Credenciales demo
-      </p>
-      <p class="mt-2 text-sm text-slate-200">
-        Usuario: <span class="font-semibold text-neon-400">admin</span>
-      </p>
-      <p class="text-sm text-slate-200">
-        Contrasena: <span class="font-semibold text-neon-400">admin123</span>
-      </p>
-    </div>
-
-    <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-      <p class="text-[0.65rem] uppercase tracking-[0.3em] text-slate-400">
-        Seguridad
-      </p>
-      <p class="mt-2 text-sm text-slate-200">
-        Acceso protegido con JWT (Bearer) y tokens con expiracion configurada.
-      </p>
-      <p class="text-sm text-slate-400">
-        Pensado para proteger el acceso a datos sensibles del proyecto.
-      </p>
-    </div>
-
-    <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-      <p class="text-[0.65rem] uppercase tracking-[0.3em] text-slate-400">
-        Arquitectura
-      </p>
-      <p class="mt-2 text-sm text-slate-200">Angular 17 en el frontend.</p>
-      <p class="text-sm text-slate-200">Python + FastAPI en el backend.</p>
-      <p class="text-sm text-slate-200">MongoDB como base de datos.</p>
-      <p class="text-sm text-slate-400">
-        Conexion con IA para analitica SECOP.
+    <div class="border-t border-line bg-cream-2 px-7 py-4">
+      <p class="eyebrow">Credenciales demo</p>
+      <p class="mt-1 text-sm text-ink-2">
+        Usuario: <span class="font-mono font-semibold text-navy tabular">admin</span>
+        · Contraseña: <span class="font-mono font-semibold text-navy tabular">admin123</span>
       </p>
     </div>
   </div>
 
-  <div class="mt-6 rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-    <p class="text-[0.65rem] uppercase tracking-[0.3em] text-slate-400">
-      Backend activo
-    </p>
-    <p class="mt-2 break-all text-sm font-semibold text-slate-100">
-      {{ backendUrl }}
-    </p>
-    <a
-      class="mt-2 inline-flex items-center gap-2 text-xs font-semibold text-neon-400 hover:text-neon-300"
-      [href]="'https://gludsitohackathon5back.glud.org/docs'"
-      target="_blank"
-      rel="noopener"
-    >
-      Ver documentacion (Swagger)
-      <span aria-hidden="true">→</span>
-    </a>
+  <div class="mt-6 grid gap-3">
+    <div class="rounded border-l-4 border-gold bg-card p-4">
+      <p class="eyebrow">Backend activo</p>
+      <p class="mt-1 break-all font-mono text-xs text-ink-2 tabular">{{ backendUrl }}</p>
+      <a
+        class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-navy hover:text-navy-light"
+        [href]="'https://gludsitohackathon5back.glud.org/docs'"
+        target="_blank"
+        rel="noopener"
+      >
+        Ver documentación (Swagger)
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
   </div>
 </section>
