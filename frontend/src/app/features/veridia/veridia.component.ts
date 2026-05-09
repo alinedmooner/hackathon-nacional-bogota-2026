@@ -42,6 +42,13 @@ export class VeridiaComponent implements OnInit {
   // Detalles del nodo del grafo seleccionado
   selectedNode: GrafoNode | null = null;
 
+  // ── Filtros (cliente-side sobre la lista cargada) ──────────
+  searchText = '';
+  filterConfianza: 'todas' | 'alta' | 'media' = 'todas';
+  filterMinValor = 0;
+  filterEntidad = '';
+  filtersOpen = false;
+
   // Cards de alertas para el sidebar
   alerts: AlertSummary[] = [
     {
@@ -207,5 +214,58 @@ export class VeridiaComponent implements OnInit {
 
   trackByDoc(_i: number, h: Hallazgo): string {
     return `${h.documento}-${h.id_contrato}`;
+  }
+
+  // ── Filtros ────────────────────────────────────────────────
+  get filteredHallazgos(): Hallazgo[] {
+    const q = this.searchText.trim().toLowerCase();
+    const ent = this.filterEntidad.trim().toLowerCase();
+    return this.hallazgos.filter((h) => {
+      if (this.filterConfianza !== 'todas' && h.confianza !== this.filterConfianza) return false;
+      if (this.filterMinValor > 0 && (h.valor_contrato ?? 0) < this.filterMinValor) return false;
+      if (ent) {
+        const hit =
+          h.nombre_entidad?.toLowerCase().includes(ent) ||
+          h.nit_entidad?.toLowerCase().includes(ent);
+        if (!hit) return false;
+      }
+      if (q) {
+        const blob = [
+          h.documento,
+          h.nombre_sancionado,
+          h.nombre_contratista,
+          h.nombre_declarante,
+          h.id_contrato,
+          h.nombre_entidad,
+          h.nit_entidad,
+          h.sanciones,
+        ]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+        if (!blob.includes(q)) return false;
+      }
+      return true;
+    });
+  }
+
+  get activeFiltersCount(): number {
+    let n = 0;
+    if (this.searchText.trim()) n++;
+    if (this.filterConfianza !== 'todas') n++;
+    if (this.filterMinValor > 0) n++;
+    if (this.filterEntidad.trim()) n++;
+    return n;
+  }
+
+  clearFilters(): void {
+    this.searchText = '';
+    this.filterConfianza = 'todas';
+    this.filterMinValor = 0;
+    this.filterEntidad = '';
+  }
+
+  toggleFilters(): void {
+    this.filtersOpen = !this.filtersOpen;
   }
 }
