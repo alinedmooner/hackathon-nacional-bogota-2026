@@ -20,6 +20,8 @@ services:
 
   api:
     image: hackathon5/api:latest
+    volumes:
+      - parquet_data:/app/data
     environment:
       - MONGO_URI=mongodb://mongo:27017
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -29,6 +31,9 @@ services:
       - DATASET_CONTRATOS_ID=jbjy-vk9h
       - DATASET_ARCHIVOS_ID=dmgg-8hin
       - PARQUET_PATH=/app/data/contratos.parquet
+      - SIRI_PARQUET_PATH=/app/data/siri.parquet
+      - MULTAS_PARQUET_PATH=/app/data/multas_secop1.parquet
+      - PATRIMONIO_PARQUET_PATH=/app/data/patrimoniales.parquet
     networks:
       - backend
       - reverse_proxy
@@ -54,6 +59,7 @@ services:
 
 volumes:
   mongo_data:
+  parquet_data:
 
 networks:
   backend:
