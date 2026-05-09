@@ -1,30 +1,70 @@
-<div class="app-shell">
-  <header class="px-6 py-5 md:px-10">
-    <div class="mx-auto flex max-w-6xl items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="h-10 w-10 rounded-lg border border-neon-500/30 bg-terminal-800/80 neon-ring"></div>
-        <div>
-          <p class="text-xs uppercase tracking-[0.3em] text-neon-400">GLUD System Shell</p>
-          <h1 class="text-lg font-semibold text-slate-100">GLUD Console</h1>
+<div class="app-shell flex min-h-screen flex-col bg-[#08080d] text-slate-200">
+
+  <!-- Top navbar (oculto en login) -->
+  <header *ngIf="!isAuthRoute"
+          class="sticky top-0 z-30 border-b border-slate-800/60 bg-slate-950/70 backdrop-blur">
+    <div class="flex items-center justify-between gap-6 px-5 py-3"
+         [class.max-w-6xl]="!isFullWidth"
+         [class.mx-auto]="!isFullWidth">
+
+      <!-- Logo / brand -->
+      <a routerLink="/graph" class="flex items-center gap-3 transition hover:opacity-90">
+        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-fuchsia-500 to-violet-600 text-base font-bold text-white shadow-lg shadow-fuchsia-500/20">
+          V
         </div>
-      </div>
-      <div class="hidden md:flex items-center gap-4 text-xs text-slate-400">
-        <span>v17</span>
-        <span class="h-1.5 w-1.5 rounded-full bg-neon-400"></span>
-        <span>secure</span>
+        <div class="hidden sm:block">
+          <p class="text-base font-semibold leading-tight">
+            <span class="text-slate-100">Verid</span><span class="text-fuchsia-400">IA</span>
+          </p>
+          <p class="text-[9px] uppercase tracking-[0.3em] text-slate-500">
+            GLUD · anticorrupción
+          </p>
+        </div>
+      </a>
+
+      <!-- Navegación principal -->
+      <nav class="flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-900/40 p-1">
+        <a *ngFor="let link of navLinks"
+           [routerLink]="link.path"
+           routerLinkActive="active-link"
+           class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-slate-400 transition hover:text-fuchsia-200">
+          <span class="text-base text-fuchsia-400">{{ link.icon }}</span>
+          <span>{{ link.label }}</span>
+        </a>
+      </nav>
+
+      <!-- Estado / acciones -->
+      <div class="flex items-center gap-3 text-xs">
+        <span class="hidden md:flex items-center gap-2 text-slate-500">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.6)]"></span>
+          <span>secure</span>
+        </span>
+        <button *ngIf="isAuthenticated"
+                (click)="logout()"
+                class="rounded-lg border border-slate-700 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 transition hover:border-fuchsia-500/40 hover:text-fuchsia-200">
+          Cerrar sesión
+        </button>
       </div>
     </div>
   </header>
 
-  <main class="flex-1 min-w-0 overflow-x-hidden px-6 pb-10 md:px-10">
-    <div class="mx-auto max-w-6xl min-w-0">
+  <!-- Contenido principal -->
+  <main class="flex-1 min-w-0 overflow-x-hidden"
+        [class.px-6]="!isFullWidth && !isAuthRoute"
+        [class.pb-10]="!isFullWidth && !isAuthRoute"
+        [class.md:px-10]="!isFullWidth && !isAuthRoute">
+    <div [class.max-w-6xl]="!isFullWidth && !isAuthRoute"
+         [class.mx-auto]="!isFullWidth && !isAuthRoute"
+         class="min-w-0">
       <router-outlet></router-outlet>
     </div>
   </main>
 
-  <footer class="px-6 pb-8 md:px-10 text-xs text-slate-500">
+  <!-- Footer (solo en vistas con padding, no full-width ni login) -->
+  <footer *ngIf="!isFullWidth && !isAuthRoute"
+          class="border-t border-slate-900/60 px-6 py-4 text-[11px] text-slate-500 md:px-10">
     <div class="mx-auto flex max-w-6xl items-center justify-between">
-      <span>Hackathon 5.9 Colombia</span>
+      <span>VeridIA · Hackathon 5.9 Colombia</span>
       <span class="text-violet-400">GLUD secure telemetry</span>
     </div>
   </footer>
