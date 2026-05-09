@@ -21,6 +21,8 @@ services:
       - "8000:8000"
     depends_on:
       - mongo
+    volumes:
+      - ./api/data:/app/data
     env_file:
       - ./api/.env
     environment:
