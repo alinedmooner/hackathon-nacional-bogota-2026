@@ -28,6 +28,7 @@ services:
       - CORS_ORIGINS=*
       - DATASET_CONTRATOS_ID=jbjy-vk9h
       - DATASET_ARCHIVOS_ID=dmgg-8hin
+      - PARQUET_PATH=/app/data/contratos.parquet
     networks:
       - backend
       - reverse_proxy
