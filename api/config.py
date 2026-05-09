@@ -26,6 +26,11 @@ class Settings(BaseSettings):
     # CORS — valor en .env como string separado por comas
     cors_origins: str = "*"
 
+    # Parquets — Veridia radar
+    siri_parquet_path: str = "data/siri.parquet"
+    multas_parquet_path: str = "data/multas_secop1.parquet"
+    patrimonio_parquet_path: str = "data/patrimoniales.parquet"
+
     # Socrata
     socrata_app_token: str = ""
 

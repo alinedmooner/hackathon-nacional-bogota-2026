@@ -8,22 +8,21 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-    networks:
-      - app-network
     restart: unless-stopped
 
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
+      network: host
     image: hackathon5/api:latest
     container_name: api
     ports:
       - "8000:8000"
     depends_on:
       - mongo
-    networks:
-      - app-network
+    volumes:
+      - ./api/data:/app/data
     env_file:
       - ./api/.env
     environment:
@@ -42,9 +41,14 @@ services:
       retries: 3
       start_period: 10s
 
-networks:
-  app-network:
-    driver: bridge
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      network: host
+    image: hackathon5/frontend:latest
+    environment:
+      - BACKEND_URL=https://gludsitohackathon5back.glud.org
 
 volumes:
   mongo_data:
