@@ -1,8 +1,10 @@
 """Router del agente IA · /ai/*."""
 
+import json
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
 
 from datasets import ArchivosDataset, ContratosDataset
 from models.ai_chat import (
@@ -91,6 +93,97 @@ def chat(body: ChatRequest, current_user: dict = Depends(get_current_user)):
         charts=[ChartItem(**c) for c in result["charts"]],
         usage=Usage(**result["usage"]),
         latency_ms=result["latency_ms"],
+    )
+
+
+@router.post("/chat/stream")
+def chat_stream(body: ChatRequest, current_user: dict = Depends(get_current_user)):
+    """Streaming SSE del razonamiento del agente.
+
+    Emite eventos Server-Sent Events con el tipo:
+      thinking   → el agente está pensando (iteración N)
+      tool_call  → nombre y args de la tool que se va a ejecutar
+      tool_result→ resumen del resultado
+      chart      → spec Chart.js listo para renderizar
+      answer     → texto final del agente
+      done       → métricas finales (usage, latency_ms)
+    """
+    user_sub = _user_sub(current_user)
+
+    if body.conversation_id:
+        conv = persistence.get_conversation(body.conversation_id, user_sub)
+        if conv is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="conversation_id no encontrada",
+            )
+        history = _history_for_llm(conv)
+        conv_id = body.conversation_id
+    else:
+        conv_id = persistence.create_conversation(
+            user_sub=user_sub,
+            title=body.message[:60],
+        )
+        history = []
+
+    def _sse(data: dict) -> str:
+        return f"data: {json.dumps(data, ensure_ascii=False, default=str)}\n\n"
+
+    def generate():
+        yield _sse({"type": "init", "conversation_id": conv_id})
+
+        answer_text = ""
+        final_tool_calls: list[dict] = []
+        final_charts: list[dict] = []
+        final_usage: dict = {}
+        final_latency: int = 0
+
+        try:
+            for event in orchestrator.chat_stream(
+                user_message=body.message, history=history
+            ):
+                if event["type"] == "answer":
+                    answer_text = event["text"]
+                    yield _sse(event)
+                elif event["type"] == "done":
+                    final_tool_calls = event["tool_calls"]
+                    final_charts = event["charts"]
+                    final_usage = event["usage"]
+                    final_latency = event["latency_ms"]
+                    # Persistir antes de emitir done
+                    new_messages = [
+                        {"role": "user", "content": body.message},
+                        {
+                            "role": "assistant",
+                            "content": answer_text,
+                            "tool_calls": final_tool_calls,
+                            "charts": final_charts,
+                        },
+                    ]
+                    try:
+                        persistence.append_messages(conv_id, user_sub, new_messages)
+                    except Exception as exc:
+                        logger.warning("stream: error al persistir: %s", exc)
+                    yield _sse({
+                        "type": "done",
+                        "conversation_id": conv_id,
+                        "usage": final_usage,
+                        "latency_ms": final_latency,
+                    })
+                else:
+                    yield _sse(event)
+        except Exception as exc:
+            logger.exception("stream: error en orchestrator")
+            yield _sse({"type": "error", "detail": str(exc)})
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",
+        },
     )
 
 

@@ -53,6 +53,12 @@ def clear_all() -> int:
     return get_db()["analytics_cache"].delete_many({}).deleted_count
 
 
+def clear_prefix(prefix: str) -> int:
+    return get_db()["analytics_cache"].delete_many(
+        {"_id": {"$regex": f"^{prefix}"}}
+    ).deleted_count
+
+
 def delete_one(cache_id: str) -> bool:
     result = get_db()["analytics_cache"].delete_one({"_id": cache_id})
     return result.deleted_count > 0

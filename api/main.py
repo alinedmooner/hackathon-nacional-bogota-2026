@@ -13,6 +13,7 @@ from routes.archivos import router as archivos_router
 from routes.analytics import router as analytics_router
 from routes.analytics_paso1 import router as analytics_paso1_router
 from routes.ai import router as ai_router
+from routes.radar import router as radar_router
 from security import get_current_user
 
 app = FastAPI(
@@ -45,6 +46,7 @@ app.include_router(archivos_router)
 app.include_router(analytics_router)
 app.include_router(analytics_paso1_router)
 app.include_router(ai_router)
+app.include_router(radar_router)
 
 # ------------------------------------------------------------------ #
 # MongoDB                                                              #
