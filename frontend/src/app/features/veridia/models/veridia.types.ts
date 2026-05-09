@@ -31,6 +31,9 @@ export interface Hallazgo {
   valor_sancion?: number;
   fecha_inicio_sancion?: string;
   fecha_fin_sancion?: string;
+  /** Sancionados: enlace verificable a datos.gov.co con el contrato concreto */
+  url_secop?: string;
+  /** Multados: enlace al expediente oficial de la multa */
   url_evidencia?: string;
   id_contrato: string;
   fecha_de_firma: string;

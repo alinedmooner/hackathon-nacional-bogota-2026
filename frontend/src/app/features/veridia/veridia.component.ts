@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -90,7 +91,24 @@ export class VeridiaComponent implements OnInit, OnDestroy {
   constructor(
     private readonly api: VeridiaService,
     private readonly onboarding: OnboardingService,
+    private readonly router: Router,
   ) {}
+
+  /** Lista de datasets reportados como no disponibles (false) por el backend */
+  get datasetsCaidos(): string[] {
+    const d = this.dashboard?.disponibilidad_datasets;
+    if (!d) return [];
+    return Object.entries(d)
+      .filter(([, v]) => !v)
+      .map(([k]) => k);
+  }
+
+  /** Navega al perfil del nodo del grafo (cédula/NIT sin prefijo) */
+  openPerfil(node: GrafoNode): void {
+    // Los IDs del backend vienen como `c_12345678` o `e_800099780`
+    const documento = node.id.replace(/^[a-z]_/, '');
+    this.router.navigate(['/perfil', documento]);
+  }
 
   ngOnInit(): void {
     this.loadDashboard();

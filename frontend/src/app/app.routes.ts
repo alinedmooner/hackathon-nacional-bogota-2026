@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './features/auth/login.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { VeridiaComponent } from './features/veridia/veridia.component';
+import { PerfilComponent } from './features/veridia/perfil/perfil.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -9,6 +10,11 @@ export const routes: Routes = [
   {
     path: 'graph',
     component: VeridiaComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'perfil/:doc',
+    component: PerfilComponent,
     canActivate: [authGuard],
   },
   {

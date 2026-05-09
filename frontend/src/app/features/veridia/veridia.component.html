@@ -1,4 +1,21 @@
-<div class="flex h-[calc(100vh-90px)] w-full overflow-hidden bg-cream text-ink">
+<div class="flex h-[calc(100vh-90px)] w-full flex-col overflow-hidden bg-cream text-ink">
+
+  <!-- Banner: datasets caídos · solo aparece si alguno está unavailable -->
+  <div *ngIf="datasetsCaidos.length"
+       class="flex items-start gap-3 border-b-2 border-gold bg-gold/15 px-5 py-2.5 text-xs">
+    <span class="mt-0.5 text-base leading-none">⚠</span>
+    <div class="flex-1">
+      <p class="font-semibold text-gold-deep">
+        {{ datasetsCaidos.length }} fuente{{ datasetsCaidos.length === 1 ? '' : 's' }} no disponible{{ datasetsCaidos.length === 1 ? '' : 's' }}
+      </p>
+      <p class="text-ink-2">
+        Los hallazgos pueden estar incompletos: faltan datos de
+        <span class="font-semibold">{{ datasetsCaidos.join(', ') }}</span>.
+      </p>
+    </div>
+  </div>
+
+<div class="flex flex-1 min-h-0 overflow-hidden">
 
   <!-- ════════════════════════════════════════════════════════ -->
   <!-- SIDEBAR · controles                                       -->
@@ -265,11 +282,17 @@
         <div *ngIf="h.sanciones" class="mt-2 text-xs text-err">
           ⚠ {{ h.sanciones }}
         </div>
+        <a *ngIf="h.url_secop"
+           [href]="h.url_secop" target="_blank" rel="noopener"
+           (click)="$event.stopPropagation()"
+           class="mt-1 inline-block text-xs text-navy hover:underline">
+          ↗ Verificar en SECOP
+        </a>
         <a *ngIf="h.url_evidencia"
            [href]="h.url_evidencia" target="_blank" rel="noopener"
            (click)="$event.stopPropagation()"
            class="mt-1 inline-block text-xs text-navy hover:underline">
-          ↗ Ver evidencia oficial
+          ↗ Ver expediente de multa
         </a>
       </button>
 
@@ -359,7 +382,8 @@
            [innerHTML]="n.title"></div>
 
       <div class="mt-5 space-y-2">
-        <button class="btn-primary w-full">
+        <button class="btn-primary w-full"
+                (click)="openPerfil(n)">
           Ver perfil completo
         </button>
         <button class="btn-ghost w-full">
@@ -369,3 +393,5 @@
     </div>
   </aside>
 </div>
+</div>
+

@@ -120,11 +120,12 @@ interface ChatMessage {
             <!-- Tool calls (badges) -->
             <div *ngIf="m.tool_calls.length" class="mb-2 space-y-1">
               <div *ngFor="let tc of m.tool_calls"
-                   class="flex items-center gap-2 rounded border border-ok/40 bg-ok/10 px-2 py-1 text-xs font-mono text-ok">
-                <span>🔍</span>
-                <span class="font-semibold">{{ tc.tool }}</span>
-                <span class="text-muted">·</span>
-                <span class="truncate text-ink-2">{{ tc.summary || '...' }}</span>
+                   class="flex items-center gap-2 rounded border border-ok/40 bg-ok/10 px-2 py-1 text-xs"
+                   [class.animate-pulse]="!tc.summary">
+                <span class="shrink-0">{{ tc.summary ? '✓' : '◐' }}</span>
+                <span class="font-semibold text-ok">{{ TOOL_LABELS[tc.tool] ?? tc.tool }}</span>
+                <span *ngIf="tc.summary" class="text-muted">·</span>
+                <span *ngIf="tc.summary" class="truncate text-ink-2">{{ tc.summary }}</span>
               </div>
             </div>
 
@@ -211,6 +212,20 @@ export class VeridiaChatComponent implements AfterViewChecked, OnInit, OnDestroy
     '¿Cuál es la entidad pública con más alertas activas?',
     'Resumen de hallazgos de los últimos 30 días',
   ];
+
+  /** Etiqueta humana para cada herramienta del agente — visible en el panel de razonamiento */
+  readonly TOOL_LABELS: Record<string, string> = {
+    get_alert_summary:      '📊 Obteniendo resumen global',
+    check_active_sanctions: '🔴 Verificando inhabilitaciones SIRI',
+    check_fines:            '🟠 Verificando multas SECOP I',
+    check_revolving_door:   '🟡 Verificando puerta giratoria',
+    get_person_profile:     '👤 Construyendo perfil del contratista',
+    query_secop:            '🔍 Consultando SECOP II',
+    render_chart:           '📈 Generando gráfico',
+    lookup_record:          '📄 Buscando contrato',
+    cross_datasets:         '🔗 Cruzando datasets',
+    text_search:            '🔎 Búsqueda de texto',
+  };
 
   private readonly stream = inject(VeridiaStreamService);
   private readonly onboarding = inject(OnboardingService);
