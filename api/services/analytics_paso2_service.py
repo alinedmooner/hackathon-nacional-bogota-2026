@@ -12,10 +12,10 @@ def total_registros() -> dict:
 
 
 def total_variables() -> dict:
-    campos = mongo.variables()
-    if not campos:
-        return {"pregunta": 4, "total_variables": 0, "variables": [], "mensaje": "Colección vacía"}
-    return {"pregunta": 4, "total_variables": len(campos), "variables": campos}
+    def compute():
+        campos = duck.variables() if duck.available() else mongo.variables()
+        return {"pregunta": 4, "total_variables": len(campos), "variables": campos}
+    return cache.cached("total_variables", compute)
 
 
 def registros_2025() -> dict:
