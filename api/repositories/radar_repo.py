@@ -516,7 +516,7 @@ def grafo_entidad(nit: str, limit: int = 40) -> dict[str, Any]:
 
 def resumen_global() -> dict[str, Any]:
     return {
-        "disponibilidad": available(),
+        "disponibilidad_datasets": available(),
         "sancionados_activos": sancionados_activos_resumen(),
         "multados_activos": multados_activos_resumen(),
         "puerta_giratoria": puerta_giratoria_resumen(),
@@ -576,7 +576,7 @@ def perfil_documento(documento: str) -> dict[str, Any]:
             FROM multas
             WHERE REGEXP_REPLACE(documento_contratista, '[^0-9]', '', 'g') = ?
         """, [doc_norm]).fetchall()
-        multas_cols = ["nombre_contratista", "valor_sancion", "entidad",
+        multas_cols = ["nombre_contratista", "valor_sancion", "entidad_que_multo",
                        "fecha_multa", "url_evidencia"]
         perfil["multas"] = [_serialize(dict(zip(multas_cols, r))) for r in rows]
 

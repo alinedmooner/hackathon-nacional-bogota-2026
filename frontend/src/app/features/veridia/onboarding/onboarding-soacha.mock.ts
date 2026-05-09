@@ -37,15 +37,15 @@ export const SOACHA_STREAM: TimedSseEvent[] = [
     delay: 500,
     event: {
       type: 'tool_call',
-      tool: 'cross_sanctions_siri',
-      args: { documentos: 47 },
+      tool: 'check_active_sanctions',
+      args: { entity_name: 'Alcaldía de Soacha' },
     },
   },
   {
     delay: 700,
     event: {
       type: 'tool_result',
-      tool: 'cross_sanctions_siri',
+      tool: 'check_active_sanctions',
       summary: '3 coincidencias en SIRI · Procuraduría',
     },
   },
@@ -54,15 +54,15 @@ export const SOACHA_STREAM: TimedSseEvent[] = [
     delay: 450,
     event: {
       type: 'tool_call',
-      tool: 'verify_sanction_dates',
-      args: { coincidencias: 3 },
+      tool: 'get_person_profile',
+      args: { documento: '79834221' },
     },
   },
   {
     delay: 650,
     event: {
       type: 'tool_result',
-      tool: 'verify_sanction_dates',
+      tool: 'get_person_profile',
       summary: 'ALERTA_ROJA · 2 sanciones vigentes al firmar',
     },
   },

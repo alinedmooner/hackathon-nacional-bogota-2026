@@ -39,5 +39,5 @@ def run(args: dict[str, Any]) -> dict:
             ),
             "nota": "Incluye señal débil (particip_corp_socied_asoc=SI). Filtrar por confianza='alta' para casos verificados.",
         },
-        "disponibilidad_datasets": resumen.get("disponibilidad", {}),
+        "disponibilidad_datasets": resumen.get("disponibilidad_datasets", {}),
     }
