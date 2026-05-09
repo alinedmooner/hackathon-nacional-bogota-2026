@@ -62,3 +62,7 @@ api/.env
 # Virtual envs Python
 .venv/
 api/.venv/
+*.zip
+*.csv
+*.parquet
+
