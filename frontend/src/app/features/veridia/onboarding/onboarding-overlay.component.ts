@@ -14,41 +14,45 @@ import { OnboardingService, OnboardingStep } from './onboarding.service';
     <!-- Welcome dialog · primera vez o cuando se pide repetir    -->
     <!-- ════════════════════════════════════════════════════════ -->
     <div *ngIf="(svc.showWelcome$ | async)"
-         class="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div class="relative w-full max-w-md rounded-2xl border border-fuchsia-500/30 bg-slate-950/95 p-7 shadow-2xl shadow-fuchsia-500/20">
-        <div class="flex items-center gap-3">
-          <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-fuchsia-500 to-violet-600 text-xl font-bold text-white shadow-lg">
-            V
+         class="fixed inset-0 z-[80] flex items-center justify-center bg-ink/30 backdrop-blur-sm">
+      <div class="relative w-full max-w-md rounded border-t-4 border-navy bg-card shadow-xl">
+        <div class="px-7 pt-6 pb-5">
+          <div class="flex items-center gap-3">
+            <div class="flex h-12 w-12 items-center justify-center rounded bg-navy font-editorial text-2xl font-semibold text-cream shadow-[inset_0_-3px_0_var(--gold)]">
+              V
+            </div>
+            <div>
+              <p class="eyebrow">Bienvenido a</p>
+              <h2 class="font-editorial text-2xl font-semibold leading-none text-ink">
+                Verid<span class="text-navy">IA</span>
+              </h2>
+            </div>
           </div>
-          <div>
-            <p class="text-[10px] uppercase tracking-[0.3em] text-fuchsia-300">Bienvenido a</p>
-            <h2 class="text-2xl font-semibold leading-none">
-              Verid<span class="text-fuchsia-400">IA</span>
-            </h2>
-          </div>
-        </div>
 
-        <p class="mt-5 text-sm leading-relaxed text-slate-300">
-          Inteligencia anticorrupción para contratación pública en Colombia.
-          Conectamos SECOP con sanciones de Procuraduría, Contraloría y SIC,
-          y mostramos el razonamiento del agente paso a paso.
-        </p>
-
-        <div class="mt-6 rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-          <p class="text-[10px] uppercase tracking-widest text-slate-500">Tour guiado</p>
-          <p class="mt-1 text-xs leading-relaxed text-slate-300">
-            Te mostramos cómo investigar la <b class="text-fuchsia-200">Alcaldía de Soacha</b> en seis pasos.
-            Tu compañero narra · tú avanzas con el botón <b>Siguiente</b>.
+          <p class="mt-5 text-base leading-relaxed text-ink-2">
+            Inteligencia anticorrupción para contratación pública.
+            Conectamos SECOP con sanciones de Procuraduría, Contraloría y SIC,
+            y te mostramos el razonamiento del agente paso a paso.
           </p>
+
+          <div class="mt-5 rounded border border-line bg-cream-2 p-4">
+            <p class="eyebrow">Tour guiado</p>
+            <p class="mt-1 text-sm leading-relaxed text-ink-2">
+              Te mostramos cómo investigar la
+              <b class="text-navy">Alcaldía de Soacha</b>
+              en seis pasos. Tu compañero narra · tú avanzas con el botón
+              <b>Siguiente</b>.
+            </p>
+          </div>
         </div>
 
-        <div class="mt-6 flex gap-2">
+        <div class="flex gap-2 border-t border-line bg-cream-2 px-7 py-4">
           <button (click)="svc.dismissWelcome()"
-                  class="flex-1 rounded-xl border border-slate-700 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-slate-400 transition hover:border-slate-600 hover:text-slate-200">
+                  class="btn-ghost flex-1">
             Saltar tour
           </button>
           <button (click)="svc.start()"
-                  class="flex-1 rounded-xl bg-gradient-to-r from-fuchsia-500 to-violet-600 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white shadow-lg shadow-fuchsia-500/30 transition hover:shadow-fuchsia-500/50">
+                  class="btn-primary flex-1">
             ▶ Comenzar tour
           </button>
         </div>
@@ -61,60 +65,61 @@ import { OnboardingService, OnboardingStep } from './onboarding.service';
     <ng-container *ngIf="step">
       <!-- Backdrop oscurece toda la UI cuando estamos en step center -->
       <div class="pointer-events-none fixed inset-0 z-[70]"
-           [class.bg-black]="step.position === 'center'"
-           [class.bg-opacity-60]="step.position === 'center'"
+           [class.bg-ink]="step.position === 'center'"
+           [class.bg-opacity-30]="step.position === 'center'"
            [class.backdrop-blur-sm]="step.position === 'center'">
       </div>
 
       <!-- Caption posicionado según step.position -->
-      <div class="fixed z-[75] w-[22rem]"
+      <div class="fixed z-[75] w-[24rem]"
            [ngClass]="{
              'inset-0 flex items-center justify-center w-full': step.position === 'center',
-             'top-20 right-6':              step.position === 'top-right',
-             'top-24 left-6':               step.position === 'left',
+             'top-24 right-6':              step.position === 'top-right',
+             'top-28 left-6':               step.position === 'left',
              'top-1/2 -translate-y-1/2 right-6':       step.position === 'right',
              'bottom-24 right-6':           step.position === 'bottom-right',
              'bottom-24 left-6':            step.position === 'bottom-left'
            }">
-        <div class="rounded-2xl border border-fuchsia-500/40 bg-slate-950/95 p-5 shadow-2xl shadow-fuchsia-500/30 backdrop-blur"
+        <div class="rounded border-t-4 border-gold bg-card shadow-xl"
              [class.max-w-lg]="step.position === 'center'">
-          <!-- Header con # paso -->
-          <div class="flex items-center justify-between gap-3">
-            <div class="flex items-center gap-2">
-              <span class="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-500 to-violet-600 text-xs font-bold text-white">
-                {{ idx + 1 }}
-              </span>
-              <span class="text-[10px] uppercase tracking-[0.25em] text-fuchsia-300">
-                Paso {{ idx + 1 }} de {{ svc.steps.length }}
+          <div class="px-5 pt-4 pb-5">
+            <!-- Header con # paso -->
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <span class="flex h-7 w-7 items-center justify-center rounded-full bg-navy font-editorial text-sm font-semibold text-cream">
+                  {{ idx + 1 }}
+                </span>
+                <span class="eyebrow">
+                  Paso {{ idx + 1 }} de {{ svc.steps.length }}
+                </span>
+              </div>
+              <button (click)="svc.skip()"
+                      title="Saltar tour (Esc)"
+                      class="rounded px-2 py-0.5 text-xs uppercase tracking-wider text-muted transition hover:text-ink">
+                Saltar
+              </button>
+            </div>
+
+            <!-- Caption -->
+            <p class="mt-3 text-base leading-relaxed text-ink-2"
+               [class.text-lg]="step.position === 'center'">
+              {{ step.caption }}
+            </p>
+
+            <!-- Indicadores de paso -->
+            <div class="mt-4 flex gap-1.5">
+              <span *ngFor="let s of svc.steps; let i = index"
+                    class="h-1 flex-1 rounded-full transition"
+                    [ngClass]="i <= idx ? 'bg-navy' : 'bg-line'">
               </span>
             </div>
-            <button (click)="svc.skip()"
-                    title="Saltar tour (Esc)"
-                    class="rounded-md px-2 py-0.5 text-[10px] uppercase tracking-widest text-slate-500 transition hover:text-slate-300">
-              Saltar
-            </button>
-          </div>
-
-          <!-- Caption -->
-          <p class="mt-3 text-sm leading-relaxed text-slate-200"
-             [class.text-base]="step.position === 'center'">
-            {{ step.caption }}
-          </p>
-
-          <!-- Indicadores de paso -->
-          <div class="mt-4 flex gap-1.5">
-            <span *ngFor="let s of svc.steps; let i = index"
-                  class="h-1 flex-1 rounded-full transition"
-                  [ngClass]="i <= idx ? 'bg-fuchsia-500' : 'bg-slate-700'">
-            </span>
           </div>
 
           <!-- Botón siguiente -->
-          <div class="mt-4 flex justify-end">
+          <div class="flex justify-end border-t border-line bg-cream-2 px-5 py-3">
             <button (click)="svc.next()"
-                    class="rounded-xl bg-fuchsia-500/90 px-5 py-2 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-fuchsia-500">
-              {{ step.cta }}
-              <span class="ml-1 text-fuchsia-200">→</span>
+                    class="btn-primary">
+              {{ step.cta }} →
             </button>
           </div>
         </div>
@@ -125,7 +130,6 @@ import { OnboardingService, OnboardingStep } from './onboarding.service';
 export class OnboardingOverlayComponent implements OnInit, OnDestroy {
   readonly svc = inject(OnboardingService);
 
-  // Estado local reactivo (necesitamos getters porque idx=0 es válido pero falsy)
   idx = -1;
   step: OnboardingStep | null = null;
 
@@ -145,7 +149,6 @@ export class OnboardingOverlayComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // Atajos de teclado
   @HostListener('window:keydown.arrowright')
   @HostListener('window:keydown.space')
   onNext(): void {

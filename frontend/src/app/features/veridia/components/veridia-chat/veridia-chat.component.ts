@@ -46,63 +46,61 @@ interface ChatMessage {
     <!-- Backdrop -->
     <div *ngIf="open"
          (click)="requestClose()"
-         class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity"></div>
+         class="fixed inset-0 z-40 bg-ink/30 backdrop-blur-sm transition-opacity"></div>
 
     <!-- Slide-over panel -->
-    <aside class="fixed right-0 top-0 z-50 flex h-full w-full max-w-[28rem] flex-col bg-slate-950/95 border-l border-slate-800 shadow-2xl shadow-fuchsia-500/10 backdrop-blur transition-transform duration-300"
+    <aside class="fixed right-0 top-0 z-50 flex h-full w-full max-w-[28rem] flex-col bg-cream border-l-4 border-navy shadow-2xl transition-transform duration-300"
            [class.translate-x-0]="open"
            [class.translate-x-full]="!open"
            [attr.aria-hidden]="!open">
 
       <!-- Header -->
-      <header class="flex items-center justify-between gap-3 border-b border-slate-800/60 px-5 py-4">
+      <header class="flex items-center justify-between gap-3 border-b border-line bg-card px-5 py-4">
         <div class="flex items-center gap-3">
-          <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-fuchsia-500 to-violet-600 text-base font-bold text-white">
+          <div class="flex h-10 w-10 items-center justify-center rounded bg-navy font-editorial text-lg font-semibold text-cream shadow-[inset_0_-2px_0_var(--gold)]">
             V
           </div>
           <div>
-            <p class="text-sm font-semibold text-slate-100">
-              Verid<span class="text-fuchsia-400">IA</span>
+            <p class="font-editorial text-base font-semibold text-ink leading-none">
+              Verid<span class="text-navy">IA</span>
             </p>
-            <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500">
-              Asistente conversacional
-            </p>
+            <p class="eyebrow">Asistente conversacional</p>
           </div>
         </div>
         <div class="flex items-center gap-1">
           <button (click)="newConversation()"
                   title="Nueva conversación"
-                  class="rounded-lg border border-slate-700 px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-slate-400 transition hover:border-fuchsia-500/40 hover:text-fuchsia-200">
+                  class="rounded border border-line-strong px-2 py-1 text-xs font-medium text-ink-2 transition hover:border-navy hover:text-navy">
             Nueva
           </button>
           <button (click)="requestClose()"
                   title="Cerrar"
-                  class="ml-1 rounded-md px-2 py-1 text-slate-400 transition hover:bg-slate-800 hover:text-slate-200">
+                  class="ml-1 rounded px-2 py-1 text-muted transition hover:bg-cream-2 hover:text-ink">
             ✕
           </button>
         </div>
       </header>
 
       <!-- Mensajes -->
-      <div #scrollArea class="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-4">
+      <div #scrollArea class="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-4 bg-cream">
 
         <!-- Estado inicial: sugerencias -->
         <div *ngIf="!messages.length"
              class="space-y-3 px-1">
-          <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-            <p class="text-xs font-semibold text-slate-200">
-              👋 Pregunta sobre la contratación pública en lenguaje natural.
+          <div class="rounded border border-line bg-card p-4">
+            <p class="font-editorial text-base font-semibold text-ink">
+              👋 Pregunta lo que quieras saber
             </p>
-            <p class="mt-1 text-[11px] leading-relaxed text-slate-500">
-              VeridIA cruza SECOP con sanciones de Procuraduría, Contraloría y SIC, y
-              te muestra el razonamiento paso a paso.
+            <p class="mt-1 text-sm leading-relaxed text-ink-2">
+              VeridIA cruza SECOP con Procuraduría, Contraloría y SIC, y te muestra
+              cómo llegó al hallazgo. En español. Sin jerga.
             </p>
           </div>
-          <p class="text-[10px] uppercase tracking-widest text-slate-500 px-1">Prueba con</p>
+          <p class="eyebrow px-1">Prueba con</p>
           <button *ngFor="let q of suggestions"
                   (click)="sendSuggestion(q)"
-                  class="block w-full rounded-xl border border-slate-800 bg-slate-900/30 px-4 py-3 text-left text-xs text-slate-300 transition hover:border-fuchsia-500/40 hover:text-fuchsia-200">
-            <span class="text-fuchsia-400 mr-1">›</span>{{ q }}
+                  class="block w-full rounded border border-line bg-card px-4 py-3 text-left text-sm text-ink-2 transition hover:border-navy hover:bg-cream-3">
+            <span class="text-gold-deep mr-1">›</span>{{ q }}
           </button>
         </div>
 
@@ -111,32 +109,32 @@ interface ChatMessage {
              [class.justify-end]="m.role === 'user'"
              class="flex">
           <div [ngClass]="m.role === 'user'
-                 ? 'bg-fuchsia-500/15 border-fuchsia-500/30 text-slate-100'
-                 : 'bg-slate-900/60 border-slate-800 text-slate-200'"
-               class="max-w-[88%] rounded-2xl border px-4 py-3">
-            <p class="mb-1.5 text-[10px] uppercase tracking-widest"
-               [ngClass]="m.role === 'user' ? 'text-fuchsia-300' : 'text-slate-500'">
+                 ? 'bg-navy text-cream border-navy'
+                 : 'bg-card text-ink border-line'"
+               class="max-w-[88%] rounded border px-4 py-3">
+            <p class="mb-1.5 text-xs uppercase tracking-wider font-semibold"
+               [ngClass]="m.role === 'user' ? 'text-cream/70' : 'text-muted'">
               {{ m.role === 'user' ? 'Tú' : 'VeridIA' }}
             </p>
 
             <!-- Tool calls (badges) -->
             <div *ngIf="m.tool_calls.length" class="mb-2 space-y-1">
               <div *ngFor="let tc of m.tool_calls"
-                   class="flex items-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/5 px-2 py-1 text-[10px] font-mono text-emerald-300">
+                   class="flex items-center gap-2 rounded border border-ok/40 bg-ok/10 px-2 py-1 text-xs font-mono text-ok">
                 <span>🔍</span>
                 <span class="font-semibold">{{ tc.tool }}</span>
-                <span class="text-slate-500">·</span>
-                <span class="truncate text-slate-400">{{ tc.summary || '...' }}</span>
+                <span class="text-muted">·</span>
+                <span class="truncate text-ink-2">{{ tc.summary || '...' }}</span>
               </div>
             </div>
 
             <!-- Indicador thinking -->
             <div *ngIf="m.thinking"
-                 class="mb-2 inline-flex items-center gap-2 rounded-md bg-slate-800/60 px-2 py-1 text-[10px] text-slate-400">
+                 class="mb-2 inline-flex items-center gap-2 rounded bg-cream-2 px-2 py-1 text-xs text-ink-2">
               <span class="flex space-x-0.5">
-                <span class="h-1 w-1 animate-bounce rounded-full bg-fuchsia-400"></span>
-                <span class="h-1 w-1 animate-bounce rounded-full bg-fuchsia-400" style="animation-delay: 0.15s"></span>
-                <span class="h-1 w-1 animate-bounce rounded-full bg-fuchsia-400" style="animation-delay: 0.3s"></span>
+                <span class="h-1 w-1 animate-bounce rounded-full bg-navy"></span>
+                <span class="h-1 w-1 animate-bounce rounded-full bg-navy" style="animation-delay: 0.15s"></span>
+                <span class="h-1 w-1 animate-bounce rounded-full bg-navy" style="animation-delay: 0.3s"></span>
               </span>
               <span>{{ m.thinking }}</span>
             </div>
@@ -146,8 +144,8 @@ interface ChatMessage {
 
             <!-- Charts inline -->
             <div *ngFor="let ch of m.charts"
-                 class="mt-3 rounded-xl border border-slate-800 bg-slate-950/60 p-3">
-              <p *ngIf="ch.title" class="mb-2 text-[10px] uppercase tracking-widest text-slate-400">{{ ch.title }}</p>
+                 class="mt-3 rounded border border-line bg-cream-2 p-3">
+              <p *ngIf="ch.title" class="mb-2 eyebrow">{{ ch.title }}</p>
               <div class="h-48">
                 <canvas baseChart
                         [type]="ch.chart_js_spec.type"
@@ -157,7 +155,8 @@ interface ChatMessage {
             </div>
 
             <!-- Footer (latencia) -->
-            <p *ngIf="m.latency_ms" class="mt-2 text-[9px] text-slate-600">
+            <p *ngIf="m.latency_ms" class="mt-2 text-xs"
+               [ngClass]="m.role === 'user' ? 'text-cream/50' : 'text-muted'">
               {{ (m.latency_ms / 1000).toFixed(1) }}s
             </p>
           </div>
@@ -165,29 +164,29 @@ interface ChatMessage {
 
         <!-- Error -->
         <div *ngIf="errorMsg"
-             class="rounded-xl border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+             class="rounded border border-err/40 bg-err/10 px-3 py-2 text-sm text-err">
           {{ errorMsg }}
         </div>
       </div>
 
       <!-- Input -->
       <form (ngSubmit)="send()"
-            class="border-t border-slate-800/60 bg-slate-950/80 px-4 py-3">
+            class="border-t border-line bg-card px-4 py-4">
         <div class="flex gap-2">
           <input type="text"
                  [(ngModel)]="inputText"
                  name="inputText"
                  [disabled]="isStreaming"
-                 placeholder="Pregunta sobre contratación pública…"
-                 class="flex-1 rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-fuchsia-500 focus:outline-none disabled:opacity-50" />
+                 placeholder="Pregunta lo que quieras saber…"
+                 class="flex-1 rounded border border-line-strong bg-cream px-4 py-2.5 text-sm text-ink placeholder-muted focus:border-navy focus:outline-none disabled:opacity-50" />
           <button type="submit"
                   [disabled]="isStreaming || !inputText.trim()"
-                  class="rounded-xl bg-fuchsia-500/80 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-fuchsia-500 disabled:cursor-not-allowed disabled:opacity-40">
+                  class="btn-primary disabled:cursor-not-allowed disabled:opacity-40">
             <span *ngIf="!isStreaming">Enviar</span>
             <span *ngIf="isStreaming">…</span>
           </button>
         </div>
-        <p class="mt-1.5 text-[9px] text-slate-600 text-center">
+        <p class="mt-2 text-xs text-muted text-center">
           VeridIA puede cometer errores · Verifica con la fuente oficial
         </p>
       </form>

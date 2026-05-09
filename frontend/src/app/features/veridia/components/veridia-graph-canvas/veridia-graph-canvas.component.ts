@@ -24,25 +24,25 @@ cytoscape.use(fcose);
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="relative h-full w-full overflow-hidden rounded-2xl bg-[#0a0a0f] border border-slate-800/60">
+    <div class="relative h-full w-full overflow-hidden rounded border border-line bg-card">
       <div #host class="absolute inset-0"></div>
 
       <!-- Meta info flotante (esquina superior derecha) -->
       <div *ngIf="grafo?.meta as m"
-           class="absolute right-3 top-3 z-10 max-w-xs rounded-xl border border-slate-700/60 bg-slate-950/85 p-3 backdrop-blur">
-        <p class="text-[10px] uppercase tracking-widest text-slate-500">Entidad analizada</p>
-        <p class="mt-1 text-sm font-semibold text-slate-100 leading-tight">{{ m.entidad }}</p>
-        <p class="text-[10px] font-mono text-slate-500">NIT {{ m.nit }}</p>
+           class="absolute right-3 top-3 z-10 max-w-xs rounded border border-line bg-cream-2/95 p-3 shadow-sm backdrop-blur">
+        <p class="text-[11px] uppercase tracking-widest text-muted font-semibold">Entidad analizada</p>
+        <p class="mt-1 font-editorial text-base font-semibold text-ink leading-tight">{{ m.entidad }}</p>
+        <p class="text-xs font-mono text-muted tabular">NIT {{ m.nit }}</p>
         <div class="mt-2 flex flex-wrap gap-1.5">
-          <span class="rounded-md bg-slate-800/80 px-2 py-0.5 text-[10px] text-slate-300">
+          <span class="rounded bg-cream px-2 py-0.5 text-xs text-ink-2 border border-line">
             {{ m.total_contratistas }} proveedores
           </span>
           <span *ngIf="m.alertas_rojo"
-                class="rounded-md bg-rose-500/15 px-2 py-0.5 text-[10px] text-rose-300">
+                class="rounded bg-err/10 px-2 py-0.5 text-xs text-err border border-err/30">
             🚩 {{ m.alertas_rojo }} sancionados
           </span>
           <span *ngIf="m.alertas_naranja"
-                class="rounded-md bg-amber-500/15 px-2 py-0.5 text-[10px] text-amber-300">
+                class="rounded bg-gold/15 px-2 py-0.5 text-xs text-gold-deep border border-gold/40">
             ⚠ {{ m.alertas_naranja }} multados
           </span>
         </div>
@@ -52,9 +52,9 @@ cytoscape.use(fcose);
       <div *ngIf="!hasData"
            class="pointer-events-none absolute inset-0 flex items-center justify-center text-center">
         <div class="space-y-3 px-6">
-          <div class="text-6xl opacity-20">⌬</div>
-          <p class="text-sm uppercase tracking-[0.4em] text-slate-500">VeridIA · Mapa</p>
-          <p class="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
+          <div class="font-editorial text-5xl text-line-strong">⌬</div>
+          <p class="text-xs uppercase tracking-widest text-muted font-semibold">VeridIA · Mapa</p>
+          <p class="text-sm text-ink-2 max-w-xs mx-auto leading-relaxed">
             Selecciona un hallazgo en la lista para visualizar la red de la entidad y sus contratistas.
           </p>
         </div>
@@ -115,7 +115,7 @@ export class VeridiaGraphCanvasComponent implements AfterViewInit, OnChanges, On
   }
   screenshot(): string | null {
     if (!this.cy) return null;
-    return this.cy.png({ output: 'base64uri', bg: '#0a0a0f', full: true, scale: 2 });
+    return this.cy.png({ output: 'base64uri', bg: '#ffffff', full: true, scale: 2 });
   }
   focusNode(nodeId: string): void {
     if (!this.cy) return;
@@ -233,59 +233,80 @@ export class VeridiaGraphCanvasComponent implements AfterViewInit, OnChanges, On
 
   private buildStylesheet(): any[] {
     return [
-      // ── nodos base ─────────────────────────────────────
+      // ── nodos base · light mode institucional ──────────
       {
         selector: 'node',
         style: {
-          'background-color': '#64748b',
+          'background-color': '#7a9ec2',
           'border-width': 1.5,
-          'border-color': 'rgba(15, 23, 42, 0.85)',
-          'background-opacity': 0.92,
+          'border-color': '#1a3a5c',
+          'background-opacity': 1,
           label: 'data(label)',
-          color: '#e2e8f0',
+          color: '#14202c',
           'text-valign': 'center',
           'text-halign': 'center',
-          'text-margin-y': -28,
-          'font-family': 'JetBrains Mono, ui-monospace, SFMono-Regular, monospace',
-          'font-size': 10,
+          'text-margin-y': -30,
+          'font-family': 'Public Sans, -apple-system, sans-serif',
+          'font-size': 11,
           'font-weight': 500,
           'text-wrap': 'wrap',
           'text-max-width': '160px',
-          'text-background-color': 'rgba(8, 8, 13, 0.92)',
-          'text-background-opacity': 1,
-          'text-background-padding': '4px',
+          'text-background-color': '#ffffff',
+          'text-background-opacity': 0.95,
+          'text-background-padding': '5px',
           'text-background-shape': 'roundrectangle',
-          'text-border-color': 'rgba(148, 163, 184, 0.15)',
+          'text-border-color': '#e7e3d8',
           'text-border-width': 1,
           'text-border-opacity': 1,
-          width: 'mapData(value, 1, 100, 28, 70)',
-          height: 'mapData(value, 1, 100, 28, 70)',
+          width: 'mapData(value, 1, 100, 30, 75)',
+          height: 'mapData(value, 1, 100, 30, 75)',
           'transition-property': 'background-color, border-color, opacity',
           'transition-duration': 200 as any,
         },
       },
-      // ── grupos (paleta cohesiva) ───────────────────────
+      // ── grupos (paleta institucional) ──────────────────
       {
         selector: 'node.group-entidad',
         style: {
-          'background-color': '#a78bfa',
-          'border-color': '#6d28d9',
+          'background-color': '#1a3a5c',          // navy
+          'border-color': '#0f2438',               // navy-deep
+          'border-width': 2,
           shape: 'diamond',
-          width: 60,
-          height: 60,
+          width: 70,
+          height: 70,
+          'font-weight': 700,
+          'text-margin-y': -38,
         },
       },
-      { selector: 'node.group-contratista', style: { 'background-color': '#34d399', 'border-color': '#047857' } },
-      { selector: 'node.group-sancionado',  style: { 'background-color': '#fb7185', 'border-color': '#9f1239' } },
-      { selector: 'node.group-multado',     style: { 'background-color': '#fbbf24', 'border-color': '#92400e' } },
+      {
+        selector: 'node.group-contratista',
+        style: {
+          'background-color': '#7a9ec2',          // navy-ui (azul UI claro)
+          'border-color': '#2c5582',
+        },
+      },
+      {
+        selector: 'node.group-sancionado',
+        style: {
+          'background-color': '#a14545',          // err
+          'border-color': '#7a3030',
+        },
+      },
+      {
+        selector: 'node.group-multado',
+        style: {
+          'background-color': '#c9a961',          // gold
+          'border-color': '#b08e3f',               // gold-deep
+        },
+      },
       {
         selector: 'node.group-alto_riesgo',
         style: {
-          'background-color': '#f43f5e',
-          'border-color': '#fbbf24',
+          'background-color': '#a14545',          // err
+          'border-color': '#c9a961',               // gold como anillo de alerta
           'border-width': 3,
-          'overlay-color': '#f43f5e',
-          'overlay-opacity': 0.18,
+          'overlay-color': '#a14545',
+          'overlay-opacity': 0.15,
           'overlay-padding': 6,
         },
       },
@@ -294,34 +315,40 @@ export class VeridiaGraphCanvasComponent implements AfterViewInit, OnChanges, On
         selector: 'edge',
         style: {
           width: 'mapData(value, 1, 20, 1, 5)',
-          'line-color': 'rgba(100, 116, 139, 0.5)',
+          'line-color': 'rgba(107, 119, 133, 0.45)',  // muted con alpha
           'curve-style': 'bezier',
           'target-arrow-shape': 'triangle',
-          'target-arrow-color': 'rgba(100, 116, 139, 0.55)',
-          'arrow-scale': 0.85,
+          'target-arrow-color': 'rgba(107, 119, 133, 0.55)',
+          'arrow-scale': 0.9,
           opacity: 0.85,
         },
       },
       // ── highlight neighborhood ─────────────────────────
-      { selector: '.vd-faded',          style: { opacity: 0.1, 'text-opacity': 0.2, 'z-index': 1 } },
-      { selector: 'node.vd-highlighted', style: { opacity: 1, 'text-opacity': 1, 'z-index': 50 } },
+      {
+        selector: '.vd-faded',
+        style: { opacity: 0.18, 'text-opacity': 0.3, 'z-index': 1 },
+      },
+      {
+        selector: 'node.vd-highlighted',
+        style: { opacity: 1, 'text-opacity': 1, 'z-index': 50 },
+      },
       {
         selector: 'edge.vd-highlighted',
         style: {
           opacity: 1,
           width: 'mapData(value, 1, 20, 2, 6)',
-          'line-color': '#d946ef',
-          'target-arrow-color': '#e879f9',
+          'line-color': '#c9a961',                  // gold (marca acento)
+          'target-arrow-color': '#b08e3f',           // gold-deep
           'z-index': 60,
         },
       },
       {
         selector: 'node.vd-focused',
         style: {
-          'border-color': '#e879f9',
+          'border-color': '#c9a961',                 // gold ring
           'border-width': 4,
-          'overlay-color': '#d946ef',
-          'overlay-opacity': 0.22,
+          'overlay-color': '#c9a961',
+          'overlay-opacity': 0.18,
           'overlay-padding': 9,
           'z-index': 100,
         },

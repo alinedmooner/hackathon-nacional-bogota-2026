@@ -136,7 +136,9 @@ export class DashboardComponent implements OnInit {
           {
             data: series.values,
             label: 'Contratos',
-            backgroundColor: 'rgba(34, 197, 94, 0.6)'
+            backgroundColor: 'rgba(26, 58, 92, 0.75)',  // navy
+            borderColor: '#1a3a5c',
+            borderWidth: 1,
           }
         ]
       };
@@ -149,9 +151,10 @@ export class DashboardComponent implements OnInit {
           {
             data: series.values,
             label: 'Contratos por tipo',
-            borderColor: '#7c3aed',
-            backgroundColor: 'rgba(124, 58, 237, 0.25)',
-            fill: true
+            borderColor: '#c9a961',                       // gold
+            backgroundColor: 'rgba(201, 169, 97, 0.18)',
+            fill: true,
+            tension: 0.3,
           }
         ]
       };
@@ -163,7 +166,9 @@ export class DashboardComponent implements OnInit {
         datasets: [
           {
             data: data.values,
-            backgroundColor: ['#7c3aed', '#22c55e', '#ef4444', '#f59e0b', '#3b82f6']
+            backgroundColor: ['#1a3a5c', '#c9a961', '#a14545', '#4d7a3e', '#7a9ec2'],
+            borderColor: '#ffffff',
+            borderWidth: 2,
           }
         ]
       };
@@ -176,9 +181,10 @@ export class DashboardComponent implements OnInit {
           {
             data: series.values,
             label: 'Contratos',
-            borderColor: '#4ade80',
-            backgroundColor: 'rgba(34, 197, 94, 0.2)',
-            fill: true
+            borderColor: '#1a3a5c',                       // navy
+            backgroundColor: 'rgba(26, 58, 92, 0.15)',
+            fill: true,
+            tension: 0.3,
           }
         ]
       };
@@ -197,7 +203,9 @@ export class DashboardComponent implements OnInit {
           {
             data: data.map((e) => e.valor_total),
             label: 'Valor total ($)',
-            backgroundColor: ['#7c3aed', '#22c55e', '#f59e0b']
+            backgroundColor: ['#1a3a5c', '#c9a961', '#b08e3f', '#7a9ec2', '#4d7a3e'],
+            borderColor: '#ffffff',
+            borderWidth: 1,
           }
         ]
       };

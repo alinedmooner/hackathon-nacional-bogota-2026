@@ -1,29 +1,29 @@
-<div class="flex h-[calc(100vh-58px)] w-full overflow-hidden bg-[#08080d] text-slate-200">
+<div class="flex h-[calc(100vh-90px)] w-full overflow-hidden bg-cream text-ink">
 
   <!-- ════════════════════════════════════════════════════════ -->
   <!-- SIDEBAR · controles                                       -->
   <!-- ════════════════════════════════════════════════════════ -->
-  <aside class="flex w-72 shrink-0 flex-col border-r border-slate-800/60 bg-slate-950/40 backdrop-blur min-h-0">
+  <aside class="flex w-72 shrink-0 flex-col border-r border-line bg-cream-2 min-h-0">
 
     <!-- Tipos de alerta -->
     <div class="px-5 pt-5">
-      <p class="text-[10px] uppercase tracking-widest text-slate-500">Tipos de alerta</p>
-      <div class="mt-2 space-y-2">
+      <p class="eyebrow">Tipos de alerta</p>
+      <div class="mt-3 space-y-2">
         <button *ngFor="let a of alerts"
                 (click)="selectAlert(a.type)"
-                class="w-full rounded-xl border px-3 py-3 text-left transition"
+                class="w-full rounded border-l-4 px-3 py-3 text-left transition"
                 [ngClass]="selectedAlert === a.type
-                  ? 'border-fuchsia-500 bg-fuchsia-500/10'
-                  : 'border-slate-800 bg-slate-900/30 hover:border-slate-700'">
+                  ? 'border-l-gold bg-card shadow-sm'
+                  : 'border-l-transparent bg-cream-2 hover:bg-card hover:border-l-line-strong'">
           <div class="flex items-start justify-between gap-2">
             <div class="flex-1 min-w-0">
-              <p class="text-xs font-semibold"
-                 [ngClass]="selectedAlert === a.type ? 'text-fuchsia-200' : 'text-slate-200'">
+              <p class="text-sm font-semibold"
+                 [ngClass]="selectedAlert === a.type ? 'text-navy' : 'text-ink'">
                 {{ a.label }}
               </p>
-              <p class="mt-0.5 text-[10px] leading-relaxed text-slate-500">{{ a.description }}</p>
+              <p class="mt-0.5 text-xs leading-relaxed text-muted">{{ a.description }}</p>
             </div>
-            <span class="rounded-md px-1.5 py-0.5 text-[10px] font-bold tracking-wider"
+            <span class="rounded px-2 py-0.5 text-xs font-bold tabular"
                   [style.color]="a.color"
                   [style.background-color]="a.color + '22'">
               {{ a.count }}
@@ -35,25 +35,25 @@
 
     <!-- Leyenda del grafo -->
     <div class="px-5 pt-6">
-      <p class="text-[10px] uppercase tracking-widest text-slate-500">Leyenda · grafo</p>
+      <p class="eyebrow">Leyenda · grafo</p>
       <ul class="mt-2 space-y-1.5">
-        <li *ngFor="let l of legend" class="flex items-center gap-2 text-[11px] text-slate-400">
+        <li *ngFor="let l of legend" class="flex items-center gap-2 text-xs text-ink-2">
           <span class="h-2.5 w-2.5 rounded-full" [ngClass]="l.colorClass"></span>
           <span>{{ l.label }}</span>
         </li>
       </ul>
     </div>
 
-    <!-- Resumen del dashboard (datos disponibles) -->
+    <!-- Datasets disponibles -->
     <div *ngIf="dashboard?.disponibilidad_datasets as d"
          class="mt-6 px-5">
-      <p class="text-[10px] uppercase tracking-widest text-slate-500">Datasets activos</p>
+      <p class="eyebrow">Fuentes consultadas</p>
       <ul class="mt-2 space-y-1">
         <li *ngFor="let kv of d | keyvalue"
-            class="flex items-center justify-between gap-2 rounded-md bg-slate-900/30 px-2 py-1 text-[10px]"
-            [ngClass]="kv.value ? 'text-emerald-300' : 'text-slate-500'">
+            class="flex items-center justify-between gap-2 rounded bg-card px-2 py-1 text-xs border border-line"
+            [ngClass]="kv.value ? 'text-ok' : 'text-muted'">
           <span class="truncate">{{ kv.key }}</span>
-          <span>{{ kv.value ? '●' : '○' }}</span>
+          <span class="text-base leading-none">{{ kv.value ? '●' : '○' }}</span>
         </li>
       </ul>
     </div>
@@ -61,30 +61,36 @@
     <!-- Spacer + Confianza sticky abajo -->
     <div class="flex-1"></div>
     <div *ngIf="selectedHallazgo as h"
-         class="border-t border-slate-800/60 bg-slate-950/50 px-5 py-4 backdrop-blur">
-      <div class="rounded-xl border px-3 py-2.5"
-           [ngClass]="alertColor(selectedAlert)">
-        <p class="text-[10px] uppercase tracking-widest opacity-70">Confianza del hallazgo</p>
-        <div class="mt-1 flex items-baseline gap-2">
-          <span class="text-2xl font-bold uppercase">{{ h.confianza }}</span>
-        </div>
-        <div class="mt-2 h-1 overflow-hidden rounded-full bg-slate-800">
-          <div class="h-full rounded-full transition-all"
-               [style.width.%]="h.confianza === 'alta' ? 95 : 70"
-               [ngClass]="h.confianza === 'alta' ? 'bg-rose-400' : 'bg-amber-400'"></div>
-        </div>
+         class="border-t border-line bg-card px-5 py-4">
+      <p class="eyebrow">¿Qué tan confiable es?</p>
+      <div class="mt-2 flex items-baseline gap-2">
+        <span class="font-editorial text-3xl font-semibold uppercase"
+              [ngClass]="h.confianza === 'alta' ? 'text-navy' : 'text-gold-deep'">
+          {{ h.confianza }}
+        </span>
+        <span class="text-xs text-muted">confianza</span>
       </div>
+      <div class="mt-2 h-1 overflow-hidden rounded-full bg-cream-2">
+        <div class="h-full rounded-full transition-all"
+             [style.width.%]="h.confianza === 'alta' ? 95 : 70"
+             [ngClass]="h.confianza === 'alta' ? 'bg-navy' : 'bg-gold'"></div>
+      </div>
+      <p class="mt-2 text-xs leading-relaxed text-muted">
+        {{ h.confianza === 'alta'
+            ? 'Coincidencia documental verificada en fuentes oficiales.'
+            : 'Hallazgo derivado por inferencia. Verifica con la fuente.' }}
+      </p>
     </div>
   </aside>
 
   <!-- ════════════════════════════════════════════════════════ -->
   <!-- COLUMNA · Lista de hallazgos                              -->
   <!-- ════════════════════════════════════════════════════════ -->
-  <section class="flex w-[28rem] shrink-0 flex-col border-r border-slate-800/60 bg-slate-950/20 min-h-0">
-    <header class="border-b border-slate-800/60 px-5 py-3 space-y-3">
+  <section class="flex w-[28rem] shrink-0 flex-col border-r border-line bg-card min-h-0">
+    <header class="border-b border-line px-5 py-4 space-y-3">
       <div>
-        <p class="text-[10px] uppercase tracking-[0.25em] text-fuchsia-300">Hallazgos</p>
-        <h2 class="mt-0.5 text-sm font-semibold text-slate-100">
+        <p class="eyebrow text-navy">Hallazgos</p>
+        <h2 class="mt-0.5 font-editorial text-xl font-semibold text-ink leading-tight">
           {{ {
             sancionados:      'Inhabilitados con contratos vigentes',
             multados:         'Multados que siguen contratando',
@@ -92,11 +98,11 @@
           }[selectedAlert] }}
         </h2>
         <p *ngIf="!hallazgosLoading"
-           class="mt-0.5 text-[10px] text-slate-500">
-          <span *ngIf="activeFiltersCount === 0">{{ hallazgos.length }} casos · click para ver red</span>
+           class="mt-1 text-xs text-muted">
+          <span *ngIf="activeFiltersCount === 0">{{ hallazgos.length }} casos · haz click para ver la red</span>
           <span *ngIf="activeFiltersCount > 0">
             {{ filteredHallazgos.length }} de {{ hallazgos.length }}
-            <span class="text-fuchsia-400">· {{ activeFiltersCount }} filtro{{ activeFiltersCount === 1 ? '' : 's' }}</span>
+            <span class="text-navy">· {{ activeFiltersCount }} filtro{{ activeFiltersCount === 1 ? '' : 's' }}</span>
           </span>
         </p>
       </div>
@@ -104,25 +110,25 @@
       <!-- Barra de búsqueda + botón filtros -->
       <div class="flex gap-2">
         <div class="relative flex-1">
-          <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">🔎</span>
+          <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted text-xs">🔎</span>
           <input type="text"
                  [(ngModel)]="searchText"
-                 placeholder="Buscar nombre, documento, entidad…"
-                 class="w-full rounded-lg border border-slate-700 bg-slate-900/60 py-2 pl-8 pr-3 text-xs text-slate-100 placeholder-slate-500 focus:border-fuchsia-500 focus:outline-none" />
+                 placeholder="Busca por nombre, cédula, NIT, entidad…"
+                 class="w-full rounded border border-line-strong bg-cream py-2 pl-8 pr-3 text-sm text-ink placeholder-muted focus:border-navy focus:outline-none" />
           <button *ngIf="searchText"
                   (click)="searchText = ''"
-                  class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-slate-500 hover:text-slate-300"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted hover:text-ink"
                   aria-label="Limpiar búsqueda">✕</button>
         </div>
         <button (click)="toggleFilters()"
-                class="relative flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-[10px] font-semibold uppercase tracking-widest transition"
+                class="relative flex shrink-0 items-center gap-1.5 rounded border px-3 py-2 text-xs font-medium transition"
                 [ngClass]="filtersOpen || activeFiltersCount > 0
-                  ? 'border-fuchsia-500 bg-fuchsia-500/10 text-fuchsia-200'
-                  : 'border-slate-700 bg-slate-900/60 text-slate-400 hover:text-slate-200'">
+                  ? 'border-navy bg-navy text-cream'
+                  : 'border-line-strong bg-card text-ink-2 hover:border-navy hover:text-navy'">
           <span>⚙</span>
           <span>Filtros</span>
           <span *ngIf="activeFiltersCount > 0"
-                class="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-fuchsia-500 text-[9px] font-bold text-white">
+                class="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-ink">
             {{ activeFiltersCount }}
           </span>
         </button>
@@ -130,17 +136,17 @@
 
       <!-- Panel de filtros colapsable -->
       <div *ngIf="filtersOpen"
-           class="space-y-3 rounded-xl border border-slate-800 bg-slate-900/30 p-3">
+           class="space-y-3 rounded border border-line bg-cream-2 p-3">
         <!-- Confianza -->
         <div>
-          <label class="text-[10px] uppercase tracking-widest text-slate-500">Confianza</label>
+          <label class="eyebrow">Confianza</label>
           <div class="mt-1.5 flex gap-1.5">
             <button *ngFor="let c of ['todas','alta','media']"
                     (click)="filterConfianza = $any(c)"
-                    class="flex-1 rounded-md border px-2 py-1 text-[10px] font-semibold uppercase tracking-wider transition"
+                    class="flex-1 rounded border px-2 py-1 text-xs font-medium uppercase transition"
                     [ngClass]="filterConfianza === c
-                      ? 'border-fuchsia-500 bg-fuchsia-500/10 text-fuchsia-200'
-                      : 'border-slate-700 bg-slate-900/40 text-slate-400 hover:text-slate-200'">
+                      ? 'border-navy bg-navy text-cream'
+                      : 'border-line-strong bg-card text-ink-2 hover:border-navy'">
               {{ c }}
             </button>
           </div>
@@ -148,62 +154,62 @@
 
         <!-- Valor mínimo -->
         <div>
-          <label class="flex items-center justify-between text-[10px] uppercase tracking-widest text-slate-500">
+          <label class="flex items-center justify-between eyebrow">
             <span>Valor mínimo (COP)</span>
-            <span class="font-mono text-emerald-300 normal-case">
+            <span class="font-mono text-navy normal-case">
               {{ filterMinValor > 0 ? formatCOP(filterMinValor) : '—' }}
             </span>
           </label>
           <input type="range"
                  [(ngModel)]="filterMinValor"
                  min="0" max="2000000000" step="50000000"
-                 class="mt-1.5 w-full accent-fuchsia-500" />
+                 class="mt-1.5 w-full accent-navy" />
         </div>
 
         <!-- Entidad -->
         <div>
-          <label class="text-[10px] uppercase tracking-widest text-slate-500">Entidad / NIT</label>
+          <label class="eyebrow">Entidad / NIT</label>
           <input type="text"
                  [(ngModel)]="filterEntidad"
                  placeholder="INVÍAS, Alcaldía, 800215807…"
-                 class="mt-1.5 w-full rounded-md border border-slate-700 bg-slate-900/60 px-2 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:border-fuchsia-500 focus:outline-none" />
+                 class="mt-1.5 w-full rounded border border-line-strong bg-card px-2 py-1.5 text-sm text-ink placeholder-muted focus:border-navy focus:outline-none" />
         </div>
 
-        <!-- Acciones -->
         <div class="flex gap-2 pt-1">
           <button (click)="clearFilters()"
                   [disabled]="activeFiltersCount === 0"
-                  class="flex-1 rounded-md border border-slate-700 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400 transition hover:border-slate-600 hover:text-slate-200 disabled:cursor-not-allowed disabled:opacity-40">
+                  class="flex-1 rounded border border-line-strong px-3 py-1.5 text-xs font-medium text-ink-2 transition hover:border-navy hover:text-navy disabled:cursor-not-allowed disabled:opacity-40">
             Limpiar
           </button>
           <button (click)="filtersOpen = false"
-                  class="flex-1 rounded-md bg-fuchsia-500/80 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-white transition hover:bg-fuchsia-500">
+                  class="flex-1 rounded bg-navy px-3 py-1.5 text-xs font-medium text-cream transition hover:bg-navy-deep">
             Aplicar
           </button>
         </div>
       </div>
 
-      <!-- Chips de filtros activos (cuando el panel está cerrado) -->
+      <!-- Chips de filtros activos -->
       <div *ngIf="!filtersOpen && activeFiltersCount > 0" class="flex flex-wrap gap-1.5">
         <span *ngIf="searchText.trim()"
-              class="inline-flex items-center gap-1 rounded-md border border-slate-700 bg-slate-900/40 px-2 py-0.5 text-[10px] text-slate-300">
+              class="inline-flex items-center gap-1 rounded border border-line-strong bg-cream-2 px-2 py-0.5 text-xs text-ink-2">
           🔎 "{{ searchText }}"
-          <button (click)="searchText = ''" class="text-slate-500 hover:text-slate-200">✕</button>
+          <button (click)="searchText = ''" class="text-muted hover:text-ink">✕</button>
         </span>
         <span *ngIf="filterConfianza !== 'todas'"
-              class="inline-flex items-center gap-1 rounded-md border border-rose-500/40 bg-rose-500/10 px-2 py-0.5 text-[10px] text-rose-300">
+              class="inline-flex items-center gap-1 rounded border px-2 py-0.5 text-xs"
+              [ngClass]="filterConfianza === 'alta' ? 'border-navy text-navy bg-navy/5' : 'border-gold-deep text-gold-deep bg-gold/10'">
           {{ filterConfianza }}
-          <button (click)="filterConfianza = 'todas'" class="hover:text-rose-100">✕</button>
+          <button (click)="filterConfianza = 'todas'" class="hover:text-ink">✕</button>
         </span>
         <span *ngIf="filterMinValor > 0"
-              class="inline-flex items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-300">
+              class="inline-flex items-center gap-1 rounded border border-ok/40 bg-ok/10 px-2 py-0.5 text-xs text-ok">
           ≥ {{ formatCOP(filterMinValor) }}
-          <button (click)="filterMinValor = 0" class="hover:text-emerald-100">✕</button>
+          <button (click)="filterMinValor = 0" class="hover:text-ink">✕</button>
         </span>
         <span *ngIf="filterEntidad.trim()"
-              class="inline-flex items-center gap-1 rounded-md border border-violet-500/40 bg-violet-500/10 px-2 py-0.5 text-[10px] text-violet-300">
+              class="inline-flex items-center gap-1 rounded border border-navy/40 bg-navy/5 px-2 py-0.5 text-xs text-navy">
           🏛 {{ filterEntidad }}
-          <button (click)="filterEntidad = ''" class="hover:text-violet-100">✕</button>
+          <button (click)="filterEntidad = ''" class="hover:text-navy-deep">✕</button>
         </span>
       </div>
     </header>
@@ -211,72 +217,72 @@
     <!-- Loader -->
     <div *ngIf="hallazgosLoading"
          class="flex flex-1 items-center justify-center">
-      <div class="flex items-center gap-2 text-xs text-slate-500">
-        <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-fuchsia-400"></span>
-        <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-fuchsia-400" style="animation-delay: 0.15s"></span>
-        <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-fuchsia-400" style="animation-delay: 0.3s"></span>
-        <span class="ml-2 uppercase tracking-widest">Cargando…</span>
+      <div class="flex items-center gap-2 text-xs text-muted">
+        <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-navy"></span>
+        <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-navy" style="animation-delay: 0.15s"></span>
+        <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-navy" style="animation-delay: 0.3s"></span>
+        <span class="ml-2 uppercase tracking-wider">Cargando</span>
       </div>
     </div>
 
     <!-- Error -->
     <div *ngIf="hallazgosError"
-         class="m-5 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-xs text-red-300">
+         class="m-5 rounded border border-err/40 bg-err/10 px-4 py-3 text-xs text-err">
       {{ hallazgosError }}
     </div>
 
     <!-- Lista -->
     <div *ngIf="!hallazgosLoading && !hallazgosError"
-         class="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2">
+         class="flex-1 min-h-0 overflow-y-auto py-2">
       <button *ngFor="let h of filteredHallazgos; trackBy: trackByDoc"
               (click)="selectHallazgo(h)"
-              class="block w-full rounded-xl border px-3 py-2.5 text-left transition"
+              class="block w-full border-l-4 px-5 py-3 text-left transition"
               [ngClass]="selectedHallazgo === h
-                ? 'border-fuchsia-500 bg-fuchsia-500/10'
-                : 'border-slate-800 bg-slate-900/30 hover:border-slate-700 hover:bg-slate-900/50'">
+                ? 'border-l-gold bg-cream-2'
+                : 'border-l-transparent hover:bg-cream-2/60'">
         <div class="flex items-start justify-between gap-2">
           <div class="min-w-0 flex-1">
-            <p class="truncate text-xs font-semibold text-slate-100">{{ hallazgoNombre(h) }}</p>
-            <p class="mt-0.5 truncate text-[10px] text-slate-500 font-mono">
-              Doc {{ h.documento }} · {{ h.id_contrato }}
+            <p class="truncate text-sm font-semibold text-ink">{{ hallazgoNombre(h) }}</p>
+            <p class="mt-0.5 truncate text-xs text-muted font-mono tabular">
+              CC {{ h.documento }} · {{ h.id_contrato }}
             </p>
-            <p class="mt-1 truncate text-[11px] text-slate-400">
-              <span class="text-violet-300">{{ h.nombre_entidad }}</span>
-              <span class="text-slate-600 mx-1">·</span>
-              <span class="text-slate-400">{{ formatDate(h.fecha_de_firma) }}</span>
+            <p class="mt-1 truncate text-xs text-ink-2">
+              <span class="text-navy font-medium">{{ h.nombre_entidad }}</span>
+              <span class="text-muted mx-1">·</span>
+              <span>{{ formatDate(h.fecha_de_firma) }}</span>
             </p>
           </div>
           <div class="text-right shrink-0">
-            <p class="text-[11px] font-semibold text-emerald-300">{{ formatCOP(h.valor_contrato) }}</p>
-            <span class="mt-0.5 inline-block rounded px-1.5 py-px text-[9px] font-bold uppercase tracking-wider"
+            <p class="text-sm font-semibold text-ink tabular">{{ formatCOP(h.valor_contrato) }}</p>
+            <span class="mt-0.5 inline-block rounded px-1.5 py-px text-xs font-semibold uppercase"
                   [ngClass]="h.confianza === 'alta'
-                    ? 'bg-rose-500/15 text-rose-300'
-                    : 'bg-amber-500/15 text-amber-300'">
+                    ? 'bg-navy/10 text-navy'
+                    : 'bg-gold/15 text-gold-deep'">
               {{ h.confianza }}
             </span>
           </div>
         </div>
-        <div *ngIf="h.sanciones" class="mt-2 text-[10px] text-rose-300">
+        <div *ngIf="h.sanciones" class="mt-2 text-xs text-err">
           ⚠ {{ h.sanciones }}
         </div>
         <a *ngIf="h.url_evidencia"
            [href]="h.url_evidencia" target="_blank" rel="noopener"
            (click)="$event.stopPropagation()"
-           class="mt-1 inline-block text-[10px] text-fuchsia-400 hover:text-fuchsia-300 hover:underline">
-          ↗ Evidencia oficial
+           class="mt-1 inline-block text-xs text-navy hover:underline">
+          ↗ Ver evidencia oficial
         </a>
       </button>
 
       <div *ngIf="!filteredHallazgos.length && hallazgos.length"
-           class="rounded-xl border border-dashed border-slate-800 px-4 py-8 text-center text-xs text-slate-500">
+           class="m-5 rounded border border-dashed border-line-strong px-4 py-8 text-center text-xs text-muted">
         Ningún hallazgo coincide con los filtros aplicados.
         <button (click)="clearFilters()"
-                class="mt-2 block w-full text-fuchsia-400 hover:text-fuchsia-300">
+                class="mt-2 block w-full text-navy hover:underline">
           Limpiar filtros
         </button>
       </div>
       <div *ngIf="!hallazgos.length"
-           class="rounded-xl border border-dashed border-slate-800 px-4 py-8 text-center text-xs text-slate-500">
+           class="m-5 rounded border border-dashed border-line-strong px-4 py-8 text-center text-xs text-muted">
         Sin hallazgos para este tipo.
       </div>
     </div>
@@ -285,23 +291,23 @@
   <!-- ════════════════════════════════════════════════════════ -->
   <!-- COLUMNA · Grafo + detalle nodo                            -->
   <!-- ════════════════════════════════════════════════════════ -->
-  <main class="relative flex flex-1 flex-col min-w-0 overflow-hidden">
+  <main class="relative flex flex-1 flex-col min-w-0 overflow-hidden bg-cream">
 
     <!-- Header del grafo + toolbar -->
     <header *ngIf="selectedHallazgo as h"
-            class="flex items-center justify-between gap-4 border-b border-slate-800/60 bg-slate-950/30 px-5 py-3">
+            class="flex items-center justify-between gap-4 border-b border-line bg-card px-5 py-4">
       <div class="min-w-0 flex-1">
-        <p class="text-[10px] uppercase tracking-[0.25em] text-fuchsia-300">Red de la entidad</p>
-        <h1 class="mt-0.5 truncate text-base font-semibold text-slate-100">{{ h.nombre_entidad }}</h1>
-        <p class="text-[10px] font-mono text-slate-500">NIT {{ h.nit_entidad }}</p>
+        <p class="eyebrow text-navy">Red de la entidad</p>
+        <h1 class="mt-0.5 truncate font-editorial text-xl font-semibold text-ink">{{ h.nombre_entidad }}</h1>
+        <p class="text-xs font-mono text-muted tabular">NIT {{ h.nit_entidad }}</p>
       </div>
-      <div class="flex shrink-0 items-center gap-1 rounded-xl border border-slate-800 bg-slate-900/60 p-1">
-        <button (click)="zoomIn()"  title="Zoom in"  class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-300 hover:bg-slate-800 hover:text-fuchsia-300">+</button>
-        <button (click)="zoomOut()" title="Zoom out" class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-300 hover:bg-slate-800 hover:text-fuchsia-300">−</button>
-        <button (click)="fitView()" title="Encajar"  class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-300 hover:bg-slate-800 hover:text-fuchsia-300">⛶</button>
-        <button (click)="reset()"   title="Reset"    class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-300 hover:bg-slate-800 hover:text-fuchsia-300">↻</button>
-        <div class="mx-1 h-5 w-px bg-slate-700"></div>
-        <button (click)="screenshot()" title="Captura PNG" class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-300 hover:bg-slate-800 hover:text-emerald-300">📸</button>
+      <div class="flex shrink-0 items-center gap-1 rounded border border-line bg-cream-2 p-0.5">
+        <button (click)="zoomIn()"  title="Acercar"  class="flex h-8 w-8 items-center justify-center rounded text-ink-2 hover:bg-card hover:text-navy">+</button>
+        <button (click)="zoomOut()" title="Alejar"   class="flex h-8 w-8 items-center justify-center rounded text-ink-2 hover:bg-card hover:text-navy">−</button>
+        <button (click)="fitView()" title="Encajar"  class="flex h-8 w-8 items-center justify-center rounded text-ink-2 hover:bg-card hover:text-navy">⛶</button>
+        <button (click)="reset()"   title="Reiniciar" class="flex h-8 w-8 items-center justify-center rounded text-ink-2 hover:bg-card hover:text-navy">↻</button>
+        <div class="mx-1 h-5 w-px bg-line-strong"></div>
+        <button (click)="screenshot()" title="Guardar imagen" class="flex h-8 w-8 items-center justify-center rounded text-ink-2 hover:bg-card hover:text-navy">📸</button>
       </div>
     </header>
 
@@ -314,14 +320,14 @@
 
       <!-- Loader -->
       <div *ngIf="grafoLoading"
-           class="pointer-events-none absolute inset-0 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm">
+           class="pointer-events-none absolute inset-0 flex items-center justify-center bg-cream/70 backdrop-blur-sm">
         <div class="flex flex-col items-center gap-3">
           <div class="flex space-x-1">
-            <span class="h-2 w-2 animate-bounce rounded-full bg-fuchsia-400"></span>
-            <span class="h-2 w-2 animate-bounce rounded-full bg-fuchsia-400" style="animation-delay: 0.15s"></span>
-            <span class="h-2 w-2 animate-bounce rounded-full bg-fuchsia-400" style="animation-delay: 0.3s"></span>
+            <span class="h-2 w-2 animate-bounce rounded-full bg-navy"></span>
+            <span class="h-2 w-2 animate-bounce rounded-full bg-navy" style="animation-delay: 0.15s"></span>
+            <span class="h-2 w-2 animate-bounce rounded-full bg-navy" style="animation-delay: 0.3s"></span>
           </div>
-          <p class="text-xs uppercase tracking-widest text-slate-400">Cargando red…</p>
+          <p class="text-xs uppercase tracking-wider text-muted">Cargando red</p>
         </div>
       </div>
     </div>
@@ -331,29 +337,32 @@
   <!-- PANEL · Detalle del nodo seleccionado                     -->
   <!-- ════════════════════════════════════════════════════════ -->
   <aside *ngIf="selectedNode as n"
-         class="w-80 shrink-0 overflow-y-auto border-l border-slate-800/60 bg-slate-950/40 backdrop-blur">
-    <div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-800/60 bg-slate-950/85 px-5 py-3 backdrop-blur">
-      <span class="text-[10px] uppercase tracking-widest text-slate-500">{{ n.group }}</span>
+         class="w-80 shrink-0 overflow-y-auto border-l border-line bg-card">
+    <div class="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-card px-5 py-3">
+      <span class="eyebrow">{{ n.group }}</span>
       <button (click)="closeNodeDetail()"
-              class="rounded-md px-2 py-1 text-slate-400 transition hover:bg-slate-800 hover:text-slate-200">✕</button>
+              class="rounded px-2 py-1 text-muted transition hover:bg-cream-2 hover:text-ink">✕</button>
     </div>
     <div class="px-5 py-5">
-      <span class="inline-block rounded-md border px-2 py-0.5 text-[10px] uppercase tracking-wider"
+      <span class="inline-block rounded border px-2 py-0.5 text-xs uppercase font-semibold"
             [ngClass]="groupColor(n.group)">
         {{ n.group }}
       </span>
-      <h2 class="mt-2 text-base font-semibold text-slate-100">{{ n.label }}</h2>
-      <p class="mt-1 font-mono text-[10px] text-slate-500">ID {{ n.id }}</p>
-      <p class="mt-2 text-xs text-slate-400">Contratos vinculados: <span class="text-slate-200 font-semibold">{{ n.value }}</span></p>
+      <h2 class="mt-2 font-editorial text-xl font-semibold text-ink">{{ n.label }}</h2>
+      <p class="mt-1 font-mono text-xs text-muted tabular">{{ n.id }}</p>
+      <p class="mt-2 text-sm text-ink-2">
+        Contratos vinculados:
+        <span class="font-semibold text-navy tabular">{{ n.value }}</span>
+      </p>
 
-      <div *ngIf="n.title" class="mt-4 rounded-lg border border-slate-800 bg-slate-900/40 p-3 text-xs text-slate-300"
+      <div *ngIf="n.title" class="mt-4 rounded border border-line bg-cream-2 p-3 text-sm text-ink-2"
            [innerHTML]="n.title"></div>
 
       <div class="mt-5 space-y-2">
-        <button class="w-full rounded-lg border border-fuchsia-500/40 bg-fuchsia-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-fuchsia-200 transition hover:bg-fuchsia-500/20">
+        <button class="btn-primary w-full">
           Ver perfil completo
         </button>
-        <button class="w-full rounded-lg border border-slate-700 bg-slate-900/60 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-slate-300 transition hover:bg-slate-800">
+        <button class="btn-ghost w-full">
           Generar informe
         </button>
       </div>

@@ -61,30 +61,30 @@ export class VeridiaComponent implements OnInit, OnDestroy {
       label: 'Sancionados activos',
       description: 'Inhabilitados por la Procuraduría con contratos vigentes',
       count: 0,
-      color: '#fb7185',
+      color: '#a14545', // err
     },
     {
       type: 'multados',
       label: 'Multados activos',
       description: 'Multados en SECOP I que siguen contratando',
       count: 0,
-      color: '#fbbf24',
+      color: '#b08e3f', // gold-deep
     },
     {
       type: 'puerta_giratoria',
       label: 'Puerta giratoria',
       description: 'Ex-funcionarios contratistas de su antigua entidad',
       count: 0,
-      color: '#a78bfa',
+      color: '#1a3a5c', // navy
     },
   ];
 
   legend = [
-    { group: 'entidad',     label: 'Entidad pública', colorClass: 'bg-violet-400' },
-    { group: 'contratista', label: 'Contratista',     colorClass: 'bg-emerald-400' },
-    { group: 'sancionado',  label: 'Sancionado',      colorClass: 'bg-rose-400' },
-    { group: 'multado',     label: 'Multado',         colorClass: 'bg-amber-400' },
-    { group: 'alto_riesgo', label: 'Alto riesgo',     colorClass: 'bg-rose-500 ring-2 ring-amber-400' },
+    { group: 'entidad',     label: 'Entidad pública', colorClass: 'bg-navy' },
+    { group: 'contratista', label: 'Contratista',     colorClass: 'bg-ok' },
+    { group: 'sancionado',  label: 'Sancionado',      colorClass: 'bg-err' },
+    { group: 'multado',     label: 'Multado',         colorClass: 'bg-gold-deep' },
+    { group: 'alto_riesgo', label: 'Alto riesgo',     colorClass: 'bg-err ring-2 ring-gold' },
   ];
 
   constructor(
@@ -250,19 +250,19 @@ export class VeridiaComponent implements OnInit, OnDestroy {
 
   groupColor(group: string): string {
     return {
-      entidad:     'bg-violet-400/15 text-violet-300 border-violet-400/40',
-      contratista: 'bg-emerald-400/15 text-emerald-300 border-emerald-400/40',
-      sancionado:  'bg-rose-400/15 text-rose-300 border-rose-400/40',
-      multado:     'bg-amber-400/15 text-amber-300 border-amber-400/40',
-      alto_riesgo: 'bg-rose-500/15 text-rose-200 border-rose-500/60',
-    }[group] ?? 'bg-slate-800/40 text-slate-300 border-slate-700';
+      entidad:     'bg-navy/10 text-navy border-navy/30',
+      contratista: 'bg-ok/10 text-ok border-ok/30',
+      sancionado:  'bg-err/10 text-err border-err/30',
+      multado:     'bg-gold/15 text-gold-deep border-gold/40',
+      alto_riesgo: 'bg-err/15 text-err border-err/50',
+    }[group] ?? 'bg-cream-2 text-ink-2 border-line';
   }
 
   alertColor(type: AlertType): string {
     return {
-      sancionados:      'border-rose-500/40 text-rose-300 bg-rose-500/10',
-      multados:         'border-amber-500/40 text-amber-300 bg-amber-500/10',
-      puerta_giratoria: 'border-violet-500/40 text-violet-300 bg-violet-500/10',
+      sancionados:      'border-err/40 text-err bg-err/10',
+      multados:         'border-gold/40 text-gold-deep bg-gold/15',
+      puerta_giratoria: 'border-navy/40 text-navy bg-navy/10',
     }[type];
   }
 
