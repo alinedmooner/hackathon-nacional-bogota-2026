@@ -139,3 +139,65 @@ class ArchivosDataset:
     ENTIDAD = "entidad"
     NIT_ENTIDAD = "nit_entidad"
     URL_DESCARGA = "url_descarga_documento"
+
+
+class SiriDataset:
+    ID = "iaeu-rcn6"
+
+    NUMERO_SIRI = "numero_siri"
+    TIPO_INHABILIDAD = "tipo_inhabilidad"
+    CALIDAD_PERSONA = "calidad_persona"
+    TIPO_IDENTIFICACION = "tipo_identificacion"
+    NUMERO_IDENTIFICACION = "numero_identificacion"
+    PRIMER_APELLIDO = "primer_apellido"
+    SEGUNDO_APELLIDO = "segundo_apellido"
+    PRIMER_NOMBRE = "primer_nombre"
+    SEGUNDO_NOMBRE = "segundo_nombre"
+    CARGO = "cargo"
+    SANCIONES = "sanciones"
+    DURACION_ANOS = "duracion_anos"
+    DURACION_MES = "duracion_mes"
+    DURACION_DIAS = "duracion_dias"
+    FECHA_EFECTOS_JURIDICOS = "fecha_efectos_juridicos"
+    FECHA_FIN_SANCION = "fecha_fin_sancion"
+    AUTORIDAD = "autoridad"
+    ENTIDAD_SANCIONADO = "entidad_sancionado"
+
+
+class MultasDataset:
+    ID = "4n4q-k399"
+
+    NOMBRE_ENTIDAD = "nombre_entidad"
+    NIT_ENTIDAD = "nit_entidad"
+    NIVEL = "nivel"
+    ORDEN = "orden"
+    MUNICIPIO = "municipio"
+    NUMERO_DE_RESOLUCION = "numero_de_resolucion"
+    DOCUMENTO_CONTRATISTA = "documento_contratista"
+    NOMBRE_CONTRATISTA = "nombre_contratista"
+    NUMERO_DE_CONTRATO = "numero_de_contrato"
+    VALOR_SANCION = "valor_sancion"
+    FECHA_DE_PUBLICACION = "fecha_de_publicacion"
+    FECHA_DE_FIRMEZA = "fecha_de_firmeza"
+    FECHA_DE_CARGUE = "fecha_de_cargue"
+    RUTA_DE_PROCESO = "ruta_de_proceso"
+
+
+class PatrimonioDataset:
+    ID = "8tz7-h3eu"
+
+    TIPO_DOCUMENTO = "tipo_documento"
+    NUMERO_DOCUMENTO = "numero_documento"
+    PRIMER_NOMBRE_DECLARANTE = "primer_nombre_declarante"
+    SEGUNDO_NOMBRE_DECLARANTE = "segundo_nombre_declarante"
+    PRIMER_APELLIDO_DECLARANTE = "primer_apellido_declarante"
+    SEGUNDO_APELLIDO_DECLARANTE = "segundo_apellido_declarante"
+    FECHA_PUBLICAC_DECLARAC = "fecha_publicac_declarac"
+    ESTADO_DECLARACION = "estado_declaracion"
+    TIPO_DECLARACION = "tipo_declaracion"
+    NOMBRE_ENTIDAD = "nombre_entidad"
+    DECLARANTE_ES_CONTRATISTA = "declarante_es_contratista"
+    CARGO_DECLARANTE = "cargo_declarante"
+    PARTICIP_CORP_SOCIED_ASOC = "particip_corp_socied_asoc"
+    PARTICIP_JUNTAS_CONSEJOS = "particip_juntas_consejos"
+    ACTIV_ECONOM_PRIVADAS = "activ_econom_privadas"

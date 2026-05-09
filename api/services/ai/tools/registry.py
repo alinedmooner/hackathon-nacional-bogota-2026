@@ -3,6 +3,7 @@
 from typing import Any, Callable
 
 from . import query_secop, lookup, cross_datasets, text_search, render_chart
+from . import radar_sanctions, radar_fines, radar_profile, radar_summary, radar_revolving
 
 
 TOOLS_OPENAI: list[dict] = [
@@ -131,6 +132,143 @@ TOOLS_OPENAI: list[dict] = [
             },
         },
     },
+    # ── Veridia: detección de alertas ────────────────────────────────────────
+    {
+        "type": "function",
+        "function": {
+            "name": "get_alert_summary",
+            "description": (
+                "Devuelve el resumen ejecutivo global de Veridia: cuántas personas inhabilitadas, "
+                "multadas y posibles puertas giratorias hay en el dataset cargado, con valor total COP. "
+                "Úsalo al inicio de cualquier investigación para tener contexto del universo."
+            ),
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "check_active_sanctions",
+            "description": (
+                "Busca contratistas con inhabilitación vigente en el SIRI (Procuraduría) "
+                "que firmaron contratos durante ese período. "
+                "Filtra opcionalmente por documento, NIT de entidad o nombre de entidad. "
+                "Sin filtros devuelve todos los casos detectados (ordenados por valor)."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "documento": {
+                        "type": "string",
+                        "description": "Cédula o NIT del contratista a verificar. Opcional.",
+                    },
+                    "entity_nit": {
+                        "type": "string",
+                        "description": "NIT de la entidad pública a revisar. Opcional.",
+                    },
+                    "entity_name": {
+                        "type": "string",
+                        "description": "Nombre parcial de la entidad (case-insensitive). Ej: 'JEP', 'Alcaldía'. Opcional.",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Máximo de hallazgos a devolver. Default 20.",
+                    },
+                },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "check_fines",
+            "description": (
+                "Busca contratistas que fueron sancionados con multa en SECOP I "
+                "y continuaron recibiendo contratos después de la multa. "
+                "Cada hallazgo incluye url_evidencia con enlace directo al expediente."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "documento": {
+                        "type": "string",
+                        "description": "Cédula o NIT del contratista a verificar. Opcional.",
+                    },
+                    "entity_nit": {
+                        "type": "string",
+                        "description": "NIT de la entidad. Opcional.",
+                    },
+                    "entity_name": {
+                        "type": "string",
+                        "description": "Nombre parcial de la entidad. Opcional.",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Máximo de hallazgos. Default 20.",
+                    },
+                },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_person_profile",
+            "description": (
+                "Devuelve el perfil unificado de una persona o empresa por documento (cédula o NIT). "
+                "Agrega: contratos SECOP, sanciones SIRI, multas SECOP I y declaraciones patrimoniales. "
+                "Incluye nivel_alerta: rojo (inhabilitado) | naranja (multado) | amarillo | verde."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "documento": {
+                        "type": "string",
+                        "description": "Cédula o NIT de la persona o empresa.",
+                    },
+                },
+                "required": ["documento"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "check_revolving_door",
+            "description": (
+                "Busca casos de 'puerta giratoria': funcionarios con declaración patrimonial "
+                "que aparecen como contratistas de la misma entidad donde trabajaban. "
+                "Señal AMARILLA. confianza=alta → entidad coincide exactamente; "
+                "confianza=media → persona participa en sociedades (señal indirecta)."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "documento": {
+                        "type": "string",
+                        "description": "Cédula del funcionario/contratista. Opcional.",
+                    },
+                    "entity_nit": {
+                        "type": "string",
+                        "description": "NIT de la entidad a revisar. Opcional.",
+                    },
+                    "entity_name": {
+                        "type": "string",
+                        "description": "Nombre parcial de la entidad (case-insensitive). Opcional.",
+                    },
+                    "confianza": {
+                        "type": "string",
+                        "enum": ["alta", "media"],
+                        "description": "Filtrar por nivel de confianza. Opcional.",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Máximo de hallazgos. Default 20.",
+                    },
+                },
+            },
+        },
+    },
 ]
 
 
@@ -141,6 +279,11 @@ DISPATCH: dict[str, Callable[[dict[str, Any]], dict]] = {
     "cross_datasets": cross_datasets.run,
     "text_search": text_search.run,
     "render_chart": render_chart.run,
+    "get_alert_summary": radar_summary.run,
+    "check_active_sanctions": radar_sanctions.run,
+    "check_fines": radar_fines.run,
+    "get_person_profile": radar_profile.run,
+    "check_revolving_door": radar_revolving.run,
 }
 
 
