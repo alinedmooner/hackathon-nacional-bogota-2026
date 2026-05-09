@@ -6,21 +6,27 @@ import {
   ElementRef,
   EventEmitter,
   Input,
+  OnDestroy,
+  OnInit,
   Output,
   ViewChild,
   inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgChartsModule } from 'ng2-charts';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { ChartItem } from '../../models/veridia.types';
+import { VeridiaStreamService } from '../../services/veridia-stream.service';
+import { OnboardingService } from '../../onboarding/onboarding.service';
+import { SOACHA_STREAM, TimedSseEvent } from '../../onboarding/onboarding-soacha.mock';
 
 interface ToolCallLog {
   tool: string;
   args: Record<string, unknown>;
   summary: string;
 }
-import { VeridiaStreamService } from '../../services/veridia-stream.service';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -188,7 +194,7 @@ interface ChatMessage {
     </aside>
   `,
 })
-export class VeridiaChatComponent implements AfterViewChecked {
+export class VeridiaChatComponent implements AfterViewChecked, OnInit, OnDestroy {
   @Input() open = false;
   @Output() openChange = new EventEmitter<boolean>();
 
@@ -208,13 +214,107 @@ export class VeridiaChatComponent implements AfterViewChecked {
   ];
 
   private readonly stream = inject(VeridiaStreamService);
+  private readonly onboarding = inject(OnboardingService);
   private readonly cdr = inject(ChangeDetectorRef);
   private shouldScroll = false;
+  private readonly destroy$ = new Subject<void>();
+
+  ngOnInit(): void {
+    this.onboarding.events$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((evt) => {
+        switch (evt.kind) {
+          case 'open-chat-with-question':
+            this.openWithQuestion(evt.text);
+            break;
+          case 'simulate-stream':
+            this.runSimulatedStream();
+            break;
+          case 'close-chat':
+            this.openChange.emit(false);
+            break;
+          case 'reset':
+            this.newConversation();
+            break;
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngAfterViewChecked(): void {
     if (this.shouldScroll && this.scrollArea) {
       this.scrollArea.nativeElement.scrollTop = this.scrollArea.nativeElement.scrollHeight;
       this.shouldScroll = false;
+    }
+  }
+
+  // ── Onboarding helpers ────────────────────────────────────
+  private openWithQuestion(text: string): void {
+    this.openChange.emit(true);
+    this.newConversation();
+    // muestra inmediatamente la burbuja del usuario; el stream simulado
+    // viene en el siguiente paso del onboarding
+    this.messages.push({ role: 'user', text, tool_calls: [], charts: [] });
+    this.messages.push({
+      role: 'assistant',
+      text: '',
+      tool_calls: [],
+      charts: [],
+      thinking: 'Esperando…',
+      isStreaming: true,
+    });
+    this.shouldScroll = true;
+    this.cdr.markForCheck();
+  }
+
+  private async runSimulatedStream(): Promise<void> {
+    const assistant = this.messages[this.messages.length - 1];
+    if (!assistant || assistant.role !== 'assistant') return;
+
+    this.isStreaming = true;
+    for (const tev of SOACHA_STREAM) {
+      await new Promise((r) => setTimeout(r, tev.delay));
+      this.applySseEvent(assistant, tev);
+      this.shouldScroll = true;
+      this.cdr.markForCheck();
+    }
+    this.isStreaming = false;
+    this.cdr.markForCheck();
+  }
+
+  private applySseEvent(assistant: ChatMessage, tev: TimedSseEvent): void {
+    const ev = tev.event;
+    switch (ev.type) {
+      case 'init':
+        this.conversationId = ev.conversation_id ?? this.conversationId;
+        break;
+      case 'thinking':
+        assistant.thinking = `Razonando · paso ${ev.iteration ?? '?'}`;
+        break;
+      case 'tool_call':
+        assistant.tool_calls.push({ tool: ev.tool ?? 'tool', args: ev.args ?? {}, summary: '' });
+        assistant.thinking = `Consultando ${ev.tool}…`;
+        break;
+      case 'tool_result':
+        const last = assistant.tool_calls.slice().reverse().find((t) => t.tool === ev.tool && !t.summary);
+        if (last) last.summary = ev.summary ?? 'ok';
+        break;
+      case 'chart':
+        if (ev.chart) assistant.charts.push(ev.chart);
+        break;
+      case 'answer':
+        assistant.text = ev.text ?? '';
+        assistant.thinking = undefined;
+        break;
+      case 'done':
+        assistant.isStreaming = false;
+        assistant.thinking = undefined;
+        assistant.latency_ms = ev.latency_ms;
+        break;
     }
   }
 

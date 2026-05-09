@@ -35,6 +35,12 @@
 
       <!-- Estado / acciones -->
       <div class="flex items-center gap-3 text-xs">
+        <button (click)="startTour()"
+                class="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-fuchsia-500/40 bg-fuchsia-500/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-fuchsia-200 transition hover:bg-fuchsia-500/20"
+                title="Mostrar tour guiado">
+          <span>▶</span>
+          <span>Tour</span>
+        </button>
         <span class="hidden md:flex items-center gap-2 text-slate-500">
           <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.6)]"></span>
           <span>secure</span>
@@ -88,4 +94,7 @@
                     [open]="chatOpen"
                     (openChange)="chatOpen = $event">
   </app-veridia-chat>
+
+  <!-- Onboarding: dialog inicial + overlay del tour -->
+  <app-onboarding-overlay *ngIf="!isAuthRoute"></app-onboarding-overlay>
 </div>

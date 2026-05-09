@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import {
   AlertSummary,
@@ -12,6 +14,8 @@ import {
 } from './models/veridia.types';
 import { VeridiaService } from './services/veridia.service';
 import { VeridiaGraphCanvasComponent } from './components/veridia-graph-canvas/veridia-graph-canvas.component';
+import { OnboardingService } from './onboarding/onboarding.service';
+import { SOACHA_FOCUS_NODE_ID, SOACHA_GRAFO } from './onboarding/onboarding-soacha.mock';
 
 @Component({
   selector: 'app-veridia',
@@ -19,7 +23,8 @@ import { VeridiaGraphCanvasComponent } from './components/veridia-graph-canvas/v
   imports: [CommonModule, FormsModule, VeridiaGraphCanvasComponent],
   templateUrl: './veridia.component.html',
 })
-export class VeridiaComponent implements OnInit {
+export class VeridiaComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
   @ViewChild(VeridiaGraphCanvasComponent) canvas?: VeridiaGraphCanvasComponent;
 
   // Dashboard global
@@ -82,11 +87,60 @@ export class VeridiaComponent implements OnInit {
     { group: 'alto_riesgo', label: 'Alto riesgo',     colorClass: 'bg-rose-500 ring-2 ring-amber-400' },
   ];
 
-  constructor(private readonly api: VeridiaService) {}
+  constructor(
+    private readonly api: VeridiaService,
+    private readonly onboarding: OnboardingService,
+  ) {}
 
   ngOnInit(): void {
     this.loadDashboard();
     this.loadHallazgos(this.selectedAlert);
+
+    // Hook al onboarding: escucha eventos para mostrar grafo + click programático
+    this.onboarding.events$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((evt) => {
+        switch (evt.kind) {
+          case 'load-graph':
+            // Modo demo: usa el grafo pre-grabado de Soacha
+            this.grafo = SOACHA_GRAFO;
+            this.grafoLoading = false;
+            this.selectedHallazgo = {
+              documento: '79834221',
+              nombre_sancionado: 'Persona A · sancionada',
+              id_contrato: 'CO1.PCCNTR.demo',
+              fecha_de_firma: '2024-09-15',
+              valor_contrato: 1_840_000_000,
+              nombre_entidad: 'Alcaldía de Soacha',
+              nit_entidad: '800094391',
+              confianza: 'alta',
+              sanciones: 'Inhabilidad disciplinaria · Procuraduría',
+              fecha_inicio_sancion: '2023-04',
+              fecha_fin_sancion: '2028-04',
+              url_evidencia: 'https://www.procuraduria.gov.co/',
+            };
+            this.selectedNode = null;
+            break;
+          case 'click-sancionado-node':
+            // Auto-click programático en el sancionado destacado
+            setTimeout(() => {
+              this.canvas?.focusNode(SOACHA_FOCUS_NODE_ID);
+              const node = SOACHA_GRAFO.nodes.find((n) => n.id === SOACHA_FOCUS_NODE_ID);
+              if (node) this.selectedNode = node;
+            }, 800);
+            break;
+          case 'reset':
+            // Vuelve al estado normal: recarga datos reales
+            this.selectedNode = null;
+            this.loadHallazgos(this.selectedAlert);
+            break;
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // ── Dashboard ─────────────────────────────────────────────
