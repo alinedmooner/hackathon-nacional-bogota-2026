@@ -1,91 +1,142 @@
 /**
- * Modelos de Veridia - capa de inteligencia anticorrupción.
- *
- * El frontend espera del backend un payload con elementos compatibles
- * con Cytoscape.js (nodos + aristas) más metadata específica del dominio.
+ * Modelos de Veridia · alineados con el backend real (ver VERIDIA_FRONTEND.md).
  */
 
-export type NodeType = 'persona' | 'empresa' | 'entidad' | 'contrato' | 'sancion';
+// ── Alertas ──────────────────────────────────────────────────────────────────
 
-export type EdgeRelation =
-  | 'cargo'        // persona ocupó cargo en entidad
-  | 'control'      // persona es rep. legal / accionista de empresa
-  | 'contrato'     // empresa firmó contrato con entidad
-  | 'sancion'      // persona/empresa fue sancionada
-  | 'comparte_rl'  // dos empresas comparten representante legal
-  | 'comparte_dir' // dos empresas comparten dirección física
-  | 'familiar';    // vínculo familiar entre personas
+export type AlertType = 'sancionados' | 'multados' | 'puerta_giratoria';
 
-export type AlertType =
-  | 'sancionado_activo'
-  | 'puerta_giratoria'
-  | 'redes_ocultas';
+export interface AlertaResumen {
+  total_personas?: number;
+  total_contratistas?: number;
+  total_contratos: number;
+  valor_total_cop: number;
+  interpretacion?: string;
+  nota?: string;
+}
 
-export type LayoutKind = 'cose-bilkent' | 'dagre' | 'concentric' | 'circle';
+export interface Dashboard {
+  sancionados_activos: AlertaResumen;
+  multados_activos: AlertaResumen;
+  puerta_giratoria: AlertaResumen;
+  disponibilidad_datasets: Record<string, boolean>;
+}
 
-/** Datos intrínsecos de un nodo (siguen el formato Cytoscape.data) */
-export interface NodeData {
+export interface Hallazgo {
+  documento: string;
+  nombre_sancionado?: string;
+  nombre_contratista?: string;
+  nombre_declarante?: string;
+  sanciones?: string;
+  valor_sancion?: number;
+  fecha_inicio_sancion?: string;
+  fecha_fin_sancion?: string;
+  url_evidencia?: string;
+  id_contrato: string;
+  fecha_de_firma: string;
+  valor_contrato: number;
+  nombre_entidad: string;
+  nit_entidad: string;
+  confianza: 'alta' | 'media';
+}
+
+export interface ListaHallazgos {
+  hallazgos: Hallazgo[];
+  limit: number;
+  offset: number;
+  total_pagina: number;
+}
+
+export interface Perfil {
+  documento: string;
+  nivel_alerta: 'rojo' | 'naranja' | 'amarillo' | 'verde';
+  secop?: {
+    total_contratos: number;
+    valor_total_cop: number;
+    contratos: any[];
+  };
+  siri: any[];
+  multas: any[];
+  patrimonio: any[];
+}
+
+// ── Grafo (formato vis-network del backend) ──────────────────────────────────
+
+export type NodeGroup =
+  | 'entidad'
+  | 'contratista'
+  | 'sancionado'
+  | 'multado'
+  | 'alto_riesgo';
+
+export interface GrafoNode {
   id: string;
   label: string;
-  type: NodeType;
-  /** ID externo: cédula para personas, NIT para empresas/entidades */
-  identificacion?: string;
-  /** Subtítulo opcional (cargo, sector, etc.) */
-  subtitle?: string;
-  /** Marca al nodo como bandera roja → estilo distinto */
-  flagged?: boolean;
-  /** Cluster al que pertenece (para redes ocultas) */
-  cluster?: string;
-  /** Métricas adicionales para el panel de detalle */
-  metrics?: Record<string, string | number>;
-  /** Bandera específica que activó el flagged */
-  alertType?: AlertType;
-}
-
-/** Datos intrínsecos de una arista */
-export interface EdgeData {
-  id: string;
-  source: string;
-  target: string;
-  label?: string;
-  relacion: EdgeRelation;
-  /** Valor monetario asociado (para contratos) */
-  valor?: number;
-  /** Periodo / fecha relevante */
-  periodo?: string;
-  /** Flag para resaltar la arista (ej. contrato sospechoso) */
-  flagged?: boolean;
-}
-
-/** Elementos en formato Cytoscape (cy.add()) */
-export interface CytoscapeElement {
-  data: NodeData | EdgeData;
-  classes?: string;
-}
-
-/** Payload completo de una investigación */
-export interface InvestigationGraph {
-  /** Identificador del caso */
-  id: string;
-  /** Título legible */
+  group: NodeGroup;
+  /** tamaño relativo: número de contratos */
+  value: number;
+  /** HTML para tooltip */
   title: string;
-  /** Tipo de alerta principal del grafo */
-  alert_type: AlertType;
-  /** Layout sugerido por el agente */
-  layout: LayoutKind;
-  /** Resumen narrativo de la investigación */
-  summary: string;
-  /** Hallazgos clave (bullets) */
-  findings: string[];
-  /** Elementos del grafo para Cytoscape */
-  elements: CytoscapeElement[];
-  /** Confianza de los hallazgos (0-100) */
-  confidence: number;
-  /** Timestamp de generación */
-  generated_at: string;
 }
 
-/** Resumen de una alerta para el sidebar */
+export interface GrafoEdge {
+  from: string;
+  to: string;
+  value: number;
+  title: string;
+}
+
+export interface GrafoResponse {
+  nodes: GrafoNode[];
+  edges: GrafoEdge[];
+  meta: {
+    entidad: string;
+    nit: string;
+    total_contratistas: number;
+    alertas_rojo: number;
+    alertas_naranja: number;
+  };
+}
+
+// ── Chat / SSE ───────────────────────────────────────────────────────────────
+
+export interface ChatRequest {
+  message: string;
+  conversation_id: string | null;
+}
+
+export type SseEventType =
+  | 'init'
+  | 'thinking'
+  | 'tool_call'
+  | 'tool_result'
+  | 'chart'
+  | 'answer'
+  | 'done'
+  | 'error';
+
+export interface ChartItem {
+  id: string;
+  title: string;
+  chart_js_spec: any;
+}
+
+export interface SseEvent {
+  type: SseEventType;
+  conversation_id?: string;
+  iteration?: number;
+  tool?: string;
+  args?: Record<string, any>;
+  summary?: string;
+  chart?: ChartItem;
+  text?: string;
+  usage?: { input_tokens: number; output_tokens: number };
+  latency_ms?: number;
+  detail?: string;
+}
+
+// ── UI helpers ───────────────────────────────────────────────────────────────
+
 export interface AlertSummary {
   type: AlertType;
   label: string;

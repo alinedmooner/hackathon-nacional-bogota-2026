@@ -2,165 +2,210 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { CosmographCanvasComponent } from './components/cosmograph-canvas/cosmograph-canvas.component';
 import {
   AlertSummary,
   AlertType,
-  InvestigationGraph,
-  NodeData,
-  NodeType,
+  Dashboard,
+  GrafoNode,
+  GrafoResponse,
+  Hallazgo,
 } from './models/veridia.types';
-import { VeridiaMockService } from './services/veridia-mock.service';
-
-interface LegendEntry {
-  type: NodeType;
-  label: string;
-  colorClass: string;
-}
+import { VeridiaService } from './services/veridia.service';
+import { VeridiaGraphCanvasComponent } from './components/veridia-graph-canvas/veridia-graph-canvas.component';
 
 @Component({
   selector: 'app-veridia',
   standalone: true,
-  imports: [CommonModule, FormsModule, CosmographCanvasComponent],
+  imports: [CommonModule, FormsModule, VeridiaGraphCanvasComponent],
   templateUrl: './veridia.component.html',
 })
 export class VeridiaComponent implements OnInit {
-  @ViewChild(CosmographCanvasComponent) canvas?: CosmographCanvasComponent;
+  @ViewChild(VeridiaGraphCanvasComponent) canvas?: VeridiaGraphCanvasComponent;
 
-  alerts: AlertSummary[] = [];
-  selectedAlert: AlertType = 'sancionado_activo';
+  // Dashboard global
+  dashboard: Dashboard | null = null;
+  dashboardLoading = false;
 
-  investigation: InvestigationGraph | null = null;
-  loading = false;
+  // Tipo de alerta seleccionada
+  selectedAlert: AlertType = 'sancionados';
 
-  selectedNode: NodeData | null = null;
+  // Lista de hallazgos del tipo seleccionado
+  hallazgos: Hallazgo[] = [];
+  hallazgosLoading = false;
+  hallazgosError = '';
 
-  searchQuery = '';
-  showLabels = true;
+  // Grafo de entidad (cargado al hacer click en un hallazgo)
+  grafo: GrafoResponse | null = null;
+  grafoLoading = false;
+  selectedHallazgo: Hallazgo | null = null;
 
-  legend: LegendEntry[] = [
-    { type: 'persona', label: 'Persona', colorClass: 'bg-cyan-400' },
-    { type: 'empresa', label: 'Empresa', colorClass: 'bg-amber-400' },
-    { type: 'entidad', label: 'Entidad pública', colorClass: 'bg-violet-400' },
-    { type: 'contrato', label: 'Contrato', colorClass: 'bg-emerald-400' },
-    { type: 'sancion', label: 'Sanción', colorClass: 'bg-rose-400' },
+  // Detalles del nodo del grafo seleccionado
+  selectedNode: GrafoNode | null = null;
+
+  // Cards de alertas para el sidebar
+  alerts: AlertSummary[] = [
+    {
+      type: 'sancionados',
+      label: 'Sancionados activos',
+      description: 'Inhabilitados por la Procuraduría con contratos vigentes',
+      count: 0,
+      color: '#fb7185',
+    },
+    {
+      type: 'multados',
+      label: 'Multados activos',
+      description: 'Multados en SECOP I que siguen contratando',
+      count: 0,
+      color: '#fbbf24',
+    },
+    {
+      type: 'puerta_giratoria',
+      label: 'Puerta giratoria',
+      description: 'Ex-funcionarios contratistas de su antigua entidad',
+      count: 0,
+      color: '#a78bfa',
+    },
   ];
 
-  constructor(private readonly mock: VeridiaMockService) {}
+  legend = [
+    { group: 'entidad',     label: 'Entidad pública', colorClass: 'bg-violet-400' },
+    { group: 'contratista', label: 'Contratista',     colorClass: 'bg-emerald-400' },
+    { group: 'sancionado',  label: 'Sancionado',      colorClass: 'bg-rose-400' },
+    { group: 'multado',     label: 'Multado',         colorClass: 'bg-amber-400' },
+    { group: 'alto_riesgo', label: 'Alto riesgo',     colorClass: 'bg-rose-500 ring-2 ring-amber-400' },
+  ];
+
+  constructor(private readonly api: VeridiaService) {}
 
   ngOnInit(): void {
-    this.mock.getAlertSummaries().subscribe((a) => {
-      this.alerts = a;
-    });
-    this.loadInvestigation(this.selectedAlert);
+    this.loadDashboard();
+    this.loadHallazgos(this.selectedAlert);
   }
 
-  selectAlert(type: AlertType): void {
-    if (this.selectedAlert === type && this.investigation) return;
-    this.selectedAlert = type;
-    this.loadInvestigation(type);
-  }
-
-  loadInvestigation(type: AlertType): void {
-    this.loading = true;
-    this.selectedNode = null;
-    this.mock.getInvestigation(type).subscribe({
-      next: (inv) => {
-        this.investigation = inv;
-        this.loading = false;
-        // Permitir que el canvas reciba elements y luego ajustar
-        setTimeout(() => this.canvas?.fitView(), 350);
+  // ── Dashboard ─────────────────────────────────────────────
+  loadDashboard(): void {
+    this.dashboardLoading = true;
+    this.api.getDashboard().subscribe({
+      next: (d) => {
+        this.dashboard = d;
+        // Sincroniza counts con dashboard
+        this.alerts[0].count = d.sancionados_activos.total_personas ?? d.sancionados_activos.total_contratos;
+        this.alerts[1].count = d.multados_activos.total_contratistas ?? d.multados_activos.total_contratos;
+        this.alerts[2].count = d.puerta_giratoria.total_personas ?? d.puerta_giratoria.total_contratos;
+        this.dashboardLoading = false;
       },
       error: () => {
-        this.loading = false;
+        this.dashboardLoading = false;
       },
     });
   }
 
-  onNodeClick(node: NodeData): void {
+  // ── Lista de hallazgos ────────────────────────────────────
+  selectAlert(type: AlertType): void {
+    if (this.selectedAlert === type) return;
+    this.selectedAlert = type;
+    this.loadHallazgos(type);
+  }
+
+  loadHallazgos(type: AlertType): void {
+    this.hallazgosLoading = true;
+    this.hallazgosError = '';
+    this.hallazgos = [];
+    this.api.getHallazgos(type, 50, 0).subscribe({
+      next: (r) => {
+        this.hallazgos = r.hallazgos;
+        this.hallazgosLoading = false;
+        // UX: auto-selecciona el primer hallazgo para mostrar el grafo de inmediato
+        if (this.hallazgos.length) {
+          this.selectHallazgo(this.hallazgos[0]);
+        }
+      },
+      error: () => {
+        this.hallazgosError = 'No fue posible cargar los hallazgos';
+        this.hallazgosLoading = false;
+      },
+    });
+  }
+
+  // ── Click en un hallazgo → carga grafo de su entidad ──────
+  selectHallazgo(h: Hallazgo): void {
+    this.selectedHallazgo = h;
+    this.selectedNode = null;
+    this.grafoLoading = true;
+    this.api.getGrafo(h.nit_entidad, 40).subscribe({
+      next: (g) => {
+        this.grafo = g;
+        this.grafoLoading = false;
+      },
+      error: () => {
+        this.grafoLoading = false;
+      },
+    });
+  }
+
+  // ── Click en nodo del grafo ───────────────────────────────
+  onNodeClick(node: GrafoNode): void {
     this.selectedNode = node;
   }
 
-  closeDetail(): void {
+  closeNodeDetail(): void {
     this.selectedNode = null;
     this.canvas?.clearHighlight();
   }
 
-  zoomIn(): void {
-    this.canvas?.zoomIn();
-  }
-  zoomOut(): void {
-    this.canvas?.zoomOut();
-  }
-  fitView(): void {
-    this.canvas?.fitView();
-  }
-  reset(): void {
-    this.canvas?.reset();
-  }
-
+  // ── Toolbar grafo ─────────────────────────────────────────
+  zoomIn(): void {  this.canvas?.zoomIn();  }
+  zoomOut(): void { this.canvas?.zoomOut(); }
+  fitView(): void { this.canvas?.fitView(); }
+  reset(): void {   this.canvas?.reset();   }
   screenshot(): void {
     const data = this.canvas?.screenshot();
     if (!data) return;
     const a = document.createElement('a');
     a.href = data;
-    a.download = `veridia-${this.selectedAlert}-${Date.now()}.png`;
+    a.download = `veridia-${this.selectedHallazgo?.nit_entidad ?? 'graph'}-${Date.now()}.png`;
     a.click();
   }
 
-  searchAndFocus(): void {
-    if (!this.searchQuery.trim() || !this.investigation) return;
-    const q = this.searchQuery.trim().toLowerCase();
-    const match = this.investigation.elements.find((el) => {
-      const d = el.data as NodeData;
-      return d.label && (
-        d.label.toLowerCase().includes(q) ||
-        (d.identificacion && d.identificacion.toLowerCase().includes(q))
-      );
-    });
-    if (match) {
-      const node = match.data as NodeData;
-      this.canvas?.focusNode(node.id);
-      this.selectedNode = node;
-    }
+  // ── Helpers de UI ─────────────────────────────────────────
+  formatCOP(value: number | undefined): string {
+    if (value === undefined || value === null) return '—';
+    if (value >= 1_000_000_000_000) return `$${(value / 1_000_000_000_000).toFixed(2)}B COP`;
+    if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(2)}MM COP`;
+    if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M COP`;
+    return `$${value.toLocaleString('es-CO')} COP`;
   }
 
-  iconFor(type: NodeType): string {
+  formatDate(s: string | undefined): string {
+    if (!s) return '—';
+    const d = new Date(s);
+    if (Number.isNaN(d.getTime())) return s;
+    return d.toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  hallazgoNombre(h: Hallazgo): string {
+    return h.nombre_sancionado ?? h.nombre_contratista ?? h.nombre_declarante ?? `Doc ${h.documento}`;
+  }
+
+  groupColor(group: string): string {
     return {
-      persona:  '👤',
-      empresa:  '🏢',
-      entidad:  '🏛',
-      contrato: '📄',
-      sancion:  '⚠',
-    }[type];
-  }
-
-  formatNumber(n: number | string | undefined): string {
-    if (n === undefined || n === null) return '—';
-    if (typeof n === 'number') {
-      return n.toLocaleString('es-CO');
-    }
-    return n;
-  }
-
-  metricEntries(metrics?: Record<string, string | number>): { k: string; v: string }[] {
-    if (!metrics) return [];
-    return Object.entries(metrics).map(([k, v]) => ({ k, v: this.formatNumber(v) }));
+      entidad:     'bg-violet-400/15 text-violet-300 border-violet-400/40',
+      contratista: 'bg-emerald-400/15 text-emerald-300 border-emerald-400/40',
+      sancionado:  'bg-rose-400/15 text-rose-300 border-rose-400/40',
+      multado:     'bg-amber-400/15 text-amber-300 border-amber-400/40',
+      alto_riesgo: 'bg-rose-500/15 text-rose-200 border-rose-500/60',
+    }[group] ?? 'bg-slate-800/40 text-slate-300 border-slate-700';
   }
 
   alertColor(type: AlertType): string {
     return {
-      sancionado_activo: 'border-rose-500/40 text-rose-300 bg-rose-500/10',
-      puerta_giratoria: 'border-amber-500/40 text-amber-300 bg-amber-500/10',
-      redes_ocultas:    'border-violet-500/40 text-violet-300 bg-violet-500/10',
+      sancionados:      'border-rose-500/40 text-rose-300 bg-rose-500/10',
+      multados:         'border-amber-500/40 text-amber-300 bg-amber-500/10',
+      puerta_giratoria: 'border-violet-500/40 text-violet-300 bg-violet-500/10',
     }[type];
   }
 
-  confidenceBarColor(type: AlertType): string {
-    return {
-      sancionado_activo: 'bg-rose-400',
-      puerta_giratoria: 'bg-amber-400',
-      redes_ocultas:    'bg-violet-400',
-    }[type];
+  trackByDoc(_i: number, h: Hallazgo): string {
+    return `${h.documento}-${h.id_contrato}`;
   }
 }
