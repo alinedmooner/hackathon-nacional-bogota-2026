@@ -6,19 +6,15 @@ PARQUET_PATH = os.getenv("PARQUET_PATH", "data/contratos.parquet")
 
 _VALOR = "TRY_CAST(REGEXP_REPLACE(REGEXP_REPLACE(valor_del_contrato, '\\$', ''), ',', '', 'g') AS DOUBLE)"
 
-_lock = threading.Lock()
-_con: duckdb.DuckDBPyConnection | None = None
+_local = threading.local()
 
 
 def _get_con() -> duckdb.DuckDBPyConnection:
-    global _con
-    if _con is None:
-        with _lock:
-            if _con is None:
-                c = duckdb.connect()
-                c.execute(f"CREATE VIEW contratos AS SELECT * FROM read_parquet('{PARQUET_PATH}')")
-                _con = c
-    return _con
+    if not hasattr(_local, "con"):
+        c = duckdb.connect()
+        c.execute(f"CREATE VIEW contratos AS SELECT * FROM read_parquet('{PARQUET_PATH}')")
+        _local.con = c
+    return _local.con
 
 
 def available() -> bool:
