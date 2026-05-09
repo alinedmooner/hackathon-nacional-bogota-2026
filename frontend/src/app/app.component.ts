@@ -4,6 +4,7 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { filter } from 'rxjs/operators';
 
 import { AuthService } from './core/services/auth.service';
+import { VeridiaChatComponent } from './features/veridia/components/veridia-chat/veridia-chat.component';
 
 interface NavLink {
   label: string;
@@ -14,7 +15,7 @@ interface NavLink {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, VeridiaChatComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
@@ -26,6 +27,8 @@ export class AppComponent {
   readonly fullWidthRoutes = ['/graph', '/login'];
   isFullWidth = false;
   isAuthRoute = false;
+
+  chatOpen = false;
 
   readonly navLinks: NavLink[] = [
     { label: 'Mapa',      path: '/graph',     icon: '⌬' },
