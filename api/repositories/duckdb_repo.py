@@ -21,6 +21,11 @@ def available() -> bool:
     return os.path.exists(PARQUET_PATH)
 
 
+def variables() -> list:
+    rows = _get_con().execute("DESCRIBE contratos").fetchall()
+    return [r[0] for r in rows]
+
+
 def total_registros() -> int:
     return _get_con().execute("SELECT COUNT(*) FROM contratos").fetchone()[0]
 
