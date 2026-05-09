@@ -85,3 +85,11 @@ def api_doc(current_user: dict = Depends(get_current_user)):
 def clear_cache(current_user: dict = Depends(get_current_user)):
     deleted = cache_service.clear_all()
     return {"mensaje": f"Cache limpiado: {deleted} entradas eliminadas"}
+
+
+@router.delete("/cache/{cache_id}")
+def delete_cache_entry(cache_id: str, current_user: dict = Depends(get_current_user)):
+    eliminado = cache_service.delete_one(cache_id)
+    if eliminado:
+        return {"mensaje": f"Entrada '{cache_id}' eliminada del cache"}
+    return {"mensaje": f"No se encontró ninguna entrada con id '{cache_id}'"}
