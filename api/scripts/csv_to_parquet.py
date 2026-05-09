@@ -21,6 +21,12 @@ df.columns = (
 )
 print(f"  Columnas normalizadas: {list(df.columns[:5])} ...")
 
+nulos = df.isnull().sum()
+nulos_con = nulos[nulos > 0].sort_values(ascending=False)
+print(f"  Columnas con nulos: {len(nulos_con)} de {len(df.columns)}")
+for col, n in nulos_con.head(10).items():
+    print(f"    {col}: {n:,} nulos ({n/len(df)*100:.1f}%)")
+
 output = Path(args.output)
 output.parent.mkdir(parents=True, exist_ok=True)
 df.to_parquet(output, index=False, compression="snappy")
