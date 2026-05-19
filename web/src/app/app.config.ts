@@ -1,17 +1,19 @@
 import { ApplicationConfig } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { RUNTIME_CONFIG, getRuntimeConfig } from './core/config/runtime-config';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes),
+    provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withInterceptors([authInterceptor])),
+    provideAnimationsAsync(),
     {
       provide: RUNTIME_CONFIG,
-      useFactory: getRuntimeConfig
-    }
-  ]
+      useFactory: getRuntimeConfig,
+    },
+  ],
 };

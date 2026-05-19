@@ -50,17 +50,16 @@
         <button
           type="submit"
           class="btn-primary w-full"
-          [disabled]="loading"
+          [disabled]="loading()"
         >
-          {{ loading ? "Conectando…" : "Entrar" }}
+          {{ loading() ? "Conectando…" : "Entrar" }}
         </button>
 
-        <p
-          *ngIf="error"
-          class="rounded border border-err/30 bg-err/10 p-3 text-sm text-err"
-        >
-          {{ error }}
-        </p>
+        @if (error()) {
+          <p class="rounded border border-err/30 bg-err/10 p-3 text-sm text-err">
+            {{ error() }}
+          </p>
+        }
       </form>
     </div>
 

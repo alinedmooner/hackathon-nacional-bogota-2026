@@ -1,9 +1,7 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import {
   AlertSummary,
@@ -21,12 +19,16 @@ import { SOACHA_FOCUS_NODE_ID, SOACHA_GRAFO } from './onboarding/onboarding-soac
 @Component({
   selector: 'app-veridia',
   standalone: true,
-  imports: [CommonModule, FormsModule, VeridiaGraphCanvasComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FormsModule, VeridiaGraphCanvasComponent],
   templateUrl: './veridia.component.html',
 })
-export class VeridiaComponent implements OnInit, OnDestroy {
-  private readonly destroy$ = new Subject<void>();
+export class VeridiaComponent implements OnInit {
   @ViewChild(VeridiaGraphCanvasComponent) canvas?: VeridiaGraphCanvasComponent;
+
+  private readonly api = inject(VeridiaService);
+  private readonly onboarding = inject(OnboardingService);
+  private readonly router = inject(Router);
 
   // Dashboard global
   dashboard: Dashboard | null = null;
@@ -88,35 +90,10 @@ export class VeridiaComponent implements OnInit, OnDestroy {
     { group: 'alto_riesgo', label: 'Alto riesgo',     colorClass: 'bg-err ring-2 ring-gold' },
   ];
 
-  constructor(
-    private readonly api: VeridiaService,
-    private readonly onboarding: OnboardingService,
-    private readonly router: Router,
-  ) {}
-
-  /** Lista de datasets reportados como no disponibles (false) por el backend */
-  get datasetsCaidos(): string[] {
-    const d = this.dashboard?.disponibilidad_datasets;
-    if (!d) return [];
-    return Object.entries(d)
-      .filter(([, v]) => !v)
-      .map(([k]) => k);
-  }
-
-  /** Navega al perfil del nodo del grafo (cédula/NIT sin prefijo) */
-  openPerfil(node: GrafoNode): void {
-    // Los IDs del backend vienen como `c_12345678` o `e_800099780`
-    const documento = node.id.replace(/^[a-z]_/, '');
-    this.router.navigate(['/perfil', documento]);
-  }
-
-  ngOnInit(): void {
-    this.loadDashboard();
-    this.loadHallazgos(this.selectedAlert);
-
+  constructor() {
     // Hook al onboarding: escucha eventos para mostrar grafo + click programático
     this.onboarding.events$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed())
       .subscribe((evt) => {
         switch (evt.kind) {
           case 'load-graph':
@@ -156,9 +133,25 @@ export class VeridiaComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  ngOnInit(): void {
+    this.loadDashboard();
+    this.loadHallazgos(this.selectedAlert);
+  }
+
+  /** Lista de datasets reportados como no disponibles (false) por el backend */
+  get datasetsCaidos(): string[] {
+    const d = this.dashboard?.disponibilidad_datasets;
+    if (!d) return [];
+    return Object.entries(d)
+      .filter(([, v]) => !v)
+      .map(([k]) => k);
+  }
+
+  /** Navega al perfil del nodo del grafo (cédula/NIT sin prefijo) */
+  openPerfil(node: GrafoNode): void {
+    // Los IDs del backend vienen como `c_12345678` o `e_800099780`
+    const documento = node.id.replace(/^[a-z]_/, '');
+    this.router.navigate(['/perfil', documento]);
   }
 
   // ── Dashboard ─────────────────────────────────────────────

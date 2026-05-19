@@ -1,8 +1,6 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 import 'chart.js/auto';
 import {
@@ -33,10 +31,16 @@ interface ChatMessage {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgChartsModule],
-  templateUrl: './dashboard.component.html'
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FormsModule],
+  templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
+  private readonly analyticsService = inject(AnalyticsService);
+  private readonly authService = inject(AuthService);
+  private readonly aiService = inject(AiService);
+  private readonly router = inject(Router);
+
   activeTab: 'records' | 'analytics' | 'archivos' | 'chat' = 'records';
 
   // ── AI Chat state ─────────────────────────────────────────
@@ -55,41 +59,41 @@ export class DashboardComponent implements OnInit {
   barChartData: ChartConfiguration<'bar'>['data'] = { labels: [], datasets: [] };
   barChartOptions: ChartConfiguration<'bar'>['options'] = {
     responsive: true,
-    maintainAspectRatio: false
+    maintainAspectRatio: false,
   };
 
   lineChartData: ChartConfiguration<'line'>['data'] = { labels: [], datasets: [] };
   lineChartOptions: ChartConfiguration<'line'>['options'] = {
     responsive: true,
-    maintainAspectRatio: false
+    maintainAspectRatio: false,
   };
 
   doughnutChartData: ChartConfiguration<'doughnut'>['data'] = {
     labels: [],
-    datasets: []
+    datasets: [],
   };
   doughnutChartOptions: ChartConfiguration<'doughnut'>['options'] = {
     responsive: true,
-    maintainAspectRatio: false
+    maintainAspectRatio: false,
   };
 
   latencyChartData: ChartConfiguration<'line'>['data'] = { labels: [], datasets: [] };
   latencyChartOptions: ChartConfiguration<'line'>['options'] = {
     responsive: true,
-    maintainAspectRatio: false
+    maintainAspectRatio: false,
   };
 
   entidadesChartData: ChartConfiguration<'bar'>['data'] = { labels: [], datasets: [] };
   entidadesChartOptions: ChartConfiguration<'bar'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
-    indexAxis: 'y'
+    indexAxis: 'y',
   };
 
   snapshot = {
     totalContratos: 0,
     contratosPyme: 0,
-    pagosAdelantados: 0
+    pagosAdelantados: 0,
   };
 
   // Paso 2 extended
@@ -121,13 +125,6 @@ export class DashboardComponent implements OnInit {
   totalRecords = 0;
   pageSize = 20;
 
-  constructor(
-    private readonly analyticsService: AnalyticsService,
-    private readonly authService: AuthService,
-    private readonly aiService: AiService,
-    private readonly router: Router
-  ) {}
-
   ngOnInit(): void {
     this.analyticsService.getTopDepartamentos().subscribe((series) => {
       this.barChartData = {
@@ -136,11 +133,11 @@ export class DashboardComponent implements OnInit {
           {
             data: series.values,
             label: 'Contratos',
-            backgroundColor: 'rgba(26, 58, 92, 0.75)',  // navy
+            backgroundColor: 'rgba(26, 58, 92, 0.75)', // navy
             borderColor: '#1a3a5c',
             borderWidth: 1,
-          }
-        ]
+          },
+        ],
       };
     });
 
@@ -151,12 +148,12 @@ export class DashboardComponent implements OnInit {
           {
             data: series.values,
             label: 'Contratos por tipo',
-            borderColor: '#c9a961',                       // gold
+            borderColor: '#c9a961', // gold
             backgroundColor: 'rgba(201, 169, 97, 0.18)',
             fill: true,
             tension: 0.3,
-          }
-        ]
+          },
+        ],
       };
     });
 
@@ -169,8 +166,8 @@ export class DashboardComponent implements OnInit {
             backgroundColor: ['#1a3a5c', '#c9a961', '#a14545', '#4d7a3e', '#7a9ec2'],
             borderColor: '#ffffff',
             borderWidth: 2,
-          }
-        ]
+          },
+        ],
       };
     });
 
@@ -181,12 +178,12 @@ export class DashboardComponent implements OnInit {
           {
             data: series.values,
             label: 'Contratos',
-            borderColor: '#1a3a5c',                       // navy
+            borderColor: '#1a3a5c', // navy
             backgroundColor: 'rgba(26, 58, 92, 0.15)',
             fill: true,
             tension: 0.3,
-          }
-        ]
+          },
+        ],
       };
     });
 
@@ -206,8 +203,8 @@ export class DashboardComponent implements OnInit {
             backgroundColor: ['#1a3a5c', '#c9a961', '#b08e3f', '#7a9ec2', '#4d7a3e'],
             borderColor: '#ffffff',
             borderWidth: 1,
-          }
-        ]
+          },
+        ],
       };
     });
 
@@ -232,7 +229,7 @@ export class DashboardComponent implements OnInit {
     this.loadRecords();
   }
 
-  loadRecords() {
+  loadRecords(): void {
     this.recordsLoading = true;
     this.recordsError = '';
 
@@ -246,18 +243,18 @@ export class DashboardComponent implements OnInit {
       error: () => {
         this.recordsLoading = false;
         this.recordsError = 'No se pudo cargar SECOP II.';
-      }
+      },
     });
   }
 
-  nextPage() {
+  nextPage(): void {
     if (this.currentPage < this.totalPages) {
       this.currentPage++;
       this.loadRecords();
     }
   }
 
-  prevPage() {
+  prevPage(): void {
     if (this.currentPage > 1) {
       this.currentPage--;
       this.loadRecords();
@@ -283,7 +280,7 @@ export class DashboardComponent implements OnInit {
     return (bytes / 1048576).toFixed(1) + ' MB';
   }
 
-  setTab(tab: 'records' | 'analytics' | 'archivos' | 'chat') {
+  setTab(tab: 'records' | 'analytics' | 'archivos' | 'chat'): void {
     this.activeTab = tab;
     if (tab === 'chat' && this.conversations.length === 0) {
       this.aiService.listConversations().subscribe((c) => (this.conversations = c));
@@ -311,12 +308,11 @@ export class DashboardComponent implements OnInit {
           latency_ms: resp.latency_ms,
         });
         this.chatLoading = false;
-        // refrescar lista de conversaciones
         this.aiService.listConversations().subscribe((c) => (this.conversations = c));
       },
       error: (err) => {
         this.chatLoading = false;
-        this.chatError = err?.error?.detail || 'No se pudo conectar con el agente IA.';
+        this.chatError = err?.error?.detail ?? 'No se pudo conectar con el agente IA.';
       },
     });
   }
@@ -332,6 +328,7 @@ export class DashboardComponent implements OnInit {
     this.aiService.getConversation(id).subscribe({
       next: (conv) => {
         this.conversationId = conv.conversation_id;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.chatMessages = conv.messages.map((m: any) => ({
           role: m.role,
           content: m.content || '',
@@ -353,7 +350,7 @@ export class DashboardComponent implements OnInit {
     return index;
   }
 
-  logout() {
+  logout(): void {
     this.authService.logout();
     this.router.navigateByUrl('/login');
   }

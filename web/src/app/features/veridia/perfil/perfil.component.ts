@@ -1,8 +1,7 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Subject } from 'rxjs';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs/operators';
 
 import { Perfil } from '../models/veridia.types';
 import { VeridiaService } from '../services/veridia.service';
@@ -16,7 +15,8 @@ interface NivelBadge {
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterLink],
   template: `
     <div class="mx-auto w-full max-w-5xl px-6 py-8">
 
@@ -28,7 +28,7 @@ interface NivelBadge {
       </nav>
 
       <!-- Loading -->
-      <div *ngIf="loading" class="rounded border border-line bg-card p-12 text-center">
+      @if (loading) {
         <div class="mx-auto flex w-fit space-x-1">
           <span class="h-2 w-2 animate-bounce rounded-full bg-navy"></span>
           <span class="h-2 w-2 animate-bounce rounded-full bg-navy" style="animation-delay: 0.15s"></span>
@@ -39,15 +39,15 @@ interface NivelBadge {
 
       <!-- Error / no encontrado -->
       <div *ngIf="error" class="rounded border-l-4 border-err bg-card p-6">
-        <p class="eyebrow">Sin registros</p>
-        <h2 class="mt-1 font-editorial text-xl font-semibold text-ink">{{ error }}</h2>
-        <a routerLink="/graph" class="mt-3 inline-block text-sm text-navy hover:underline">
-          ← Volver al mapa
-        </a>
-      </div>
-
-      <!-- Perfil cargado -->
-      <ng-container *ngIf="perfil as p">
+        <div class="rounded border-l-4 border-err bg-card p-6">
+          <p class="eyebrow">Sin registros</p>
+          <h2 class="mt-1 font-editorial text-xl font-semibold text-ink">{{ error }}</h2>
+          <a routerLink="/graph" class="mt-3 inline-block text-sm text-navy hover:underline">
+            ← Volver al mapa
+          </a>
+        </div>
+      }
+      @if (perfil; as p) {
 
         <!-- Header con badge de nivel -->
         <div class="rounded border-t-4 bg-card p-6 shadow-sm"
@@ -95,41 +95,44 @@ interface NivelBadge {
         </div>
 
         <!-- Sanciones SIRI -->
-        <section *ngIf="p.siri.length" class="mt-6 rounded border-l-4 border-err bg-card p-6">
+        @if (p.siri.length) {
+          <section class="mt-6 rounded border-l-4 border-err bg-card p-6">
           <p class="eyebrow">Procuraduría</p>
           <h2 class="mt-1 font-editorial text-lg font-semibold text-err">
             Inhabilitaciones SIRI
           </h2>
           <ul class="mt-4 space-y-3">
-            <li *ngFor="let s of p.siri"
-                class="rounded border border-line bg-cream-2 p-4 text-sm">
-              <p class="font-semibold text-ink">{{ s.sanciones || 'Sanción registrada' }}</p>
-              <p class="mt-1 text-xs text-muted tabular">
-                <span *ngIf="s.fecha_inicio">{{ s.fecha_inicio }}</span>
-                <span *ngIf="s.fecha_fin"> → {{ s.fecha_fin }}</span>
-                <span *ngIf="s.duracion_anos"> · {{ s.duracion_anos }} año(s)</span>
-              </p>
-            </li>
+            @for (s of p.siri; track s) {
+              <li class="rounded border border-line bg-cream-2 p-4 text-sm">
+                <p class="font-semibold text-ink">{{ s.sanciones || 'Sanción registrada' }}</p>
+                <p class="mt-1 text-xs text-muted tabular">
+                  @if (s.fecha_inicio) { <span>{{ s.fecha_inicio }}</span> }
+                  @if (s.fecha_fin) { <span> → {{ s.fecha_fin }}</span> }
+                  @if (s.duracion_anos) { <span> · {{ s.duracion_anos }} año(s)</span> }
+                </p>
+              </li>
+            }
           </ul>
         </section>
-
-        <!-- Multas -->
-        <section *ngIf="p.multas?.length" class="mt-6 rounded border-l-4 border-gold bg-card p-6">
+        }
+        @if (p.multas?.length) {
+          <section class="mt-6 rounded border-l-4 border-gold bg-card p-6">
           <p class="eyebrow">Multas</p>
           <h2 class="mt-1 font-editorial text-lg font-semibold text-gold-deep">
             Sanciones administrativas
           </h2>
           <ul class="mt-4 space-y-3">
-            <li *ngFor="let m of p.multas"
-                class="rounded border border-line bg-cream-2 p-4 text-sm">
-              <p class="font-semibold text-ink">{{ m.entidad_que_multo || 'Entidad sancionadora' }}</p>
-              <p class="mt-1 font-mono text-xs text-muted tabular">{{ m.fecha_multa }} · {{ formatCOP(m.valor_sancion) }}</p>
-            </li>
+            @for (m of p.multas; track m) {
+              <li class="rounded border border-line bg-cream-2 p-4 text-sm">
+                <p class="font-semibold text-ink">{{ m.entidad_que_multo || 'Entidad sancionadora' }}</p>
+                <p class="mt-1 font-mono text-xs text-muted tabular">{{ m.fecha_multa }} · {{ formatCOP(m.valor_sancion) }}</p>
+              </li>
+            }
           </ul>
         </section>
-
-        <!-- Contratos SECOP -->
-        <section *ngIf="p.secop?.contratos?.length" class="mt-6 rounded bg-card p-6">
+        }
+        @if (p.secop?.contratos?.length) {
+          <section class="mt-6 rounded bg-card p-6">
           <p class="eyebrow">SECOP II</p>
           <h2 class="mt-1 font-editorial text-lg font-semibold text-ink">
             Contratos vigentes
@@ -145,43 +148,43 @@ interface NivelBadge {
                 </tr>
               </thead>
               <tbody class="divide-y divide-line">
-                <tr *ngFor="let c of p.secop?.contratos" class="hover:bg-cream-2">
-                  <td class="px-3 py-2 font-mono text-ink-2">{{ c.id_contrato }}</td>
-                  <td class="px-3 py-2 text-ink-2">{{ c.nombre_entidad }}</td>
-                  <td class="px-3 py-2 text-muted tabular">{{ c.fecha_de_firma }}</td>
-                  <td class="px-3 py-2 text-right font-mono text-navy tabular">{{ formatCOP(c.valor) }}</td>
-                </tr>
+                @for (c of p.secop?.contratos; track c.id_contrato) {
+                  <tr class="hover:bg-cream-2">
+                    <td class="px-3 py-2 font-mono text-ink-2">{{ c.id_contrato }}</td>
+                    <td class="px-3 py-2 text-ink-2">{{ c.nombre_entidad }}</td>
+                    <td class="px-3 py-2 text-muted tabular">{{ c.fecha_de_firma }}</td>
+                    <td class="px-3 py-2 text-right font-mono text-navy tabular">{{ formatCOP(c.valor) }}</td>
+                  </tr>
+                }
               </tbody>
             </table>
           </div>
         </section>
-
-        <!-- Estado vacío total -->
-        <section *ngIf="!p.siri?.length && !p.multas?.length && !p.secop?.contratos?.length"
-                 class="mt-6 rounded border border-dashed border-line-strong bg-card p-8 text-center">
+        }
+        @if (!p.siri?.length && !p.multas?.length && !p.secop?.contratos?.length) {
+          <section class="mt-6 rounded border border-dashed border-line-strong bg-card p-8 text-center">
           <p class="eyebrow">Sin registros</p>
           <p class="mt-2 text-sm text-ink-2">
             No se encontraron contratos ni sanciones para este documento.
           </p>
         </section>
-
-      </ng-container>
+        }
+      }
     </div>
   `,
 })
-export class PerfilComponent implements OnInit, OnDestroy {
+export class PerfilComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(VeridiaService);
-  private readonly destroy$ = new Subject<void>();
 
   perfil: Perfil | null = null;
   loading = false;
   error = '';
 
-  ngOnInit(): void {
+  constructor() {
     this.route.paramMap
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(),
         switchMap((params) => {
           const doc = (params.get('doc') ?? '').replace(/\D/g, '');
           this.loading = true;
@@ -202,10 +205,9 @@ export class PerfilComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  ngOnInit(): void {} // kept for interface compliance
+
+  // takeUntilDestroyed() handles cleanup automatically
 
   badge(nivel: Perfil['nivel_alerta']): NivelBadge {
     return {

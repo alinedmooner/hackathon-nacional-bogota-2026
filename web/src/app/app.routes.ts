@@ -1,25 +1,28 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './features/auth/login.component';
-import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { VeridiaComponent } from './features/veridia/veridia.component';
-import { PerfilComponent } from './features/veridia/perfil/perfil.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/auth/login.component').then((m) => m.LoginComponent),
+  },
   {
     path: 'graph',
-    component: VeridiaComponent,
+    loadComponent: () =>
+      import('./features/veridia/veridia.component').then((m) => m.VeridiaComponent),
     canActivate: [authGuard],
   },
   {
     path: 'perfil/:doc',
-    component: PerfilComponent,
+    loadComponent: () =>
+      import('./features/veridia/perfil/perfil.component').then((m) => m.PerfilComponent),
     canActivate: [authGuard],
   },
   {
     path: 'dashboard',
-    component: DashboardComponent,
+    loadComponent: () =>
+      import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
     canActivate: [authGuard],
   },
   { path: '', redirectTo: 'graph', pathMatch: 'full' },

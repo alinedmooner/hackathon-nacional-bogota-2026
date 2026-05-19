@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 from fastapi import APIRouter, Depends, Query
-from models.pagination import PaginatedResponse
+from src.core.models.pagination import PaginatedResponse
 from src.core.security import get_current_user
 from src.contracts import service as contratos_service
 

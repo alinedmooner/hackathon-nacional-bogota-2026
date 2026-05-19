@@ -1,7 +1,7 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AuthService } from './core/services/auth.service';
 import { VeridiaChatComponent } from './features/veridia/components/veridia-chat/veridia-chat.component';
@@ -17,8 +17,8 @@ interface NavLink {
 @Component({
   selector: 'app-root',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
@@ -34,10 +34,9 @@ export class AppComponent implements OnInit {
   // Si la ruta es una de estas, el contenido se renderiza full-width sin
   // el envoltorio max-w-6xl del shell (ej. el mapa Veridia).
   readonly fullWidthRoutes = ['/graph', '/login'];
-  isFullWidth = false;
-  isAuthRoute = false;
-
-  chatOpen = false;
+  isFullWidth = signal(false);
+  isAuthRoute = signal(false);
+  chatOpen = signal(false);
 
   readonly navLinks: NavLink[] = [
     { label: 'Mapa',      path: '/graph',     icon: '⌬' },
@@ -50,11 +49,14 @@ export class AppComponent implements OnInit {
 
   constructor() {
     this.router.events
-      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
       .subscribe((e) => {
         const url = e.urlAfterRedirects.split('?')[0];
-        this.isFullWidth = this.fullWidthRoutes.some((r) => url.startsWith(r));
-        this.isAuthRoute = url.startsWith('/login');
+        this.isFullWidth.set(this.fullWidthRoutes.some((r) => url.startsWith(r)));
+        this.isAuthRoute.set(url.startsWith('/login'));
       });
   }
 

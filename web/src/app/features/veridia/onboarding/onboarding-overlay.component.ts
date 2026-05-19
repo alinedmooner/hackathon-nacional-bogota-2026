@@ -1,19 +1,18 @@
-import { CommonModule } from '@angular/common';
-import { Component, HostListener, OnDestroy, OnInit, inject } from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { ChangeDetectionStrategy, Component, HostListener, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { OnboardingService, OnboardingStep } from './onboarding.service';
 
 @Component({
   selector: 'app-onboarding-overlay',
   standalone: true,
-  imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [],
   template: `
     <!-- ════════════════════════════════════════════════════════ -->
     <!-- Welcome dialog · primera vez o cuando se pide repetir    -->
     <!-- ════════════════════════════════════════════════════════ -->
-    <div *ngIf="(svc.showWelcome$ | async)"
+    @if (svc.showWelcome$ | async) {
          class="fixed inset-0 z-[80] flex items-center justify-center bg-ink/30 backdrop-blur-sm">
       <div class="relative w-full max-w-md rounded border-t-4 border-navy bg-card shadow-xl">
         <div class="px-7 pt-6 pb-5">
@@ -57,12 +56,12 @@ import { OnboardingService, OnboardingStep } from './onboarding.service';
           </button>
         </div>
       </div>
-    </div>
+    }
 
     <!-- ════════════════════════════════════════════════════════ -->
     <!-- Overlay del tour activo                                   -->
     <!-- ════════════════════════════════════════════════════════ -->
-    <ng-container *ngIf="step">
+    @if (step) {
       <!-- Backdrop oscurece toda la UI cuando estamos en step center -->
       <div class="pointer-events-none fixed inset-0 z-[70]"
            [class.bg-ink]="step.position === 'center'"
@@ -108,10 +107,11 @@ import { OnboardingService, OnboardingStep } from './onboarding.service';
 
             <!-- Indicadores de paso -->
             <div class="mt-4 flex gap-1.5">
-              <span *ngFor="let s of svc.steps; let i = index"
-                    class="h-1 flex-1 rounded-full transition"
-                    [ngClass]="i <= idx ? 'bg-navy' : 'bg-line'">
-              </span>
+          @for (s of svc.steps; track s; let i = $index) {
+                <span class="h-1 flex-1 rounded-full transition"
+                      [ngClass]="i <= idx ? 'bg-navy' : 'bg-line'">
+                </span>
+              }
             </div>
           </div>
 
@@ -124,30 +124,25 @@ import { OnboardingService, OnboardingStep } from './onboarding.service';
           </div>
         </div>
       </div>
-    </ng-container>
+    }
   `,
 })
-export class OnboardingOverlayComponent implements OnInit, OnDestroy {
+export class OnboardingOverlayComponent implements OnInit {
   readonly svc = inject(OnboardingService);
 
   idx = -1;
   step: OnboardingStep | null = null;
 
-  private readonly destroy$ = new Subject<void>();
-
-  ngOnInit(): void {
+  constructor() {
     this.svc.stepIndex$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed())
       .subscribe((i) => {
         this.idx = i;
         this.step = i >= 0 ? this.svc.steps[i] : null;
       });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  ngOnInit(): void {} // kept for interface compliance
 
   @HostListener('window:keydown.arrowright')
   @HostListener('window:keydown.space')

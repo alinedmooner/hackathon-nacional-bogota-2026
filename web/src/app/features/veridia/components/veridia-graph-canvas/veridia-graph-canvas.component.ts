@@ -1,17 +1,18 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
-  EventEmitter,
-  Input,
   NgZone,
   OnChanges,
   OnDestroy,
-  Output,
   SimpleChanges,
   ViewChild,
+  inject,
+  input,
+  output,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import cytoscape, { Core, ElementDefinition, NodeSingular } from 'cytoscape';
 import fcose from 'cytoscape-fcose';
 
@@ -22,43 +23,46 @@ cytoscape.use(fcose);
 @Component({
   selector: 'app-veridia-graph-canvas',
   standalone: true,
-  imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [],
   template: `
     <div class="relative h-full w-full overflow-hidden rounded border border-line bg-card">
       <div #host class="absolute inset-0"></div>
 
       <!-- Meta info flotante (esquina superior derecha) -->
-      <div *ngIf="grafo?.meta as m"
-           class="absolute right-3 top-3 z-10 max-w-xs rounded border border-line bg-cream-2/95 p-3 shadow-sm backdrop-blur">
-        <p class="text-[11px] uppercase tracking-widest text-muted font-semibold">Entidad analizada</p>
-        <p class="mt-1 font-editorial text-base font-semibold text-ink leading-tight">{{ m.entidad }}</p>
-        <p class="text-xs font-mono text-muted tabular">NIT {{ m.nit }}</p>
-        <div class="mt-2 flex flex-wrap gap-1.5">
-          <span class="rounded bg-cream px-2 py-0.5 text-xs text-ink-2 border border-line">
-            {{ m.total_contratistas }} proveedores
-          </span>
-          <span *ngIf="m.alertas_rojo"
-                class="rounded bg-err/10 px-2 py-0.5 text-xs text-err border border-err/30">
-            🚩 {{ m.alertas_rojo }} sancionados
-          </span>
-          <span *ngIf="m.alertas_naranja"
-                class="rounded bg-gold/15 px-2 py-0.5 text-xs text-gold-deep border border-gold/40">
-            ⚠ {{ m.alertas_naranja }} multados
-          </span>
+      @if (grafo()?.meta; as m) {
+        <div class="absolute right-3 top-3 z-10 max-w-xs rounded border border-line bg-cream-2/95 p-3 shadow-sm backdrop-blur">
+          <p class="text-[11px] uppercase tracking-widest text-muted font-semibold">Entidad analizada</p>
+          <p class="mt-1 font-editorial text-base font-semibold text-ink leading-tight">{{ m.entidad }}</p>
+          <p class="text-xs font-mono text-muted tabular">NIT {{ m.nit }}</p>
+          <div class="mt-2 flex flex-wrap gap-1.5">
+            <span class="rounded bg-cream px-2 py-0.5 text-xs text-ink-2 border border-line">
+              {{ m.total_contratistas }} proveedores
+            </span>
+            @if (m.alertas_rojo) {
+              <span class="rounded bg-err/10 px-2 py-0.5 text-xs text-err border border-err/30">
+                🚩 {{ m.alertas_rojo }} sancionados
+              </span>
+            }
+            @if (m.alertas_naranja) {
+              <span class="rounded bg-gold/15 px-2 py-0.5 text-xs text-gold-deep border border-gold/40">
+                ⚠ {{ m.alertas_naranja }} multados
+              </span>
+            }
+          </div>
         </div>
-      </div>
-
-      <!-- Empty state -->
-      <div *ngIf="!hasData"
-           class="pointer-events-none absolute inset-0 flex items-center justify-center text-center">
-        <div class="space-y-3 px-6">
-          <div class="font-editorial text-5xl text-line-strong">⌬</div>
-          <p class="text-xs uppercase tracking-widest text-muted font-semibold">VeridIA · Mapa</p>
-          <p class="text-sm text-ink-2 max-w-xs mx-auto leading-relaxed">
-            Selecciona un hallazgo en la lista para visualizar la red de la entidad y sus contratistas.
-          </p>
+      }
+      @if (!hasData) {
+        <div class="pointer-events-none absolute inset-0 flex items-center justify-center text-center">
+          <div class="space-y-3 px-6">
+            <div class="font-editorial text-5xl text-line-strong">⦾</div>
+            <p class="text-xs uppercase tracking-widest text-muted font-semibold">VeridIA · Mapa</p>
+            <p class="text-sm text-ink-2 max-w-xs mx-auto leading-relaxed">
+              Selecciona un hallazgo en la lista para visualizar la red de la entidad y sus contratistas.
+            </p>
+          </div>
         </div>
-      </div>
+      }
     </div>
   `,
   styles: [`:host { display: block; height: 100%; width: 100%; }`],
@@ -66,19 +70,18 @@ cytoscape.use(fcose);
 export class VeridiaGraphCanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
   @ViewChild('host', { static: true }) host!: ElementRef<HTMLDivElement>;
 
-  @Input() grafo: GrafoResponse | null = null;
-
-  @Output() nodeClick = new EventEmitter<GrafoNode>();
+  readonly grafo = input<GrafoResponse | null>(null);
+  readonly nodeClick = output<GrafoNode>();
 
   hasData = false;
 
   private cy: Core | null = null;
 
-  constructor(private zone: NgZone) {}
+  private readonly zone = inject(NgZone);
 
   ngAfterViewInit(): void {
     this.initGraph();
-    if (this.grafo) this.applyData();
+    if (this.grafo()) this.applyData();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -172,19 +175,19 @@ export class VeridiaGraphCanvasComponent implements AfterViewInit, OnChanges, On
   }
 
   private applyData(): void {
-    if (!this.cy || !this.grafo) {
+    if (!this.cy || !this.grafo()) {
       this.hasData = false;
       return;
     }
 
     // Adaptador: vis-network (from/to) → Cytoscape (source/target)
     const elements: ElementDefinition[] = [
-      ...this.grafo.nodes.map((n) => ({
+      ...this.grafo()!.nodes.map((n) => ({
         group: 'nodes' as const,
         data: { id: n.id, label: n.label, group: n.group, value: n.value, title: n.title },
         classes: `group-${n.group}`,
       })),
-      ...this.grafo.edges.map((e, i) => ({
+      ...this.grafo()!.edges.map((e, i) => ({
         group: 'edges' as const,
         data: {
           id: `edge_${i}`,

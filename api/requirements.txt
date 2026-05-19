@@ -11,3 +11,8 @@ pyjwt
 bcrypt
 openai>=1.40
 
+# Dev dependencies
+ruff
+pytest
+pytest-asyncio
+httpx

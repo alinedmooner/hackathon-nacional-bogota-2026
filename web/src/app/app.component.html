@@ -1,103 +1,104 @@
 <div class="app-shell flex min-h-screen flex-col bg-cream text-ink">
 
   <!-- Strip de gobierno (encabezado institucional) -->
-  <div *ngIf="!isAuthRoute"
-       class="bg-navy-deep text-cream-3 text-xs">
-    <div class="mx-auto flex max-w-7xl items-center gap-2 px-6 py-1.5">
-      <span class="h-2 w-2 rounded-full bg-gold inline-block"></span>
-      <span class="text-cream-3/80">Hackathon 5.9 Colombia · Observatorio GLUD de contratación pública</span>
-    </div>
-  </div>
-
-  <!-- Top navbar (oculto en login) -->
-  <header *ngIf="!isAuthRoute"
-          class="sticky top-0 z-30 border-b-4 border-navy bg-cream/95 backdrop-blur">
-    <div class="flex items-center justify-between gap-6 px-6 py-4"
-         [class.max-w-7xl]="!isFullWidth"
-         [class.mx-auto]="!isFullWidth">
-
-      <!-- Logo / brand -->
-      <a routerLink="/graph" class="flex items-center gap-3 transition hover:opacity-90">
-        <div class="flex h-11 w-11 items-center justify-center rounded bg-navy text-cream font-editorial text-xl font-semibold shadow-[inset_0_-3px_0_var(--gold)]">
-          V
-        </div>
-        <div class="hidden sm:block">
-          <p class="eyebrow text-muted">GLUD</p>
-          <h1 class="font-editorial text-xl font-semibold leading-none text-ink">
-            Verid<span class="text-navy">IA</span>
-          </h1>
-        </div>
-      </a>
-
-      <!-- Navegación principal -->
-      <nav class="flex items-center gap-1 rounded border border-line bg-card p-0.5">
-        <a *ngFor="let link of navLinks"
-           [routerLink]="link.path"
-           routerLinkActive="active-link"
-           class="flex items-center gap-2 rounded px-3 py-1.5 text-sm font-medium text-ink-2 transition hover:bg-cream-2 hover:text-navy">
-          <span class="text-muted">{{ link.icon }}</span>
-          <span>{{ link.label }}</span>
-        </a>
-      </nav>
-
-      <!-- Estado / acciones -->
-      <div class="flex items-center gap-3 text-xs">
-        <button (click)="startTour()"
-                class="hidden sm:inline-flex items-center gap-1.5 rounded border border-gold/60 bg-gold/15 px-3 py-1.5 text-xs font-semibold text-gold-deep transition hover:bg-gold/25"
-                title="Mostrar el tour guiado">
-          <span>▶</span>
-          <span>Tour guiado</span>
-        </button>
-        <button *ngIf="isAuthenticated"
-                (click)="logout()"
-                class="rounded border border-line-strong px-3 py-1.5 text-xs font-medium text-ink-2 transition hover:border-navy hover:text-navy">
-          Salir
-        </button>
+  @if (!isAuthRoute()) {
+    <div class="bg-navy-deep text-cream-3 text-xs">
+      <div class="mx-auto flex max-w-7xl items-center gap-2 px-6 py-1.5">
+        <span class="h-2 w-2 rounded-full bg-gold inline-block"></span>
+        <span class="text-cream-3/80">Hackathon 5.9 Colombia · Observatorio GLUD de contratación pública</span>
       </div>
     </div>
-  </header>
+
+    <!-- Top navbar (oculto en login) -->
+    <header class="sticky top-0 z-30 border-b-4 border-navy bg-cream/95 backdrop-blur">
+      <div class="flex items-center justify-between gap-6 px-6 py-4"
+           [class.max-w-7xl]="!isFullWidth()"
+           [class.mx-auto]="!isFullWidth()">
+
+        <!-- Logo / brand -->
+        <a routerLink="/graph" class="flex items-center gap-3 transition hover:opacity-90">
+          <div class="flex h-11 w-11 items-center justify-center rounded bg-navy text-cream font-editorial text-xl font-semibold shadow-[inset_0_-3px_0_var(--gold)]">
+            V
+          </div>
+          <div class="hidden sm:block">
+            <p class="eyebrow text-muted">GLUD</p>
+            <h1 class="font-editorial text-xl font-semibold leading-none text-ink">
+              Verid<span class="text-navy">IA</span>
+            </h1>
+          </div>
+        </a>
+
+        <!-- Navegación principal -->
+        <nav class="flex items-center gap-1 rounded border border-line bg-card p-0.5">
+          @for (link of navLinks; track link.path) {
+            <a [routerLink]="link.path"
+               routerLinkActive="active-link"
+               class="flex items-center gap-2 rounded px-3 py-1.5 text-sm font-medium text-ink-2 transition hover:bg-cream-2 hover:text-navy">
+              <span class="text-muted">{{ link.icon }}</span>
+              <span>{{ link.label }}</span>
+            </a>
+          }
+        </nav>
+
+        <!-- Estado / acciones -->
+        <div class="flex items-center gap-3 text-xs">
+          <button (click)="startTour()"
+                  class="hidden sm:inline-flex items-center gap-1.5 rounded border border-gold/60 bg-gold/15 px-3 py-1.5 text-xs font-semibold text-gold-deep transition hover:bg-gold/25"
+                  title="Mostrar el tour guiado">
+            <span>▶</span>
+            <span>Tour guiado</span>
+          </button>
+          @if (isAuthenticated) {
+            <button (click)="logout()"
+                    class="rounded border border-line-strong px-3 py-1.5 text-xs font-medium text-ink-2 transition hover:border-navy hover:text-navy">
+              Salir
+            </button>
+          }
+        </div>
+      </div>
+    </header>
+  }
 
   <!-- Contenido principal -->
   <main class="flex-1 min-w-0 overflow-x-hidden"
-        [class.px-6]="!isFullWidth && !isAuthRoute"
-        [class.pb-10]="!isFullWidth && !isAuthRoute"
-        [class.md:px-10]="!isFullWidth && !isAuthRoute"
-        [class.pt-6]="!isFullWidth && !isAuthRoute">
-    <div [class.max-w-7xl]="!isFullWidth && !isAuthRoute"
-         [class.mx-auto]="!isFullWidth && !isAuthRoute"
+        [class.px-6]="!isFullWidth() && !isAuthRoute()"
+        [class.pb-10]="!isFullWidth() && !isAuthRoute()"
+        [class.md:px-10]="!isFullWidth() && !isAuthRoute()"
+        [class.pt-6]="!isFullWidth() && !isAuthRoute()">
+    <div [class.max-w-7xl]="!isFullWidth() && !isAuthRoute()"
+         [class.mx-auto]="!isFullWidth() && !isAuthRoute()"
          class="min-w-0">
       <router-outlet></router-outlet>
     </div>
   </main>
 
   <!-- Footer institucional -->
-  <footer *ngIf="!isFullWidth && !isAuthRoute"
-          class="border-t border-line px-6 py-5 text-xs text-muted md:px-10">
-    <div class="mx-auto flex max-w-7xl items-center justify-between">
-      <span>VeridIA · Observatorio GLUD · Hackathon 5.9 Colombia</span>
-      <span>Datos públicos · SECOP · Procuraduría · Contraloría</span>
-    </div>
-  </footer>
+  @if (!isFullWidth() && !isAuthRoute()) {
+    <footer class="border-t border-line px-6 py-5 text-xs text-muted md:px-10">
+      <div class="mx-auto flex max-w-7xl items-center justify-between">
+        <span>VeridIA · Observatorio GLUD · Hackathon 5.9 Colombia</span>
+        <span>Datos públicos · SECOP · Procuraduría · Contraloría</span>
+      </div>
+    </footer>
+  }
 
-  <!-- ════════════════════════════════════════════════════════════════ -->
-  <!-- Asistente conversacional · botón flotante + panel deslizable      -->
-  <!-- ════════════════════════════════════════════════════════════════ -->
-  <button *ngIf="!isAuthRoute"
-          (click)="chatOpen = true"
-          class="group fixed bottom-6 right-6 z-30 flex items-center gap-2 rounded-full bg-navy px-5 py-3 text-sm font-medium text-cream shadow-lg shadow-navy/25 transition hover:bg-navy-deep hover:scale-105"
-          [class.invisible]="chatOpen"
-          aria-label="Hablar con VeridIA">
-    <span class="text-base">💬</span>
-    <span class="hidden sm:inline">Pregunta a Verid<span class="text-gold">IA</span></span>
-    <span class="sm:hidden">VeridIA</span>
-    <span class="ml-1 inline-flex h-2 w-2 rounded-full bg-gold"></span>
-  </button>
+  @if (!isAuthRoute()) {
+    <!-- Asistente conversacional · botón flotante + panel deslizable -->
+    <button (click)="chatOpen.set(true)"
+            class="group fixed bottom-6 right-6 z-30 flex items-center gap-2 rounded-full bg-navy px-5 py-3 text-sm font-medium text-cream shadow-lg shadow-navy/25 transition hover:bg-navy-deep hover:scale-105"
+            [class.invisible]="chatOpen()"
+            aria-label="Hablar con VeridIA">
+      <span class="text-base">💬</span>
+      <span class="hidden sm:inline">Pregunta a Verid<span class="text-gold">IA</span></span>
+      <span class="sm:hidden">VeridIA</span>
+      <span class="ml-1 inline-flex h-2 w-2 rounded-full bg-gold"></span>
+    </button>
 
-  <app-veridia-chat *ngIf="!isAuthRoute"
-                    [open]="chatOpen"
-                    (openChange)="chatOpen = $event">
-  </app-veridia-chat>
+    <app-veridia-chat [open]="chatOpen()"
+                      (openChange)="chatOpen.set($event)">
+    </app-veridia-chat>
 
-  <!-- Onboarding: dialog inicial + overlay del tour -->
-  <app-onboarding-overlay *ngIf="!isAuthRoute"></app-onboarding-overlay>
+    <!-- Onboarding: dialog inicial + overlay del tour -->
+    <app-onboarding-overlay></app-onboarding-overlay>
+  }
 </div>

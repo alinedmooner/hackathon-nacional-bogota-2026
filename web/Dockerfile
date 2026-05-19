@@ -3,9 +3,9 @@ FROM node:20-alpine
 WORKDIR /app
 
 
-COPY package.json package-lock.json* ./
+COPY package.json pnpm-lock.yaml* ./
 
-RUN npm ci
+RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
 COPY . .
 
@@ -19,4 +19,4 @@ RUN chmod +x /entrypoint.sh
 EXPOSE 4200
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["npm", "run", "start", "--", "--host", "0.0.0.0", "--port", "4200", "--disable-host-check"]
+CMD ["pnpm", "run", "start", "--", "--host", "0.0.0.0", "--port", "4200", "--disable-host-check"]

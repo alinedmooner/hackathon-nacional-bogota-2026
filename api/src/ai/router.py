@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 
 from src.core.datasets import ArchivosDataset, ContratosDataset
-from models.ai_chat import (
+from src.core.models.ai_chat import (
     ChartItem,
     ChatRequest,
     ChatResponse,
@@ -19,7 +19,7 @@ from models.ai_chat import (
     Usage,
 )
 from src.core.security import get_current_user
-from services.ai import orchestrator, persistence
+from src.ai.services import orchestrator, persistence
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/ai", tags=["ai"])

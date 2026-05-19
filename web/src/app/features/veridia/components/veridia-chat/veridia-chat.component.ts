@@ -1,21 +1,17 @@
-import { CommonModule } from '@angular/common';
 import {
   AfterViewChecked,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   ElementRef,
-  EventEmitter,
-  Input,
-  OnDestroy,
   OnInit,
-  Output,
   ViewChild,
   inject,
+  input,
+  output,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgChartsModule } from 'ng2-charts';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ChartItem } from '../../models/veridia.types';
 import { VeridiaStreamService } from '../../services/veridia-stream.service';
@@ -41,18 +37,20 @@ interface ChatMessage {
 @Component({
   selector: 'app-veridia-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgChartsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FormsModule],
   template: `
     <!-- Backdrop -->
-    <div *ngIf="open"
-         (click)="requestClose()"
-         class="fixed inset-0 z-40 bg-ink/30 backdrop-blur-sm transition-opacity"></div>
+    @if (open()) {
+      <div (click)="requestClose()"
+           class="fixed inset-0 z-40 bg-ink/30 backdrop-blur-sm transition-opacity"></div>
+    }
 
     <!-- Slide-over panel -->
     <aside class="fixed right-0 top-0 z-50 flex h-full w-full max-w-[28rem] flex-col bg-cream border-l-4 border-navy shadow-2xl transition-transform duration-300"
-           [class.translate-x-0]="open"
-           [class.translate-x-full]="!open"
-           [attr.aria-hidden]="!open">
+           [class.translate-x-0]="open()"
+           [class.translate-x-full]="!open()"
+           [attr.aria-hidden]="!open()">
 
       <!-- Header -->
       <header class="flex items-center justify-between gap-3 border-b border-line bg-card px-5 py-4">
@@ -85,89 +83,97 @@ interface ChatMessage {
       <div #scrollArea class="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-4 bg-cream">
 
         <!-- Estado inicial: sugerencias -->
-        <div *ngIf="!messages.length"
-             class="space-y-3 px-1">
-          <div class="rounded border border-line bg-card p-4">
-            <p class="font-editorial text-base font-semibold text-ink">
-              👋 Pregunta lo que quieras saber
-            </p>
-            <p class="mt-1 text-sm leading-relaxed text-ink-2">
-              VeridIA cruza SECOP con Procuraduría, Contraloría y SIC, y te muestra
-              cómo llegó al hallazgo. En español. Sin jerga.
-            </p>
+        @if (!messages.length) {
+          <div class="space-y-3 px-1">
+            <div class="rounded border border-line bg-card p-4">
+              <p class="font-editorial text-base font-semibold text-ink">
+                👋 Pregunta lo que quieras saber
+              </p>
+              <p class="mt-1 text-sm leading-relaxed text-ink-2">
+                VeridIA cruza SECOP con Procuraduría, Contraloría y SIC, y te muestra
+                cómo llegó al hallazgo. En español. Sin jerga.
+              </p>
+            </div>
+            <p class="eyebrow px-1">Prueba con</p>
+            @for (q of suggestions; track q) {
+              <button (click)="sendSuggestion(q)"
+                      class="block w-full rounded border border-line bg-card px-4 py-3 text-left text-sm text-ink-2 transition hover:border-navy hover:bg-cream-3">
+                <span class="text-gold-deep mr-1">›</span>{{ q }}
+              </button>
+            }
           </div>
-          <p class="eyebrow px-1">Prueba con</p>
-          <button *ngFor="let q of suggestions"
-                  (click)="sendSuggestion(q)"
-                  class="block w-full rounded border border-line bg-card px-4 py-3 text-left text-sm text-ink-2 transition hover:border-navy hover:bg-cream-3">
-            <span class="text-gold-deep mr-1">›</span>{{ q }}
-          </button>
-        </div>
+        }
 
         <!-- Burbujas -->
-        <div *ngFor="let m of messages; trackBy: trackByIdx; let i = index"
-             [class.justify-end]="m.role === 'user'"
-             class="flex">
-          <div [ngClass]="m.role === 'user'
-                 ? 'bg-navy text-cream border-navy'
-                 : 'bg-card text-ink border-line'"
-               class="max-w-[88%] rounded border px-4 py-3">
-            <p class="mb-1.5 text-xs uppercase tracking-wider font-semibold"
-               [ngClass]="m.role === 'user' ? 'text-cream/70' : 'text-muted'">
-              {{ m.role === 'user' ? 'Tú' : 'VeridIA' }}
-            </p>
+        @for (m of messages; track m; let i = $index) {
+          <div [class.justify-end]="m.role === 'user'"
+               class="flex">
+            <div [ngClass]="m.role === 'user'
+                   ? 'bg-navy text-cream border-navy'
+                   : 'bg-card text-ink border-line'"
+                 class="max-w-[88%] rounded border px-4 py-3">
+              <p class="mb-1.5 text-xs uppercase tracking-wider font-semibold"
+                 [ngClass]="m.role === 'user' ? 'text-cream/70' : 'text-muted'">
+                {{ m.role === 'user' ? 'Tú' : 'VeridIA' }}
+              </p>
 
-            <!-- Tool calls (badges) -->
-            <div *ngIf="m.tool_calls.length" class="mb-2 space-y-1">
-              <div *ngFor="let tc of m.tool_calls"
-                   class="flex items-center gap-2 rounded border border-ok/40 bg-ok/10 px-2 py-1 text-xs"
-                   [class.animate-pulse]="!tc.summary">
-                <span class="shrink-0">{{ tc.summary ? '✓' : '◐' }}</span>
-                <span class="font-semibold text-ok">{{ TOOL_LABELS[tc.tool] ?? tc.tool }}</span>
-                <span *ngIf="tc.summary" class="text-muted">·</span>
-                <span *ngIf="tc.summary" class="truncate text-ink-2">{{ tc.summary }}</span>
-              </div>
+              <!-- Tool calls (badges) -->
+              @if (m.tool_calls.length) {
+                <div class="mb-2 space-y-1">
+                  @for (tc of m.tool_calls; track tc) {
+                    <div class="flex items-center gap-2 rounded border border-ok/40 bg-ok/10 px-2 py-1 text-xs"
+                         [class.animate-pulse]="!tc.summary">
+                      <span class="shrink-0">{{ tc.summary ? '✓' : '◐' }}</span>
+                      <span class="font-semibold text-ok">{{ TOOL_LABELS[tc.tool] ?? tc.tool }}</span>
+                      @if (tc.summary) { <span class="text-muted">·</span> }
+                      @if (tc.summary) { <span class="truncate text-ink-2">{{ tc.summary }}</span> }
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Indicador thinking -->
+              @if (m.thinking) {
+                <div class="mb-2 inline-flex items-center gap-2 rounded bg-cream-2 px-2 py-1 text-xs text-ink-2">
+                  <span class="flex space-x-0.5">
+                    <span class="h-1 w-1 animate-bounce rounded-full bg-navy"></span>
+                    <span class="h-1 w-1 animate-bounce rounded-full bg-navy" style="animation-delay: 0.15s"></span>
+                    <span class="h-1 w-1 animate-bounce rounded-full bg-navy" style="animation-delay: 0.3s"></span>
+                  </span>
+                  <span>{{ m.thinking }}</span>
+                </div>
+              }
+
+              <!-- Texto de respuesta -->
+              @if (m.text) { <p class="whitespace-pre-wrap text-sm leading-relaxed">{{ m.text }}</p> }
+
+              <!-- Charts inline -->
+              @for (ch of m.charts; track ch) {
+                <div class="mt-3 rounded border border-line bg-cream-2 p-3">
+                  @if (ch.title) { <p class="mb-2 eyebrow">{{ ch.title }}</p> }
+                  <div class="h-48">
+                    <canvas id="chart-{{ i }}-{{ $index }}"></canvas>
+                  </div>
+                </div>
+              }
+
+              <!-- Footer (latencia) -->
+              @if (m.latency_ms) {
+                <p class="mt-2 text-xs"
+                   [ngClass]="m.role === 'user' ? 'text-cream/50' : 'text-muted'">
+                  {{ (m.latency_ms / 1000).toFixed(1) }}s
+                </p>
+              }
             </div>
-
-            <!-- Indicador thinking -->
-            <div *ngIf="m.thinking"
-                 class="mb-2 inline-flex items-center gap-2 rounded bg-cream-2 px-2 py-1 text-xs text-ink-2">
-              <span class="flex space-x-0.5">
-                <span class="h-1 w-1 animate-bounce rounded-full bg-navy"></span>
-                <span class="h-1 w-1 animate-bounce rounded-full bg-navy" style="animation-delay: 0.15s"></span>
-                <span class="h-1 w-1 animate-bounce rounded-full bg-navy" style="animation-delay: 0.3s"></span>
-              </span>
-              <span>{{ m.thinking }}</span>
-            </div>
-
-            <!-- Texto de respuesta -->
-            <p *ngIf="m.text" class="whitespace-pre-wrap text-sm leading-relaxed">{{ m.text }}</p>
-
-            <!-- Charts inline -->
-            <div *ngFor="let ch of m.charts"
-                 class="mt-3 rounded border border-line bg-cream-2 p-3">
-              <p *ngIf="ch.title" class="mb-2 eyebrow">{{ ch.title }}</p>
-              <div class="h-48">
-                <canvas baseChart
-                        [type]="ch.chart_js_spec.type"
-                        [data]="ch.chart_js_spec.data"
-                        [options]="ch.chart_js_spec.options"></canvas>
-              </div>
-            </div>
-
-            <!-- Footer (latencia) -->
-            <p *ngIf="m.latency_ms" class="mt-2 text-xs"
-               [ngClass]="m.role === 'user' ? 'text-cream/50' : 'text-muted'">
-              {{ (m.latency_ms / 1000).toFixed(1) }}s
-            </p>
           </div>
-        </div>
+        }
 
         <!-- Error -->
-        <div *ngIf="errorMsg"
-             class="rounded border border-err/40 bg-err/10 px-3 py-2 text-sm text-err">
-          {{ errorMsg }}
-        </div>
+        @if (errorMsg) {
+          <div class="rounded border border-err/40 bg-err/10 px-3 py-2 text-sm text-err">
+            {{ errorMsg }}
+          </div>
+        }
       </div>
 
       <!-- Input -->
@@ -183,8 +189,8 @@ interface ChatMessage {
           <button type="submit"
                   [disabled]="isStreaming || !inputText.trim()"
                   class="btn-primary disabled:cursor-not-allowed disabled:opacity-40">
-            <span *ngIf="!isStreaming">Enviar</span>
-            <span *ngIf="isStreaming">…</span>
+            @if (!isStreaming) { <span>Enviar</span> }
+            @if (isStreaming) { <span>…</span> }
           </button>
         </div>
         <p class="mt-2 text-xs text-muted text-center">
@@ -194,9 +200,9 @@ interface ChatMessage {
     </aside>
   `,
 })
-export class VeridiaChatComponent implements AfterViewChecked, OnInit, OnDestroy {
-  @Input() open = false;
-  @Output() openChange = new EventEmitter<boolean>();
+export class VeridiaChatComponent implements AfterViewChecked, OnInit {
+  readonly open = input(false);
+  readonly openChange = output<boolean>();
 
   @ViewChild('scrollArea') scrollArea?: ElementRef<HTMLDivElement>;
 
@@ -231,11 +237,10 @@ export class VeridiaChatComponent implements AfterViewChecked, OnInit, OnDestroy
   private readonly onboarding = inject(OnboardingService);
   private readonly cdr = inject(ChangeDetectorRef);
   private shouldScroll = false;
-  private readonly destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     this.onboarding.events$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed())
       .subscribe((evt) => {
         switch (evt.kind) {
           case 'open-chat-with-question':
@@ -254,10 +259,7 @@ export class VeridiaChatComponent implements AfterViewChecked, OnInit, OnDestroy
       });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  // takeUntilDestroyed() handles cleanup automatically
 
   ngAfterViewChecked(): void {
     if (this.shouldScroll && this.scrollArea) {
@@ -313,10 +315,11 @@ export class VeridiaChatComponent implements AfterViewChecked, OnInit, OnDestroy
         assistant.tool_calls.push({ tool: ev.tool ?? 'tool', args: ev.args ?? {}, summary: '' });
         assistant.thinking = `Consultando ${ev.tool}…`;
         break;
-      case 'tool_result':
+      case 'tool_result': {
         const last = assistant.tool_calls.slice().reverse().find((t) => t.tool === ev.tool && !t.summary);
         if (last) last.summary = ev.summary ?? 'ok';
         break;
+      }
       case 'chart':
         if (ev.chart) assistant.charts.push(ev.chart);
         break;
@@ -396,13 +399,14 @@ export class VeridiaChatComponent implements AfterViewChecked, OnInit, OnDestroy
             assistant.thinking = `Consultando ${ev.tool}…`;
             break;
 
-          case 'tool_result':
+          case 'tool_result': {
             const matching = assistant.tool_calls
               .slice()
               .reverse()
               .find((t) => t.tool === ev.tool && !t.summary);
             if (matching) matching.summary = ev.summary ?? 'ok';
             break;
+          }
 
           case 'chart':
             if (ev.chart) assistant.charts.push(ev.chart);
@@ -430,7 +434,7 @@ export class VeridiaChatComponent implements AfterViewChecked, OnInit, OnDestroy
         this.shouldScroll = true;
         this.cdr.markForCheck();
       }
-    } catch (err) {
+    } catch {
       this.errorMsg = 'Error de conexión con VeridIA';
       assistant.thinking = undefined;
       assistant.isStreaming = false;
