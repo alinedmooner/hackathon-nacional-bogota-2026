@@ -41,12 +41,12 @@ services:
       retries: 3
       start_period: 10s
 
-  frontend:
+  web:
     build:
-      context: ./frontend
+      context: ./web
       dockerfile: Dockerfile
       network: host
-    image: hackathon5/frontend:latest
+    image: hackathon5/web:latest
     environment:
       - BACKEND_URL=https://gludsitohackathon5back.glud.org
 

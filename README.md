@@ -4,17 +4,17 @@ Plataforma para consultar datos de SECOP II, autenticar usuarios con JWT y visua
 
 ## Arquitectura
 
-- API: FastAPI (Python) en [api](api) con endpoints protegidos por JWT.
-- Frontend: Angular 17 en [frontend](frontend), consume la API via `/api` y proxy local.
-- Datos: consultas SoQL contra datos.gov.co (datasets SECOP II).
-- AI Analyzer: servicio auxiliar en [ai-analyzer](ai-analyzer) (no expone API pública).
+- **API:** FastAPI (Python) en `api/` con endpoints protegidos por JWT. Organizado en feature modules (auth, contratos, ai, analytics).
+- **Web:** Angular 18 en `web/`, consume la API via `/api` y proxy local.
+- **Datos:** Consultas SoQL contra datos.gov.co (datasets SECOP II) y base de datos MongoDB.
+- **Documentación:** Las decisiones de diseño de UI y contratos API están detalladas en `docs/ARCHITECTURE.md`. La configuración de IA (Context7) está en `docs/mcp-config.md`.
 
 ## Requisitos
 
 - Python 3.11+
 - Node.js 18+
-- MongoDB (si usas `/results` del analizador)
-- Docker (opcional)
+- MongoDB (para almacenamiento de logs de análisis)
+- Docker (recomendado para desarrollo)
 
 ## Ejecutar en local
 
@@ -25,32 +25,32 @@ cd api
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn main:app --host 0.0.0.0 --port 8000
+uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Frontend (Angular)
 
 ```bash
-cd frontend
+cd web
 npm install
 npm start
 ```
 
 El frontend queda en `http://localhost:4200` y el backend en `http://localhost:8000`.
 
-## Ejecutar con Docker (solo API)
+## Ejecutar con Docker
 
-El `docker-compose.yml` actual levanta unicamente la API.
+El `docker-compose.yml` levanta toda la pila (API, Web, MongoDB).
 
 ```bash
-docker compose up --build
+docker-compose up --build
 ```
 
-## Configuracion
+## Configuración
 
 ### Backend
 
-Variables en [api/.env](api/.env):
+Variables necesarias en `api/.env`:
 
 - `MONGO_URI`
 - `DATASET_CONTRATOS_ID`
@@ -58,12 +58,12 @@ Variables en [api/.env](api/.env):
 - `JWT_SECRET_KEY`, `JWT_ALGORITHM`, `JWT_EXPIRE_MINUTES`
 - `CORS_ORIGINS`
 
-### Frontend
+### Web (Frontend)
 
-El runtime config vive en [frontend/src/assets/env.js](frontend/src/assets/env.js). Por defecto usa `/api`.
-El proxy local esta en [frontend/proxy.conf.json](frontend/proxy.conf.json).
+El runtime config vive en `web/src/assets/env.js`. Por defecto usa `/api`.
+El proxy local está en `web/proxy.conf.json`.
 
-## Autenticacion
+## Autenticación
 
 1. POST `/auth/login` con `{ "username": "admin", "password": "admin123" }`.
 2. Usar el JWT en el header: `Authorization: Bearer <token>`.
@@ -79,23 +79,11 @@ Base URL: `http://localhost:8000`
 - `GET /results` - Resultados del analizador (requiere JWT)
 - `GET /me` - Payload del JWT actual
 
-### Parametros comunes
-
-- `page` (default: 1)
-- `page_size` (default: 20, max: 1000)
-
-Filtros:
-
-- `/contratos`: `estado`, `departamento`
-- `/archivos`: `extension`, `entidad`
-
 ## Swagger
 
-La documentacion OpenAPI esta en:
+La documentación OpenAPI está en:
 
 - `http://localhost:8000/docs`
 - `http://localhost:8000/redoc`
 
-En produccion, el backend esta en `https://gludsitohackathon5back.glud.org` y la
-documentacion es `https://gludsitohackathon5back.glud.org/docs`. Este enlace debe
-mostrarse en el login.
+En producción, el backend está en `https://gludsitohackathon5back.glud.org` y la documentación es `https://gludsitohackathon5back.glud.org/docs`.

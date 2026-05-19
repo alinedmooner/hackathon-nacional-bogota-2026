@@ -1,0 +1,9 @@
+# Context7 Usage Rule
+Always use Context7 to fetch up-to-date documentation and code examples before writing or modifying framework-specific code (e.g., Angular, FastAPI).
+
+Please explicitly query the Context7 tool for library documentation whenever you are:
+1. Updating a library version (like the Angular 17 to latest migration).
+2. Implementing a new feature using a specific API.
+3. Fixing deprecation warnings.
+
+Directive: `use context7`
