@@ -1,0 +1,3 @@
+## 2026-07-04 - [Replace count_documents({}) with estimated_document_count()]
+**Learning:** `count_documents({})` scans all the documents in the collection when an empty query is passed, which has `O(N)` time complexity. This is extremely inefficient on large collections like `contratos-electronicos`. Replacing it with `estimated_document_count()` provides a huge performance boost as it queries the collection metadata instead, executing in `O(1)` time.
+**Action:** Use `estimated_document_count()` instead of `count_documents({})` for `O(1)` time complexity execution whenever there are no filters.

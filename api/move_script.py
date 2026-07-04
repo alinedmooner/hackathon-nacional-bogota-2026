@@ -1,4 +1,3 @@
-import os
 import shutil
 
 moves = [
@@ -28,5 +27,5 @@ for src, dst in moves:
 try:
     shutil.rmtree("routes")
     shutil.rmtree("services")
-except Exception as e:
+except Exception:
     pass
