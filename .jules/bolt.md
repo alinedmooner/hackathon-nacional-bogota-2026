@@ -1,0 +1,3 @@
+## 2026-07-05 - MongoDB Document Counting Optimization
+**Learning:** Using `count_documents({})` with an empty filter results in an O(N) collection scan in MongoDB, which can be a severe performance bottleneck for large collections.
+**Action:** Always use `estimated_document_count()` instead of `count_documents({})` when no query filters are applied to ensure O(1) performance using collection metadata.
