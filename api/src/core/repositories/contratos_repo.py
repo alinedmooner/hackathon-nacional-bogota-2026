@@ -30,7 +30,12 @@ def listar(
         filtro["tipo_de_contrato"] = tipo_de_contrato
 
     col = _col()
-    total = col.count_documents(filtro)
+    # ⚡ Bolt: Optimize by using estimated_document_count when no filter is applied
+    if not filtro:
+        total = col.estimated_document_count()
+    else:
+        total = col.count_documents(filtro)
+
     items = [
         _serialize(doc)
         for doc in col.find(filtro).skip((page - 1) * page_size).limit(page_size)

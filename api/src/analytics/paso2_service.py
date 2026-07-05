@@ -164,7 +164,8 @@ def anomalias_tipos_datos() -> dict:
 def api_doc() -> dict:
     from src.database import get_db
     col = get_db()["contratos-electronicos"]
-    total_mongo = col.count_documents({})
+    # ⚡ Bolt: Use estimated_document_count for O(1) performance instead of O(N) collection scan
+    total_mongo = col.estimated_document_count()
     campos = mongo.variables()
     base_url = "https://www.datos.gov.co/resource"
     contratos_id = ContratosDataset.ID
