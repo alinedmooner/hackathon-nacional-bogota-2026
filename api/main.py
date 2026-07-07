@@ -3,7 +3,6 @@ from typing import Any, Dict, List
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pymongo import MongoClient
 
 from src.core.config import settings
 from src.auth.router import router as auth_router

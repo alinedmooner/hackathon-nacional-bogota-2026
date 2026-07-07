@@ -88,7 +88,7 @@ def load(csv_path: Path, mongo_uri: str, drop: bool = False) -> None:
         print(f"  Lote {i:>4}/{total_batches}  ({pct:5.1f}%)  "
               f"insertados={inserted:,}  actualizados={updated:,}  errores={errors}", end="\r")
 
-    print(f"\n\nListo.")
+    print("\n\nListo.")
     print(f"  Insertados : {inserted:,}")
     print(f"  Actualizados: {updated:,}")
     print(f"  Errores    : {errors:,}")

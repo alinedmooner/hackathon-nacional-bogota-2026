@@ -29,7 +29,7 @@ def parse_money(value: str) -> float:
 
 
 def total_registros() -> int:
-    return _col().count_documents({})
+    return _col().estimated_document_count()
 
 
 def registros_2025() -> int:
@@ -38,7 +38,7 @@ def registros_2025() -> int:
 
 def pymes() -> dict:
     col = _col()
-    total = col.count_documents({})
+    total = col.estimated_document_count()
     pyme_count = col.count_documents({"es_pyme": "Si"})
     return {"total": total, "pymes": pyme_count}
 
@@ -83,7 +83,7 @@ def tipos_contrato() -> dict:
         {"$project": {"_id": 0, "tipo": "$_id", "total": 1}},
     ]
     top5 = list(col.aggregate(pipeline))
-    total = col.count_documents({})
+    total = col.estimated_document_count()
     pct = round(top5[0]["total"] / total * 100, 2) if top5 and total else 0
     return {"top_5": top5, "total": total, "pct_mayor": pct}
 
@@ -123,14 +123,14 @@ def anomalias_financieras() -> dict:
 
 def pagos_adelantados() -> dict:
     col = _col()
-    total = col.count_documents({})
+    total = col.estimated_document_count()
     con_anticipo = col.count_documents({"habilita_pago_adelantado": "Si"})
     return {"total": total, "con_anticipo": con_anticipo}
 
 
 def obligaciones_ambientales() -> dict:
     col = _col()
-    total = col.count_documents({})
+    total = col.estimated_document_count()
     con_ambiental = col.count_documents({"obligacin_ambiental": "Si"})
     return {"total": total, "con_ambiental": con_ambiental}
 
