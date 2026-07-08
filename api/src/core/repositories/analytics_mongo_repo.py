@@ -154,24 +154,27 @@ def pareto() -> dict:
             "pct_valor_top_20": pct, "se_cumple": pct >= 75}
 
 
+# ⚡ Bolt: Replaced python-side document scanning and summing with an in-database MongoDB aggregation pipeline.
+# This shifts the heavy O(N) grouping and summing workload from application memory to the database engine.
 def brecha_genero() -> list:
-    docs = _col().find(
-        {"gnero_representante_legal": {"$exists": True, "$ne": None},
-         "valor_del_contrato": {"$exists": True, "$ne": None}},
-        {"gnero_representante_legal": 1, "valor_del_contrato": 1},
-    )
-    totales: dict = {}
-    conteos: dict = {}
-    for doc in docs:
-        g = doc.get("gnero_representante_legal") or "No definido"
-        v = parse_money(doc.get("valor_del_contrato"))
-        totales[g] = totales.get(g, 0) + v
-        conteos[g] = conteos.get(g, 0) + 1
-    valor_total = sum(totales.values())
+    pipeline = [
+        {"$match": {
+            "gnero_representante_legal": {"$exists": True, "$ne": None},
+            "valor_del_contrato": {"$exists": True, "$ne": None}
+        }},
+        {"$addFields": {"_valor": _TO_DOUBLE}},
+        {"$group": {
+            "_id": {"$cond": [{"$in": ["$gnero_representante_legal", ["", None]]}, "No definido", "$gnero_representante_legal"]},
+            "valor_total": {"$sum": "$_valor"},
+            "num_contratos": {"$sum": 1}
+        }}
+    ]
+    docs = list(_col().aggregate(pipeline, allowDiskUse=True))
+    valor_total = sum(d["valor_total"] for d in docs)
     return sorted(
-        [{"genero": g, "num_contratos": conteos[g], "valor_total": round(totales[g], 2),
-          "pct_valor": round(totales[g] / valor_total * 100, 2) if valor_total else 0}
-         for g in totales],
+        [{"genero": d["_id"], "num_contratos": d["num_contratos"], "valor_total": round(d["valor_total"], 2),
+          "pct_valor": round(d["valor_total"] / valor_total * 100, 2) if valor_total else 0}
+         for d in docs],
         key=lambda x: x["valor_total"], reverse=True,
     )
 
