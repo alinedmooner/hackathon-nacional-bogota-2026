@@ -135,17 +135,22 @@ def obligaciones_ambientales() -> dict:
     return {"total": total, "con_ambiental": con_ambiental}
 
 
+# ⚡ Bolt: Replaced python-side document scanning and summing with an in-database MongoDB aggregation pipeline.
+# This shifts the heavy O(N) grouping and summing workload from application memory to the database engine.
 def pareto() -> dict:
-    docs = _col().find(
-        {"valor_del_contrato": {"$exists": True, "$ne": None},
-         "nombre_entidad": {"$exists": True, "$ne": None}},
-        {"nombre_entidad": 1, "valor_del_contrato": 1},
-    )
-    totales: dict = {}
-    for doc in docs:
-        entidad = doc.get("nombre_entidad") or "Sin nombre"
-        totales[entidad] = totales.get(entidad, 0) + parse_money(doc.get("valor_del_contrato"))
-    ordered = sorted(totales.values(), reverse=True)
+    pipeline = [
+        {"$match": {
+            "valor_del_contrato": {"$exists": True, "$ne": None},
+            "nombre_entidad": {"$exists": True, "$ne": None}
+        }},
+        {"$addFields": {"_valor": _TO_DOUBLE}},
+        {"$group": {
+            "_id": {"$cond": [{"$in": ["$nombre_entidad", ["", None]]}, "Sin nombre", "$nombre_entidad"]},
+            "total_valor": {"$sum": "$_valor"}
+        }}
+    ]
+    docs = list(_col().aggregate(pipeline, allowDiskUse=True))
+    ordered = sorted([d["total_valor"] for d in docs], reverse=True)
     n_entidades = len(ordered)
     valor_total = sum(ordered)
     top_20_n = max(1, int(n_entidades * 0.20))
