@@ -9,3 +9,7 @@
 ## 2026-07-08 - [MongoDB Aggregation for Data Grouping]
 **Learning:** Reading all records into Python application memory using `.find()` and looping over them is an O(N) operation that leads to significant latency, CPU usage, and high memory utilization (especially for large string replacements and object allocations).
 **Action:** Always shift heavy data processing (like grouping, mapping strings to decimals, and summarizing) directly to the database layer via MongoDB Aggregation Pipelines (e.g. `$group`, `$addFields`) or SQL queries, executing them efficiently without transferring the raw datasets over the network into memory.
+
+## 2024-07-09 - MongoDB Aggregation Pipeline Optimization for Pareto Analysis
+**Learning:** In the MongoDB repositories, performing aggregation logic (like grouping and summing values) on the application side using `.find()` leads to O(N) memory consumption and high CPU usage due to downloading all matching documents.
+**Action:** Consistently replace application-side loops (like finding and summing `valor_del_contrato` per `nombre_entidad` in `pareto`) with in-database MongoDB aggregation pipelines (`$match`, `$addFields` with `_TO_DOUBLE` macro, and `$group`), shifting the workload to the database engine and drastically reducing memory footprint.
