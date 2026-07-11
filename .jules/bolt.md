@@ -13,3 +13,7 @@
 ## 2024-07-09 - MongoDB Aggregation Pipeline Optimization for Pareto Analysis
 **Learning:** In the MongoDB repositories, performing aggregation logic (like grouping and summing values) on the application side using `.find()` leads to O(N) memory consumption and high CPU usage due to downloading all matching documents.
 **Action:** Consistently replace application-side loops (like finding and summing `valor_del_contrato` per `nombre_entidad` in `pareto`) with in-database MongoDB aggregation pipelines (`$match`, `$addFields` with `_TO_DOUBLE` macro, and `$group`), shifting the workload to the database engine and drastically reducing memory footprint.
+
+## 2023-10-25 - Push parsing and grouping to Mongo Aggregation Pipelines
+**Learning:** Doing heavy regex string parsing and sorting in Python for O(N) datasets using `find()` is an anti-pattern. Application memory and CPU (due to python string manipulations/regexes for money values like $10,000) can become huge bottlenecks.
+**Action:** Use MongoDB aggregation pipelines with `$addFields` and macro variables like `_TO_DOUBLE` to do type coercion/cleaning at the DB engine level, alongside `$sort` and `$match`.

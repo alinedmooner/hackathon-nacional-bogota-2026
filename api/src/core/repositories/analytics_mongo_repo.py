@@ -1,4 +1,3 @@
-import re
 from src.database import get_db
 
 COLLECTION = "contratos-electronicos"
@@ -20,12 +19,6 @@ _TO_DOUBLE = {
 
 def _col():
     return get_db()[COLLECTION]
-
-
-def parse_money(value: str) -> float:
-    if not value:
-        return 0.0
-    return float(re.sub(r"[^\d.]", "", str(value)) or 0)
 
 
 def total_registros() -> int:
@@ -88,25 +81,36 @@ def tipos_contrato() -> dict:
     return {"top_5": top5, "total": total, "pct_mayor": pct}
 
 
+# ⚡ Bolt: Replaced python-side document scanning and value parsing with an in-database MongoDB aggregation pipeline.
+# This shifts the heavy string processing, parsing, and sorting workload from application memory to the database engine.
 def anomalias_financieras() -> dict:
-    docs = list(_col().find(
-        {"valor_del_contrato": {"$exists": True, "$ne": None}},
-        {"id_contrato": 1, "nombre_entidad": 1, "valor_del_contrato": 1,
-         "tipo_de_contrato": 1, "estado_contrato": 1},
-    ))
-    valores = [(parse_money(d.get("valor_del_contrato")), d) for d in docs]
-    valores = [(v, d) for v, d in valores if v > 0]
-    nums = [v for v, _ in valores]
-    n = len(nums)
+    pipeline = [
+        {"$match": {"valor_del_contrato": {"$exists": True, "$ne": None}}},
+        {"$addFields": {"_valor": _TO_DOUBLE}},
+        {"$match": {"_valor": {"$gt": 0}}},
+        {"$project": {
+            "id_contrato": 1,
+            "nombre_entidad": 1,
+            "tipo_de_contrato": 1,
+            "estado_contrato": 1,
+            "_valor": 1
+        }},
+        {"$sort": {"_valor": 1}}
+    ]
+    docs = list(_col().aggregate(pipeline, allowDiskUse=True))
+
+    n = len(docs)
     if n == 0:
         return {"estadisticas": None, "top_3_anomalos": []}
+
+    nums = [d.get("_valor", 0) for d in docs]
     media = sum(nums) / n
     std = (sum((x - media) ** 2 for x in nums) / n) ** 0.5
-    s = sorted(nums)
-    q1, q3 = s[n // 4], s[3 * n // 4]
+
+    q1, q3 = nums[n // 4], nums[3 * n // 4]
     umbral = q3 + 3 * (q3 - q1)
-    anomalos = sorted([(v, d) for v, d in valores if v > umbral],
-                      key=lambda x: x[0], reverse=True)[:3]
+
+    anomalos = [d for d in reversed(docs) if d.get("_valor", 0) > umbral][:3]
     return {
         "estadisticas": {"media": round(media, 2), "desviacion_std": round(std, 2),
                          "q1": round(q1, 2), "q3": round(q3, 2),
@@ -114,9 +118,9 @@ def anomalias_financieras() -> dict:
         "top_3_anomalos": [
             {"posicion": i + 1, "id_contrato": d.get("id_contrato"),
              "entidad": d.get("nombre_entidad"), "tipo": d.get("tipo_de_contrato"),
-             "estado": d.get("estado_contrato"), "valor": round(v, 2), "es_anomalo": True,
-             "sustento": f"Valor {round(v/umbral,1)}x por encima del umbral IQR"}
-            for i, (v, d) in enumerate(anomalos)
+             "estado": d.get("estado_contrato"), "valor": round(d.get("_valor", 0), 2), "es_anomalo": True,
+             "sustento": f"Valor {round(d.get('_valor', 0)/umbral,1)}x por encima del umbral IQR"}
+            for i, d in enumerate(anomalos)
         ],
     }
 
