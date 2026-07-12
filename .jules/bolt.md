@@ -17,3 +17,7 @@
 ## 2023-10-25 - Push parsing and grouping to Mongo Aggregation Pipelines
 **Learning:** Doing heavy regex string parsing and sorting in Python for O(N) datasets using `find()` is an anti-pattern. Application memory and CPU (due to python string manipulations/regexes for money values like $10,000) can become huge bottlenecks.
 **Action:** Use MongoDB aggregation pipelines with `$addFields` and macro variables like `_TO_DOUBLE` to do type coercion/cleaning at the DB engine level, alongside `$sort` and `$match`.
+
+## 2024-07-12 - [Cache Socrata API Calls in paso1_service]
+**Learning:** [Synchronous API calls to external services (like Socrata) inside endpoint handlers block the application, leading to high latency and timeouts (~30s). Wrapping these calls in `cache.cached()` shifts the bottleneck from real-time network IO to fast DB cache retrievals.]
+**Action:** [Always verify if external API fetches can be cached using the existing `cache_service` to improve endpoint response times, especially for datasets that do not change frequently.]
