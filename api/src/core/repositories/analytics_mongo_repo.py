@@ -81,46 +81,89 @@ def tipos_contrato() -> dict:
     return {"top_5": top5, "total": total, "pct_mayor": pct}
 
 
-# ⚡ Bolt: Replaced python-side document scanning and value parsing with an in-database MongoDB aggregation pipeline.
-# This shifts the heavy string processing, parsing, and sorting workload from application memory to the database engine.
+# ⚡ Bolt: Pushed parsing and grouping to Mongo Aggregation Pipelines for anomaly detection.
+# Avoids reading all documents into Python memory, replacing O(N) memory footprint with O(1) by calculating
+# stats (avg, stdDev, Q1, Q3) and fetching top anomalies entirely inside the database engine.
 def anomalias_financieras() -> dict:
-    pipeline = [
+    base_pipeline = [
         {"$match": {"valor_del_contrato": {"$exists": True, "$ne": None}}},
         {"$addFields": {"_valor": _TO_DOUBLE}},
-        {"$match": {"_valor": {"$gt": 0}}},
+        {"$match": {"_valor": {"$gt": 0}}}
+    ]
+
+    stats_pipeline = base_pipeline + [
+        {"$group": {
+            "_id": None,
+            "media": {"$avg": "$_valor"},
+            "stdDev": {"$stdDevPop": "$_valor"},
+            "count": {"$sum": 1}
+        }}
+    ]
+
+    stats_res = list(_col().aggregate(stats_pipeline))
+    if not stats_res or stats_res[0]["count"] == 0:
+        return {"estadisticas": None, "top_3_anomalos": []}
+
+    stats = stats_res[0]
+    n = stats["count"]
+    media = stats["media"]
+    std = stats.get("stdDev", 0)
+
+    q1_pipeline = base_pipeline + [
+        {"$sort": {"_valor": 1}},
+        {"$skip": n // 4},
+        {"$limit": 1},
+        {"$project": {"_valor": 1}}
+    ]
+    q1_res = list(_col().aggregate(q1_pipeline, allowDiskUse=True))
+    q1 = q1_res[0]["_valor"] if q1_res else 0
+
+    q3_pipeline = base_pipeline + [
+        {"$sort": {"_valor": 1}},
+        {"$skip": 3 * n // 4},
+        {"$limit": 1},
+        {"$project": {"_valor": 1}}
+    ]
+    q3_res = list(_col().aggregate(q3_pipeline, allowDiskUse=True))
+    q3 = q3_res[0]["_valor"] if q3_res else 0
+
+    umbral = q3 + 3 * (q3 - q1)
+
+    anomalos_pipeline = base_pipeline + [
+        {"$match": {"_valor": {"$gt": umbral}}},
+        {"$sort": {"_valor": -1}},
+        {"$limit": 3},
         {"$project": {
             "id_contrato": 1,
             "nombre_entidad": 1,
             "tipo_de_contrato": 1,
             "estado_contrato": 1,
             "_valor": 1
-        }},
-        {"$sort": {"_valor": 1}}
+        }}
     ]
-    docs = list(_col().aggregate(pipeline, allowDiskUse=True))
 
-    n = len(docs)
-    if n == 0:
-        return {"estadisticas": None, "top_3_anomalos": []}
+    anomalos_docs = list(_col().aggregate(anomalos_pipeline, allowDiskUse=True))
 
-    nums = [d.get("_valor", 0) for d in docs]
-    media = sum(nums) / n
-    std = (sum((x - media) ** 2 for x in nums) / n) ** 0.5
-
-    q1, q3 = nums[n // 4], nums[3 * n // 4]
-    umbral = q3 + 3 * (q3 - q1)
-
-    anomalos = [d for d in reversed(docs) if d.get("_valor", 0) > umbral][:3]
     return {
-        "estadisticas": {"media": round(media, 2), "desviacion_std": round(std, 2),
-                         "q1": round(q1, 2), "q3": round(q3, 2),
-                         "umbral_anomalia": round(umbral, 2)},
+        "estadisticas": {
+            "media": round(media, 2),
+            "desviacion_std": round(std, 2),
+            "q1": round(q1, 2),
+            "q3": round(q3, 2),
+            "umbral_anomalia": round(umbral, 2)
+        },
         "top_3_anomalos": [
-            {"posicion": i + 1, "id_contrato": d.get("id_contrato"),
-             "entidad": d.get("nombre_entidad"), "tipo": d.get("tipo_de_contrato"),
-             "estado": d.get("estado_contrato"), "valor": round(d.get("_valor", 0), 2), "es_anomalo": True,
-             "sustento": f"Valor {round(d.get('_valor', 0)/umbral,1)}x por encima del umbral IQR"}
-            for i, d in enumerate(anomalos)
+            {
+                "posicion": i + 1,
+                "id_contrato": d.get("id_contrato"),
+                "entidad": d.get("nombre_entidad"),
+                "tipo": d.get("tipo_de_contrato"),
+                "estado": d.get("estado_contrato"),
+                "valor": round(d.get("_valor", 0), 2),
+                "es_anomalo": True,
+                "sustento": f"Valor {round(d.get('_valor', 0)/umbral,1)}x por encima del umbral IQR" if umbral > 0 else "Valor por encima del umbral IQR"
+            }
+            for i, d in enumerate(anomalos_docs)
         ],
     }
 

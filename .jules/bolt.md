@@ -21,3 +21,7 @@
 ## 2024-07-12 - [Cache Socrata API Calls in paso1_service]
 **Learning:** [Synchronous API calls to external services (like Socrata) inside endpoint handlers block the application, leading to high latency and timeouts (~30s). Wrapping these calls in `cache.cached()` shifts the bottleneck from real-time network IO to fast DB cache retrievals.]
 **Action:** [Always verify if external API fetches can be cached using the existing `cache_service` to improve endpoint response times, especially for datasets that do not change frequently.]
+
+## 2024-08-01 - MongoDB Aggregation Pipeline for Anomaly Detection Memory Optimization
+**Learning:** Performing statistical computations (average, std dev, Q1, Q3) and fetching anomaly outliers in Python for a large dataset (O(N) memory usage for all documents) causes significant memory and CPU overhead.
+**Action:** Replace Python-side computation on `aggregate()` loops with explicit MongoDB aggregation pipelines (e.g. `$avg`, `$stdDevPop`, `$sort` with `$skip` and `$limit`) to compute statistics and retrieve anomalies. This shifts the heavy workload and memory requirements to the database engine, improving backend performance to O(1) memory usage in Python.
