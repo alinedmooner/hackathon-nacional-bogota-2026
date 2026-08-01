@@ -281,6 +281,10 @@ export class VeridiaComponent implements OnInit {
     return `${h.documento}-${h.id_contrato}`;
   }
 
+  trackByIndex(index: number): number {
+    return index;
+  }
+
   // ── Filtros ────────────────────────────────────────────────
   get filteredHallazgos(): Hallazgo[] {
     const q = this.searchText.trim().toLowerCase();
