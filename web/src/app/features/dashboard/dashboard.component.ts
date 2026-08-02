@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { FormatColumnPipe, FormatCurrencyPipe, FormatBytesPipe } from './dashboard.pipes';
 import { ChartConfiguration } from 'chart.js';
 import 'chart.js/auto';
 import {
@@ -28,11 +29,14 @@ interface ChatMessage {
   latency_ms?: number;
 }
 
+// ⚡ Bolt: Implemented Pure Pipes for data formatting (FormatColumnPipe, FormatCurrencyPipe, FormatBytesPipe).
+// This optimization prevents redundant and expensive method invocations on every change detection cycle,
+// leveraging Angular's ability to memoize outputs of pure pipes and significantly reducing main thread overhead.
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule],
+  imports: [FormsModule, FormatColumnPipe, FormatCurrencyPipe, FormatBytesPipe],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
@@ -261,23 +265,8 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  formatColumn(column: string): string {
-    return column.replace(/_/g, ' ');
-  }
-
   isWideColumn(column: string): boolean {
     return column === 'objeto_del_contrato';
-  }
-
-  formatCurrency(value: number): string {
-    return '$' + value.toLocaleString('es-CO', { maximumFractionDigits: 0 });
-  }
-
-  formatBytes(bytes: number | null): string {
-    if (bytes === null) return '-';
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / 1048576).toFixed(1) + ' MB';
   }
 
   setTab(tab: 'records' | 'analytics' | 'archivos' | 'chat'): void {
