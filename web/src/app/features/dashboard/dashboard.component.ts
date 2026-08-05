@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { FormatColumnPipe } from '../../core/pipes/format-column.pipe';
+import { FormatCurrencyPipe } from '../../core/pipes/format-currency.pipe';
+import { FormatBytesPipe } from '../../core/pipes/format-bytes.pipe';
 import { ChartConfiguration } from 'chart.js';
 import 'chart.js/auto';
 import {
@@ -32,7 +35,8 @@ interface ChatMessage {
   selector: 'app-dashboard',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule],
+  // ⚡ Bolt: Added standalone pure pipes to component imports for template formatting to avoid recalculating on every change detection cycle.
+  imports: [FormsModule, FormatColumnPipe, FormatCurrencyPipe, FormatBytesPipe],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
@@ -261,23 +265,11 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  formatColumn(column: string): string {
-    return column.replace(/_/g, ' ');
-  }
+  // ⚡ Bolt: Removed formatColumn, formatCurrency, and formatBytes functions.
+  // Replaced with pure pipes (FormatColumnPipe, FormatCurrencyPipe, FormatBytesPipe) to leverage memoization.
 
   isWideColumn(column: string): boolean {
     return column === 'objeto_del_contrato';
-  }
-
-  formatCurrency(value: number): string {
-    return '$' + value.toLocaleString('es-CO', { maximumFractionDigits: 0 });
-  }
-
-  formatBytes(bytes: number | null): string {
-    if (bytes === null) return '-';
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / 1048576).toFixed(1) + ' MB';
   }
 
   setTab(tab: 'records' | 'analytics' | 'archivos' | 'chat'): void {
@@ -346,7 +338,7 @@ export class DashboardComponent implements OnInit {
     this.chatInput = q;
   }
 
-  trackByIndex(index: number): number {
+  trackByIndex(index: number, item: any): number {
     return index;
   }
 

@@ -25,3 +25,6 @@
 ## 2024-08-01 - MongoDB Aggregation Pipeline for Anomaly Detection Memory Optimization
 **Learning:** Performing statistical computations (average, std dev, Q1, Q3) and fetching anomaly outliers in Python for a large dataset (O(N) memory usage for all documents) causes significant memory and CPU overhead.
 **Action:** Replace Python-side computation on `aggregate()` loops with explicit MongoDB aggregation pipelines (e.g. `$avg`, `$stdDevPop`, `$sort` with `$skip` and `$limit`) to compute statistics and retrieve anomalies. This shifts the heavy workload and memory requirements to the database engine, improving backend performance to O(1) memory usage in Python.
+## 2026-08-05 - Angular Pure Pipes for Data Formatting
+**Learning:** Extracted frequently used data formatting functions (formatColumn, formatCurrency, formatBytes) from Angular component methods to standalone pure pipes in the frontend template to prevent unnecessary function execution during every change detection cycle (memoization).
+**Action:** Leverage Angular pure pipes for data transformation instead of calling component methods directly in templates to optimize change detection performance and avoid re-calculating values that haven't changed.
