@@ -330,6 +330,10 @@ export class VeridiaComponent implements OnInit {
     this.filterEntidad = '';
   }
 
+  trackByIndex(index: number): number {
+    return index;
+  }
+
   toggleFilters(): void {
     this.filtersOpen = !this.filtersOpen;
   }

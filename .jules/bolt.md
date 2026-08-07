@@ -25,3 +25,6 @@
 ## 2024-08-01 - MongoDB Aggregation Pipeline for Anomaly Detection Memory Optimization
 **Learning:** Performing statistical computations (average, std dev, Q1, Q3) and fetching anomaly outliers in Python for a large dataset (O(N) memory usage for all documents) causes significant memory and CPU overhead.
 **Action:** Replace Python-side computation on `aggregate()` loops with explicit MongoDB aggregation pipelines (e.g. `$avg`, `$stdDevPop`, `$sort` with `$skip` and `$limit`) to compute statistics and retrieve anomalies. This shifts the heavy workload and memory requirements to the database engine, improving backend performance to O(1) memory usage in Python.
+## 2026-08-07 - Add trackBy to *ngFor loops
+**Learning:** The previous attempt to also create Angular Pipes introduced unexpected compiler errors and required adding `CommonModule` to components which cascaded into more template parsing issues on this Angular version, while the `*ngFor` optimization is safe and isolated.
+**Action:** Next time when making performance optimizations, stick strictly to the isolated change requested (like trackBy in ngFor) unless pipes are specifically requested, to avoid inadvertently breaking compilation.
