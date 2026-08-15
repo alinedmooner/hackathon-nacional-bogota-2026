@@ -1,3 +1,4 @@
+import { FormatCOPPipe } from '../../core/pipes/formatters.pipe';
 import { ChangeDetectionStrategy, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -20,7 +21,7 @@ import { SOACHA_FOCUS_NODE_ID, SOACHA_GRAFO } from './onboarding/onboarding-soac
   selector: 'app-veridia',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, VeridiaGraphCanvasComponent],
+  imports: [FormsModule, VeridiaGraphCanvasComponent, FormatCOPPipe],
   templateUrl: './veridia.component.html',
 })
 export class VeridiaComponent implements OnInit {
@@ -240,14 +241,6 @@ export class VeridiaComponent implements OnInit {
   }
 
   // ── Helpers de UI ─────────────────────────────────────────
-  formatCOP(value: number | undefined): string {
-    if (value === undefined || value === null) return '—';
-    if (value >= 1_000_000_000_000) return `$${(value / 1_000_000_000_000).toFixed(2)}B COP`;
-    if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(2)}MM COP`;
-    if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M COP`;
-    return `$${value.toLocaleString('es-CO')} COP`;
-  }
-
   formatDate(s: string | undefined): string {
     if (!s) return '—';
     const d = new Date(s);
@@ -275,6 +268,11 @@ export class VeridiaComponent implements OnInit {
       multados:         'border-gold/40 text-gold-deep bg-gold/15',
       puerta_giratoria: 'border-navy/40 text-navy bg-navy/10',
     }[type];
+  }
+
+
+  trackByIndex(index: number): number {
+    return index;
   }
 
   trackByDoc(_i: number, h: Hallazgo): string {
