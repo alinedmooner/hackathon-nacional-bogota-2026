@@ -346,6 +346,7 @@ export class DashboardComponent implements OnInit {
     this.chatInput = q;
   }
 
+  // ⚡ Bolt: Provide a trackByIndex method to use with *ngFor directives to avoid O(N) DOM re-renders and enable O(1) rendering updates when tracking items by their position
   trackByIndex(index: number): number {
     return index;
   }
