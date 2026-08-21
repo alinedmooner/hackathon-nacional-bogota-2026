@@ -277,6 +277,17 @@ export class VeridiaComponent implements OnInit {
     }[type];
   }
 
+  // ⚡ Bolt: trackByIndex helper to enable O(1) DOM updates for array iterators in *ngFor
+  trackByIndex(index: number): number {
+    return index;
+  }
+
+  // ⚡ Bolt: trackByKey helper to enable O(1) DOM updates for keyvalue piped objects in *ngFor
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  trackByKey(index: number, kv: any): string {
+    return kv.key;
+  }
+
   trackByDoc(_i: number, h: Hallazgo): string {
     return `${h.documento}-${h.id_contrato}`;
   }
